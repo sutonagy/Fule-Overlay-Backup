@@ -114,13 +114,32 @@ def make_dir(directory):
         os.makedirs(directory)
 
 
-def time_for_folder():
+def time_for_folder(isFull=False):
     """
     Time now() in this format: %Y_%m_%d__%H_%M
     :return: string time
     """
-    import time
-    return time.strftime('%Y_%m_%d__%H_%M')
+    from datetime import datetime
+    mainap=datetime.now()
+    folderend=mainap.strftime('%y%m%d-%H%M')
+    wd=mainap.weekday()
+    nap=mainap.day
+    honap=mainap.month
+    if isFull:
+        toldalek='f'
+    else:
+        if wd < 6:
+            toldalek='d'
+        else:
+            if nap < 8:
+                if honap == 6:
+                    toldalek='y'
+                else:
+                    toldalek='m'
+            else:
+                toldalek='w'
+    folderend=toldalek+'-'+folderend
+    return folderend
 
 
 def time_for_log():
@@ -250,6 +269,22 @@ def check_ssh(ip, port=22):
     Test ssh connection
     :param ip: ip address or hostname of machine
     :param port: ssh port (default is 22)
+    """
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        s.connect((ip, port))
+        s.shutdown(2)
+        return True
+    except socket.error:
+        return False
+
+
+def check_rsync(ip, port=873):
+    """
+    Test rsync connection
+    :param ip: ip address or hostname of machine
+    :param port: rsync port (default is 873)
     """
     import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

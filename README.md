@@ -5,6 +5,9 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7fc47024f17f4dffa3be08a7a5ab31bd)](https://app.codacy.com/app/MatteoGuadrini/Butterfly-Backup?utm_source=github.com&utm_medium=referral&utm_content=MatteoGuadrini/Butterfly-Backup&utm_campaign=Badge_Grade_Dashboard)
 [![CircleCI](https://circleci.com/gh/MatteoGuadrini/Butterfly-Backup.svg?style=svg)](https://circleci.com/gh/MatteoGuadrini/Butterfly-Backup)
 
+## Contributors
+This project is modified by Laszlo Suto Nagy.
+
 # Butterfly Backup: presentation
 **The plan is great when the backup plan is excellent!**
 
@@ -22,7 +25,7 @@ With Butterfly Backup I can perform single or group backups (Full, Incremental, 
 Naturally through the synergy of rsync and OpenSSH technology and the power of Python..
 
 ## Which platforms support?
-Butterfly Backup can backup Linux, BSD, MacOSX and Windows(with cygwin, see [config docs](https://Butterfly-Backup.readthedocs.io/en/latest/))
+Butterfly Backup can backup Linux, BSD, MacOSX and Windows(with cygwin), see docs.
 
 ## Real uses
 This list consists of only a few examples; applications can be endless:
@@ -41,7 +44,7 @@ This list consists of only a few examples; applications can be endless:
 - List detail of a single backup
 - Backup single PC, with Full,Incremental,Differential and Mirror mode;
 - Backup more PCs, with Full,Incremental,Differential and Mirror mode (with parallelism algorithm);
-- Backup custom folder or predefined data (User,Config,Application,System,Log): see [backup docs](https://butterfly-backup.readthedocs.io/en/latest/#backup)
+- Backup custom folder or predefined data (User,Config,Application,System,Log): see docs.
 - Restore backup on the same PC
 - Restore backup in other PC
 - Restore backup in other operating system
@@ -57,7 +60,6 @@ This list consists of only a few examples; applications can be endless:
 All operation of Butterfly Backup are _server to client_, agent-less. The server must be Unix machine with latest rsync installed.
 This means that all commands must be executed by the backup server. Of course, nothing prevents the backup server from being itself (localhost).
 
-To see all the operations and more examples, see the [docs](https://Butterfly-Backup.readthedocs.io/en/latest/).
 
 ## Test
 If you want to try or test Butterfly Backup before installing it, run the test:
@@ -179,26 +181,8 @@ A backup or restore is performed without any iteration responsibility on the par
 The performances are not altered.
 While all the operations of Butterfly Backup are carried out, the impacted machine can continuously work with _peace of mind_.
 
-## Follow the project
-See the new features in development through this [link](https://tree.taiga.io/project/matteoguadrini-butterfly-backup/kanban).
 
 ## Open source
 Butterfly Backup is a open source project. Any contribute, It's welcome.
 
-**A great thanks**.
 
-For donations, press this
-
-For me
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/guos)
-
-For [Telethon](http://www.telethon.it/)
-
-The Telethon Foundation is a non-profit organization recognized by the Ministry of University and Scientific and Technological Research.
-They were born in 1990 to respond to the appeal of patients suffering from rare diseases.
-Come today, we are organized to dare to listen to them and answers, every day of the year.
-
-<a href="https://www.telethon.it/sostienici/dona-ora"> <img src="https://www.telethon.it/dev/_nuxt/img/c6d474e.svg" alt="Telethon" title="Telethon" width="200" height="104" /> </a>
-
-[Adopt the future](https://www.ioadottoilfuturo.it/)

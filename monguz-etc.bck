@@ -1,0 +1,3 @@
+hostname: sasfacan.crocus.hu
+hostpart: etc
+customdata: [/etc]
