@@ -273,7 +273,9 @@ def check_ssh(ip, port=22):
     import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
+        s.settimeout(60)
         s.connect((ip, port))
+        s.settimeout(None)
         s.shutdown(2)
         return True
     except socket.error:
@@ -289,7 +291,9 @@ def check_rsync(ip, port=873):
     import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
+        s.settimeout(60)
         s.connect((ip, port))
+        s.settimeout(None)
         s.shutdown(2)
         return True
     except socket.error:

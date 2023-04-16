@@ -1290,14 +1290,17 @@ def single_action(args,configfile=None):
                 hostname=hostname+'-'+args.hostpart
             else:
                 hostname_orig=hostname
+            online = True
             if not utility.check_ssh(hostname_orig, port):
                 print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, hostname)
                       + utility.PrintColor.END)
-                continue
+                online = False
+                # continue
             if not utility.check_rsync(hostname_orig, rport):
                 print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, hostname)
                       + utility.PrintColor.END)
-                continue
+                online = False
+                # continue
             if not args.verbose:
                 if check_configuration(hostname_orig):
                     print(utility.PrintColor.RED + '''ERROR: For bulk or silently backup, deploy configuration!
@@ -1368,8 +1371,7 @@ def single_action(args,configfile=None):
         # run_in_parallel(start_process, cmds, args.parallel)
         # print('Single_action cmd: ',cmd)
         #print('Single_action log: ',log_args)
-        return cmd, log_args
-
+        return cmd, log_args, online
     # Check restore session
     if args.action == 'restore':
         # Check custom ssh port
@@ -1747,14 +1749,15 @@ if __name__ == '__main__':
                 if file.endswith(args.configext):
                     cfile=root+'/'+file
                     #print('Config: ',file)
-                    aktcmd, aktlog = single_action(args,cfile)
+                    aktcmd, aktlog, online = single_action(args,cfile)
                     #print('Cmd: ',aktcmd)
                     #print('Log: ',aktlog)
-                    cmds.append(' '.join(aktcmd))
-                    aktlogs.append(aktlog)
-                    #print('Aktlogs: ',aktlogs)
-                    aktconfig=file.partition('.')[0]
-                    remotes.append(aktconfig)
+                    if online:
+                        cmds.append(' '.join(aktcmd))
+                        aktlogs.append(aktlog)
+                        #print('Aktlogs: ',aktlogs)
+                        aktconfig=file.partition('.')[0]
+                        remotes.append(aktconfig)
     else:
         single_action(args,args.configfile)
     #print('Vege cmds: ',cmds)
