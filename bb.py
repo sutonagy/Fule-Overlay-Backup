@@ -1306,8 +1306,8 @@ def single_action(args,configfile=None):
                 'status': args.log,
                 'destination': os.path.join(args.destination, hostname, 'general.log')
             }
-            #print('Log_args: ',log_args)
-            logs.append(log_args)
+            # print('Log_args: ',log_args)
+            # logs.append(log_args)
             catalog_path = os.path.join(args.destination, '.catalog.cfg')
             backup_catalog = read_catalog(catalog_path)
             # Compose command
