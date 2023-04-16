@@ -22,5 +22,6 @@ port: null
 rport: null
 sfrom: null
 logdirectory: /backup/rsync/log/
+configfile: null
 configdir: /home/alma/Butterfly-Backup
 configext: .bck
