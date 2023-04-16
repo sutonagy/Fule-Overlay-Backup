@@ -1787,6 +1787,7 @@ if __name__ == '__main__':
                         for file in files:
                             if file.endswith(args.configext):
                                 cfile=root+'/'+file
+                                print('Dirconfig: ',cfile)
                                 opt = vars(args)
                                 args = yaml.load(open(cfile), Loader=yaml.FullLoader)
                                 opt.update(args)
