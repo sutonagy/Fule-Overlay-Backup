@@ -1765,7 +1765,7 @@ if __name__ == '__main__':
     #print('Vege logs: ',logs)
     #print('Vege remotes: ',remotes)
     #print('Vege: ',args)
-    print('Folderend: ',args.folderend)
+    print('Folderend: ',folderend)
     if cmds:
         #print('Vege cmds: ',cmds)
         #print('Vege logs: ',logs)
