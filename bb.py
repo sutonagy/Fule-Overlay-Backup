@@ -157,10 +157,12 @@ def run_in_parallel(fn, commands, limit):
     # Start a Pool with "limit" processes
     pool = Pool(processes=limit)
     jobs = []
-
+    print('Parallel commands: ',commands)
+    print('Parallel logs: ',logs)
+    print('Parallel remotes: ',remotes)
     for command, plog, remote in zip(commands, logs, remotes):
         # Run the function
-        # print('Parallel command: ',command)
+        print('Parallel command: ',command)
         proc = pool.apply_async(func=fn, args=(command,remote))
         jobs.append(proc)
         print('Start {0} {1}'.format(args.action, plog['hostname']))
