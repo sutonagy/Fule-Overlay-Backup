@@ -70,6 +70,7 @@ VERSION = '1.8.sun02'
 
 # endregion
 
+global is_last_full
 
 def print_version(version):
     """
@@ -302,7 +303,6 @@ def compose_command(flags, host):
     :return: list
     """
     
-    global is_last_full
     is_last_full = False
     print_verbose(args.verbose, 'Build a rsync command')
     # Set rsync binary
