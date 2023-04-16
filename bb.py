@@ -157,9 +157,9 @@ def run_in_parallel(fn, commands, limit):
     # Start a Pool with "limit" processes
     pool = Pool(processes=limit)
     jobs = []
-    print('Parallel commands: ',commands)
-    print('Parallel aktlogs: ',aktlogs)
-    print('Parallel remotes: ',remotes)
+    #print('Parallel commands: ',commands)
+    #print('Parallel aktlogs: ',aktlogs)
+    #print('Parallel remotes: ',remotes)
     for command, plog, remote in zip(commands, aktlogs, remotes):
         # Run the function
         # print('Parallel command: ',command)
