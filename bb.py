@@ -158,9 +158,9 @@ def run_in_parallel(fn, commands, limit):
     pool = Pool(processes=limit)
     jobs = []
     print('Parallel commands: ',commands)
-    print('Parallel logs: ',logs)
+    print('Parallel aktlogs: ',aktlogs)
     print('Parallel remotes: ',remotes)
-    for command, plog, remote in zip(commands, logs, remotes):
+    for command, plog, remote in zip(commands, aktlogs, remotes):
         # Run the function
         # print('Parallel command: ',command)
         proc = pool.apply_async(func=fn, args=(command,remote))
@@ -1747,7 +1747,7 @@ if __name__ == '__main__':
                     #print('Log: ',aktlog)
                     cmds.append(' '.join(aktcmd))
                     aktlogs.append(aktlog)
-                    print('Logs: ',aktlogs)
+                    print('Aktlogs: ',aktlogs)
                     aktconfig=file.partition('.')[0]
                     remotes.append(aktconfig)
     else:
