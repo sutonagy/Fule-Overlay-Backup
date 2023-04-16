@@ -1228,7 +1228,12 @@ def single_action(args,configfile=None):
         # print args
         parser.print_help()
     
+    if args.action != 'backup':
+        print(utility.PrintColor.RED +
+                "ERROR: Only 'backup' mode works! '{0}' mode has not yet tested".format(args.action) + utility.PrintColor.END)
+        exit(1)
     # Check config session
+
     if args.action == 'config':
         if args.new_conf:
             new_configuration()

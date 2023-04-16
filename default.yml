@@ -4,7 +4,8 @@ customdata: [/etc, /home, /root, /usr, /var, /boot, /fejleszt, /opt, /pki, /*ada
 user: root
 type: Unix
 exclude: ['*/*tmp/', '*/*temp/', '*/*cache/', '*/*lock/', '*/log/', '/home/vscode/.vscode-server', '/root/.vscode-server', '/var/lib/mysql/*/', '/var/lib/pgsql/*/data/*/', '*/*backup*/', '*/*rsync*/', '/var/newmail/*/', '/var/oldmail/*/']
-action: backup
+#action: backup
+action: export
 verbose: False
 log: True
 dry_run: False
