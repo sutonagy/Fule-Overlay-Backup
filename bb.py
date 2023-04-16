@@ -1782,6 +1782,7 @@ if __name__ == '__main__':
                 args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
                 opt.update(args)
                 args = types.SimpleNamespace(**opt)
+                print('Args.configdir: ',args.configdir)
                 if args.configdir:
                     for root, dirs, files in os.walk(args.configdir):
                         for file in files:
