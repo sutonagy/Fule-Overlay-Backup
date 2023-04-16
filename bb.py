@@ -1799,10 +1799,10 @@ if __name__ == '__main__':
                                     hostname=args.hostname
                                 mentodir = args.destination + '/' + hostname
                                 second_dir = []
-                                for root, dirs, files in os.walk(mentodir):
-                                    dirs.sort(reverse=True)
+                                for root2, dirs2, files2 in os.walk(mentodir):
+                                    dirs2.sort(reverse=True)
                                     dirnum = 0
-                                    for dir in dirs:
+                                    for dir in dirs2:
                                         print('Dir: ',dir)
                                         if dir.startswith(dirkezdo):
                                             print('Dirkezdo: ',dir)
