@@ -1771,5 +1771,39 @@ if __name__ == '__main__':
         #print('Vege remotes: ',remotes)
         #print('Vege: ',args)
         #exit(0)
-        run_in_parallel(start_process, cmds, 8)
-        print('Folderend: ',folderend)
+        #run_in_parallel(start_process, cmds, 8)
+        
+        #regiek torlese
+        direlo = utility.time_for_folder(False)
+        dirkezdo = direlo[0]
+        if dirkezdo != 'd':
+            if args.mainconfig:
+                opt = vars(args)
+                args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
+                opt.update(args)
+                args = types.SimpleNamespace(**opt)
+                if args.configdir:
+                    for root, dirs, files in os.walk(args.configdir):
+                        for file in files:
+                            if file.endswith(args.configext):
+                                cfile=root+'/'+file
+                                opt = vars(args)
+                                args = yaml.load(open(cfile), Loader=yaml.FullLoader)
+                                opt.update(args)
+                                args = types.SimpleNamespace(**opt)
+                                if args.hostpart:
+                                    hostname=args.hostname+'-'+args.hostpart
+                                else:
+                                    hostname=args.hostname
+                                mentodir = args.destination + '/' + hostname
+                                second_dir = []
+                                for root, dirs, files in os.walk(mentodir):
+                                    dirs.sort(reverse=True)
+                                    dirnum = 0
+                                    for dir in dirs:
+                                        print('Dir: ',dir)
+                                        if dir.startswith(dirkezdo):
+                                            print('Dirkezdo: ',dir)
+                                            dirnum += 1
+                                            if dirnum == 2:
+                                                second_dir[dirkezdo] = dir
