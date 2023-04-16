@@ -1733,7 +1733,7 @@ if __name__ == '__main__':
         remotes = []
         for root, dirs, files in os.walk(args.configdir):
             for file in files:
-                if file.endswith(".bck"):
+                if file.endswith(args.configext):
                     cfile=root+'/'+file
                     #print('Config: ',file)
                     aktcmd, aktlog = single_action(args,cfile)
