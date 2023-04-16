@@ -53,7 +53,6 @@ EXAMPLES
         O_O>$ bb --help
 """
 
-import pdb
 import argparse
 import configparser
 import os
@@ -70,10 +69,6 @@ VERSION = '1.8.sun02'
 
 
 # endregion
-
-pdb.set_trace()
-
-global logdirectory
 
 
 def print_version(version):
