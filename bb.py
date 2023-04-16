@@ -1747,7 +1747,7 @@ if __name__ == '__main__':
                     #print('Log: ',aktlog)
                     cmds.append(' '.join(aktcmd))
                     aktlogs.append(aktlog)
-                    print('Aktlogs: ',aktlogs)
+                    #print('Aktlogs: ',aktlogs)
                     aktconfig=file.partition('.')[0]
                     remotes.append(aktconfig)
     else:
