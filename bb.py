@@ -1726,7 +1726,7 @@ if __name__ == '__main__':
         args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
         opt.update(args)
         args = types.SimpleNamespace(**opt)
-        #print('Mainconfig: ',args)
+        print('Mainconfig: ',args)
     if args.configdir:
         cmds = []
         aktlogs = []
@@ -1735,7 +1735,7 @@ if __name__ == '__main__':
             for file in files:
                 if file.endswith(args.configext):
                     cfile=root+'/'+file
-                    #print('Config: ',file)
+                    print('Config: ',file)
                     aktcmd, aktlog = single_action(args,cfile)
                     #print('Cmd: ',aktcmd)
                     #print('Log: ',aktlog)
