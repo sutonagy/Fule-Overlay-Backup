@@ -1,4 +1,5 @@
 hostname: sasfacan.crocus.hu
+hostpart: null
 destination: /backup/monguz-gateway
 mode: Differential
 customdata: [/etc, /home, /root]
