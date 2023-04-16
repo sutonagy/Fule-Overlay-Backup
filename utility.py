@@ -273,10 +273,14 @@ def check_ssh(ip, port=22):
     import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
+        print(PrintColor.YELLOW + 'Waiting for port {0} on host {1} ...'.format(port, ip)
+                + PrintColor.END)
         s.settimeout(60)
         s.connect((ip, port))
         s.settimeout(None)
         s.shutdown(2)
+        print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
+                + PrintColor.END)
         return True
     except socket.error:
         return False
@@ -291,10 +295,14 @@ def check_rsync(ip, port=873):
     import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
+        print(PrintColor.YELLOW + 'Waiting for port {0} on host {1} ...'.format(port, ip)
+                + PrintColor.END)
         s.settimeout(60)
         s.connect((ip, port))
         s.settimeout(None)
         s.shutdown(2)
+        print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
+                + PrintColor.END)
         return True
     except socket.error:
         return False
