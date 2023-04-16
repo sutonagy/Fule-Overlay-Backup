@@ -579,6 +579,9 @@ def compose_destination(computer_name, folder):
     first_layer = os.path.join(folder, computer_name)
     # Check if backup is a Mirror or not
     if args.mode != 'Mirror':
+        print('Is_last_full: {0}'.format(is_last_full))
+        print('Computer_name: {0}'.format(computer_name))
+        print('Folder: {0}'.format(folder))
         second_layer = os.path.join(first_layer, utility.time_for_folder(is_last_full))
     else:
         second_layer = os.path.join(first_layer, 'mirror_backup')
