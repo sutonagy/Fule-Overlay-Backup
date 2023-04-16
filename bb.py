@@ -697,6 +697,7 @@ def read_catalog(catalog):
     :param catalog: catalog file
     :return: catalog file (configparser)
     """
+    print('Read catalog {0}'.format(catalog))
     config = configparser.ConfigParser()
     file = config.read(catalog)
     if file:
