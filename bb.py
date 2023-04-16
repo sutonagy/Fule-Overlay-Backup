@@ -162,7 +162,7 @@ def run_in_parallel(fn, commands, limit):
     print('Parallel remotes: ',remotes)
     for command, plog, remote in zip(commands, logs, remotes):
         # Run the function
-        print('Parallel command: ',command)
+        # print('Parallel command: ',command)
         proc = pool.apply_async(func=fn, args=(command,remote))
         jobs.append(proc)
         print('Start {0} {1}'.format(args.action, plog['hostname']))
@@ -1257,8 +1257,8 @@ def single_action(args,configfile=None):
         # Check custom rsync port
         rport = args.rport if args.rport else 873
         hostnames = []
-        cmds = []
-        logs = []
+        # cmds = []
+        # logs = []
         if args.hostname:
             # Computer list
             hostnames.append(args.hostname)
