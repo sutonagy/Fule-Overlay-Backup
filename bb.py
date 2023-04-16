@@ -1743,12 +1743,12 @@ if __name__ == '__main__':
                     #print('Log: ',aktlog)
                     cmds.append(' '.join(aktcmd))
                     aktlogs.append(aktlog)
-                    #print('Logs: ',aktlogs)
+                    print('Logs: ',aktlogs)
                     aktconfig=file.partition('.')[0]
                     remotes.append(aktconfig)
     else:
         single_action(args,args.configfile)
-    #print('Vege cmds: ',cmds)
+    print('Vege cmds: ',cmds)
     #print('Vege logs: ',logs)
     #print('Vege remotes: ',remotes)
     #print('Vege: ',args)
@@ -1757,6 +1757,6 @@ if __name__ == '__main__':
         #print('Vege logs: ',logs)
         #print('Vege remotes: ',remotes)
         #print('Vege: ',args)
-        #exit(0)
+        exit(0)
         run_in_parallel(start_process, cmds, 8)
 
