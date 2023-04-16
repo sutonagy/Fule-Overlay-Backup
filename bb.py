@@ -230,6 +230,7 @@ def start_process(command,remote=''):
     else:
         p = subprocess.call(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     """
+    global folderend
     folderend=utility.time_for_folder(is_last_full)
     logfile=args.logdirectory+remote+'-'+folderend+'.log'
     errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
@@ -1764,6 +1765,7 @@ if __name__ == '__main__':
     #print('Vege logs: ',logs)
     #print('Vege remotes: ',remotes)
     #print('Vege: ',args)
+    print('Folderend: ',args.folderend)
     if cmds:
         #print('Vege cmds: ',cmds)
         #print('Vege logs: ',logs)
