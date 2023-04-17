@@ -1865,6 +1865,8 @@ if __name__ == '__main__':
                                                         print('Dir2: ',dir)                                       
                                                         if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
                                                             print('Dirtorlo: ',dir)
+                                                            forras1 = mentodir + '/' + dir
+                                                            print('Forras1: ',forras1)
                                                             forras = mentodir + '/' + dir + '/' + '*'
                                                             print('Forras: ',forras)
                                                             cel = mentodir + '/' + second_dir[dirnap]
