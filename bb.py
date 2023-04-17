@@ -1213,6 +1213,8 @@ def parse_arguments():
     parser_object.add_argument('--config-dir-extension', '-X', help='Extension  for config files in configdir (.ext)', dest='configext', action='store')
     parser_object.add_argument('--config-dir', '-G', help='Config dir for config files with extension defined in --config-dir-extension', dest='configdir', action='store')
     parser_object.add_argument('--main-config-file', '-M', help='Main config file in configdir for defaults', dest='mainconfig', action='store')
+    parser_object.add_argument('--date-time', '-K', help='Set backup date and time ti given instead of now. Format: %y%m%d%H%M', dest='datetime', action='store')
+    
     return parser_object
 
 def single_action(args,configfile=None):
@@ -1730,7 +1732,8 @@ def single_action(args,configfile=None):
 
 
 if __name__ == '__main__':
-    global std
+    import datetime
+    global std, datetime_spec
     parser = parse_arguments()
     args = parser.parse_args()
     if args.version:
@@ -1741,6 +1744,8 @@ if __name__ == '__main__':
         opt.update(args)
         args = types.SimpleNamespace(**opt)
         #print('Mainconfig: ',args)
+    utility.datetime_spec=datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
+    
     if args.configdir:
         cmds = []
         aktlogs = []

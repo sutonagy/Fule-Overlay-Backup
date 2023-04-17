@@ -21,6 +21,19 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+global datetime_spec
+
+def get_today_datetime():
+    """
+    Get today date and time
+    :return: datetime object
+    """
+    print('datetime_spec: ', datetime_spec)
+    import datetime
+    if datetime_spec:
+        return datetime_spec
+    else:
+        return datetime.datetime.now()
 
 class PrintColor:
     """
@@ -120,7 +133,7 @@ def time_for_folder(isFull=False):
     :return: string time
     """
     from datetime import datetime
-    mainap=datetime.now()
+    mainap=get_today_datetime
     folderend=mainap.strftime('%y%m%d-%H%M')
     wd=mainap.weekday()
     nap=mainap.day
@@ -162,7 +175,7 @@ def cleanup(path, date, days):
     from shutil import rmtree
     from time import mktime
     from datetime import datetime, timedelta
-    d = datetime.today() - timedelta(days=days)
+    d = get_today_datetime() - timedelta(days=days)
     seconds = mktime(d.timetuple())
     date_s = mktime(string_to_time(date).timetuple())
     if date_s < seconds:
@@ -322,7 +335,7 @@ def archive(path, date, days, destination):
     from time import mktime
     from datetime import datetime, timedelta
 
-    d = datetime.today() - timedelta(days=days)
+    d = get_today_datetime - timedelta(days=days)
     seconds = mktime(d.timetuple())
     date_s = mktime(string_to_time(date).timetuple())
     if date_s < seconds:
