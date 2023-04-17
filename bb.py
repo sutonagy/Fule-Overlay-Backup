@@ -1804,6 +1804,7 @@ if __name__ == '__main__':
                                 else:
                                     hostname=args.hostname
                                 mentodir = args.destination + '/' + hostname
+                                print('Mentodir: ',mentodir)
                                 second_dir = []
                                 for root2, dirs2, files2 in os.walk(mentodir):
                                     dirs2.sort(reverse=True)
