@@ -1816,7 +1816,7 @@ if __name__ == '__main__':
                                 second_dir = {}
                                 for root2, dirs2, files2 in os.walk(mentodir):
                                     if root2 == mentodir:
-                                        dirs2.sort(reverse=False)
+                                        dirs2.sort(reverse=True)
                                         dirnum = 0
                                         for dir in dirs2:
                                             print('Dir: ',dir)                                       
@@ -1826,7 +1826,7 @@ if __name__ == '__main__':
                                                 if dirnum == 2:
                                                     second_dir[dirnap] = dir
                                                     print('Second dir: ',second_dir[dirnap])
-                                                    dirs2.sort(reverse=True)
+                                                    dirs2.sort(reverse=False)
                                                     for dir in dirs2:
                                                         print('Dir2: ',dir)                                       
                                                         if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
