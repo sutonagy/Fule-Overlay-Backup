@@ -1810,7 +1810,7 @@ if __name__ == '__main__':
                                     dirnum = 0
                                     for dir in dirs2:
                                         print('Dir: ',dir)                                       
-                                        if dir.substr(12,1) == dirnap:
+                                        if dir.rfind(dirnap) != -1:
                                             print('Dirkezdo: ',dir)
                                             dirnum += 1
                                             if dirnum == 2:
