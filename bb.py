@@ -1213,7 +1213,7 @@ def parse_arguments():
     parser_object.add_argument('--config-dir-extension', '-X', help='Extension  for config files in configdir (.ext)', dest='configext', action='store')
     parser_object.add_argument('--config-dir', '-G', help='Config dir for config files with extension defined in --config-dir-extension', dest='configdir', action='store')
     parser_object.add_argument('--main-config-file', '-M', help='Main config file in configdir for defaults', dest='mainconfig', action='store')
-    parser_object.add_argument('--date-time', '-K', help='Set backup date and time ti given instead of now. Format: %y%m%d%H%M', dest='datetime', action='store')
+    parser_object.add_argument('--date-time', '-K', help='Set backup date and time ti given instead of now (For testing only). Format: %y%m%d%H%M', dest='datetime', action='store')
     
     return parser_object
 
@@ -1807,12 +1807,13 @@ if __name__ == '__main__':
                                 print('Mentodir: ',mentodir)
                                 second_dir = []
                                 for root2, dirs2, files2 in os.walk(mentodir):
-                                    dirs2.sort(reverse=True)
-                                    dirnum = 0
-                                    for dir in dirs2:
-                                        print('Dir: ',dir)                                       
-                                        if dir.rfind(dirnap) != -1:
-                                            print('Dirkezdo: ',dir)
-                                            dirnum += 1
-                                            if dirnum == 2:
-                                                second_dir[dirnap] = dir
+                                    if root2 == mentodir:
+                                        dirs2.sort(reverse=True)
+                                        dirnum = 0
+                                        for dir in dirs2:
+                                            print('Dir: ',dir)                                       
+                                            if dir.rfind(dirnap) != -1:
+                                                print('Dirkezdo: ',dir)
+                                                dirnum += 1
+                                                if dirnum == 2:
+                                                    second_dir[dirnap] = dir
