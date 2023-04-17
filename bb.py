@@ -1871,7 +1871,7 @@ if __name__ == '__main__':
                                                             print('Forras: ',forras)
                                                             cel = mentodir + '/' + second_dir[dirnap]
                                                             print('Cel: ',cel)
-                                                            p=subprocess.run(['cp','-aurf',forras,cel])
+                                                            p=subprocess.run(['cp','-aurfv',forras,cel])
                                                             print('P: ',p)
                                                             #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
                                                             catalog_path = args.destination + '/' + '.catalog.cfg'
