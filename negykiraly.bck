@@ -1,4 +1,4 @@
 hostname: sasfacan.crocus.hu
-hostpart: null
+hostpart: negykiraly
 customdata: [/etc, /home]
 rport: 18075
