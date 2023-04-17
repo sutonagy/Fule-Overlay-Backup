@@ -133,7 +133,7 @@ def time_for_folder(isFull=False):
     :return: string time
     """
     from datetime import datetime
-    mainap=get_today_datetime
+    mainap=get_today_datetime()
     folderend=mainap.strftime('%y%m%d-%H%M')
     wd=mainap.weekday()
     nap=mainap.day
