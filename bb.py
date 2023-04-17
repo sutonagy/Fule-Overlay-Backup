@@ -1783,6 +1783,14 @@ if __name__ == '__main__':
         dirnap = direlo[12]
         print('Dirnap: ',dirnap)
         if dirnap != 'd':
+            if dirnap == 'w':
+                torlonap = 'd'
+            elif dirnap == 'm':
+                torlonap = 'w'
+            elif dirnap == 'y':
+                torlonap = 'm'
+            else:
+                torlonap = ''
             if args.mainconfig:
                 opt = vars(args)
                 args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
@@ -1805,10 +1813,10 @@ if __name__ == '__main__':
                                     hostname=args.hostname
                                 mentodir = args.destination + '/' + hostname
                                 print('Mentodir: ',mentodir)
-                                second_dir = []
+                                second_dir = {}
                                 for root2, dirs2, files2 in os.walk(mentodir):
                                     if root2 == mentodir:
-                                        dirs2.sort(reverse=True)
+                                        dirs2.sort(reverse=False)
                                         dirnum = 0
                                         for dir in dirs2:
                                             print('Dir: ',dir)                                       
@@ -1817,3 +1825,9 @@ if __name__ == '__main__':
                                                 dirnum += 1
                                                 if dirnum == 2:
                                                     second_dir[dirnap] = dir
+                                                    print('Second dir: ',second_dir[dirnap])
+                                        dirs2.sort(reverse=True)
+                                        for dir in dirs2:
+                                            print('Dir2: ',dir)                                       
+                                            if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
+                                                print('Dirtorlo: ',dir)                                        
