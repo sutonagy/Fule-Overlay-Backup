@@ -54,6 +54,7 @@ action:
     --rsync-path, -R        Select a custom rsync path.
     --bwlimit, -b           Bandwidth limit in KBPS.
     --ssh-port, -P          Custom ssh port.
+    --rsync-port, -Y        Custom rsync port.
     --exclude EXCLUDE [EXCLUDE ...], -E EXCLUDE [EXCLUDE ...]
                            Exclude pattern
     --start-from ID, -s ID
@@ -94,6 +95,7 @@ action:
     --rsync-path, -R        Select a custom rsync path.
     --bwlimit, -b           Bandwidth limit in KBPS.
     --ssh-port, -P          Custom ssh port.
+    --rsync-port, -Y        Custom rsync port.
     --exclude EXCLUDE [EXCLUDE ...], -E EXCLUDE [EXCLUDE ...]
                            Exclude pattern
 
@@ -147,6 +149,7 @@ Deploy configuration:
     --rsync-path, -R      Select a custom rsync path.
     --bwlimit, -b         Bandwidth limit in KBPS.
     --ssh-port, -P        Custom ssh port.
+    --rsync-port, -Y        Custom rsync port.
 
 .B optional arguments
 [OPTIONS]

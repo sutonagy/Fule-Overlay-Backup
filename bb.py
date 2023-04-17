@@ -20,6 +20,8 @@
 #     You should have received a copy of the GNU General Public License
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
+#     Modified by Laszlo Suto Nagy (Sun)
+#
 """
 NAME
     Butterfly Backup - backup/restore/archive tool , agentless
@@ -57,15 +59,18 @@ import os
 import subprocess
 import utility
 import time
+import yaml
+import types
 from multiprocessing import Pool
 from utility import print_verbose
 
 # region Global Variables
-VERSION = '1.8.0'
+VERSION = '1.8.sun02'
 
 
 # endregion
 
+global is_last_full
 
 def print_version(version):
     """
@@ -152,10 +157,13 @@ def run_in_parallel(fn, commands, limit):
     # Start a Pool with "limit" processes
     pool = Pool(processes=limit)
     jobs = []
-
-    for command, plog in zip(commands, logs):
+    #print('Parallel commands: ',commands)
+    #print('Parallel aktlogs: ',aktlogs)
+    #print('Parallel remotes: ',remotes)
+    for command, plog, remote in zip(commands, aktlogs, remotes):
         # Run the function
-        proc = pool.apply_async(func=fn, args=(command,))
+        # print('Parallel command: ',command)
+        proc = pool.apply_async(func=fn, args=(command,remote))
         jobs.append(proc)
         print('Start {0} {1}'.format(args.action, plog['hostname']))
         print_verbose(args.verbose, "rsync command: {0}".format(command))
@@ -171,10 +179,12 @@ def run_in_parallel(fn, commands, limit):
         time.sleep(5)
 
     # Check exit code of command
-    for p, command, plog in zip(jobs, commands, logs):
+    for p, command, plog in zip(jobs, commands, aktlogs):
         if p.get() != 0:
             print(utility.PrintColor.RED + 'ERROR: Command {0} exit with code: {1}'.format(command, p.get()) +
                   utility.PrintColor.END)
+            utility.write_log(log_args['status'], plog['destination'], 'INFO',
+                              'ERROR: Command {0} exit with code: {1} on {2}'.format(command, p.get(), plog['hostname']))
             utility.write_log(log_args['status'], plog['destination'], 'ERROR',
                               'Finish process {0} on {1} with error:{2}'.format(args.action, plog['hostname'], p.get()))
             if args.action == 'backup':
@@ -187,6 +197,8 @@ def run_in_parallel(fn, commands, limit):
 
         else:
             print(utility.PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + utility.PrintColor.END)
+            utility.write_log(log_args['status'], plog['destination'], 'INFO',
+                              'SUCCESS: Command {0} on {1}'.format(command, plog['hostname']))
             utility.write_log(log_args['status'], plog['destination'], 'INFO',
                               'Finish process {0} on {1}'.format(args.action, plog['hostname']))
             if args.action == 'backup':
@@ -202,11 +214,13 @@ def run_in_parallel(fn, commands, limit):
     pool.join()
 
 
-def start_process(command):
+def start_process(command,remote=''):
     """
     Start rsync commands
     :param command: rsync list command
     :return: command
+    """
+    
     """
     fd = get_std_out()
     if fd == 'DEVNULL':
@@ -215,6 +229,14 @@ def start_process(command):
         p = subprocess.call(command, shell=True)
     else:
         p = subprocess.call(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    """
+    global folderend
+    folderend=utility.time_for_folder(is_last_full)
+    logfile=args.logdirectory+remote+'-'+folderend+'.log'
+    errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
+    fo = open(logfile,'w')
+    fe = open(errfile,'w')
+    p = subprocess.call(command, shell=True, stdout=fo, stderr=fe)
     return p
 
 
@@ -283,6 +305,9 @@ def compose_command(flags, host):
     :param host: Hostname of machine
     :return: list
     """
+    
+    global is_last_full
+    is_last_full = False
     print_verbose(args.verbose, 'Build a rsync command')
     # Set rsync binary
     if flags.rsync:
@@ -295,40 +320,45 @@ def compose_command(flags, host):
             command = ['rsync']
     else:
         command = ['rsync']
+    #print(catalog_path)
     catalog = read_catalog(catalog_path)
+    #print(catalog)
     if flags.action == 'backup':
         # Set mode option
         if flags.mode == 'Full':
+            is_last_full = True
             command.append('-ah')
-            command.append('--no-links')
+            command.append('--links')
             # Write catalog file
             write_catalog(catalog_path, backup_id, 'type', 'Full')
         elif flags.mode == 'Incremental':
             last_bck = get_last_backup(catalog)
             if last_bck:
                 command.append('-ahu')
-                command.append('--no-links')
+                command.append('--links')
                 if not flags.sfrom:
                     command.append('--link-dest={0}'.format(last_bck[0]))
                 # Write catalog file
                 write_catalog(catalog_path, backup_id, 'type', 'Incremental')
             else:
+                is_last_full = True
                 command.append('-ah')
-                command.append('--no-links')
+                command.append('--links')
                 # Write catalog file
                 write_catalog(catalog_path, backup_id, 'type', 'Full')
         elif flags.mode == 'Differential':
             last_full = get_last_full(catalog)
             if last_full:
                 command.append('-ahu')
-                command.append('--no-links')
+                command.append('--links')
                 if not flags.sfrom:
                     command.append('--link-dest={0}'.format(last_full[0]))
                 # Write catalog file
                 write_catalog(catalog_path, backup_id, 'type', 'Differential')
             else:
+                is_last_full = True
                 command.append('-ah')
-                command.append('--no-links')
+                command.append('--links')
                 # Write catalog file
                 write_catalog(catalog_path, backup_id, 'type', 'Full')
         elif flags.mode == 'Mirror':
@@ -338,7 +368,8 @@ def compose_command(flags, host):
             write_catalog(catalog_path, backup_id, 'type', 'Mirror')
         # Set verbosity
         if flags.verbose:
-            command.append('-vP')
+#            command.append('-vP')
+            command.append('-v')
         # Set quite mode
         if flags.skip_err:
             command.append('--quiet')
@@ -351,6 +382,9 @@ def compose_command(flags, host):
         # Set ssh custom port
         if flags.port:
             command.append('--rsh "ssh -p {0}"'.format(flags.port))
+        # Set rsync custom port
+        if flags.rport:
+            command.append('--port={0}'.format(flags.rport))
         # Set I/O timeout
         if flags.timeout:
             command.append('--timeout={0}'.format(flags.timeout))
@@ -372,7 +406,8 @@ def compose_command(flags, host):
     elif flags.action == 'restore':
         command.append('-ahu --no-perms --no-owner --no-group')
         if flags.verbose:
-            command.append('-vP')
+#            command.append('-vP')
+            command.append('-v')
             # Set quite mode
         if flags.skip_err:
             command.append('--quiet')
@@ -389,6 +424,9 @@ def compose_command(flags, host):
         # Set ssh custom port
         if flags.port:
             command.append('--rsh "ssh -p {0}"'.format(flags.port))
+        # Set rsync custom port
+        if flags.rport:
+            command.append('--port={0}'.format(flags.rport))
         # Set dry-run mode
         if flags.dry_run:
             command.append('--dry-run')
@@ -407,7 +445,8 @@ def compose_command(flags, host):
     elif flags.action == 'export':
         command.append('-ahu --no-perms --no-owner --no-group')
         if flags.verbose:
-            command.append('-vP')
+#            command.append('-vP')
+            command.append('-v')
             # Set quite mode
         if flags.skip_err:
             command.append('--quiet')
@@ -439,6 +478,9 @@ def compose_command(flags, host):
         # Set ssh custom port
         if flags.port:
             command.append('--rsh "ssh -p {0}"'.format(flags.port))
+        # Set rsync custom port
+        if flags.rport:
+            command.append('--port={0}'.format(flags.rport))
         # No copy symbolic link
         if flags.all:
             command.append('--safe-links')
@@ -516,7 +558,7 @@ def compose_restore_src_dst(backup_os, restore_os, restore_path):
                 return rsrc, rdst
         else:
             rsrc = restore_path
-            rdst = os.path.join(r_folders['System'], 'restore_{0}'.format(utility.time_for_folder()))
+            rdst = os.path.join(r_folders['System'], 'restore_{0}'.format(utility.time_for_folder(is_last_full)))
             if rsrc and rdst:
                 return rsrc, rdst
 
@@ -541,7 +583,10 @@ def compose_destination(computer_name, folder):
     first_layer = os.path.join(folder, computer_name)
     # Check if backup is a Mirror or not
     if args.mode != 'Mirror':
-        second_layer = os.path.join(first_layer, utility.time_for_folder())
+        #print('Is_last_full: {0}'.format(is_last_full))
+        #print('Computer_name: {0}'.format(computer_name))
+        #print('Folder: {0}'.format(folder))
+        second_layer = os.path.join(first_layer, utility.time_for_folder(is_last_full))
     else:
         second_layer = os.path.join(first_layer, 'mirror_backup')
     if not os.path.exists(first_layer):
@@ -691,8 +736,8 @@ def write_catalog(catalog, section, key, value):
         except configparser.DuplicateSectionError:
             config.set(section, key, value)
         # Write new section
-        with open(catalog, 'w') as configfile:
-            config.write(configfile)
+        with open(catalog, 'w') as catalogfile:
+            config.write(catalogfile)
 
 
 def retention_policy(host, catalog, logpath):
@@ -930,8 +975,8 @@ def init_catalog(catalog):
             print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
             config.remove_section(cid)
     # Write file
-    with open(catalog, 'w') as configfile:
-        config.write(configfile)
+    with open(catalog, 'w') as catalogfile:
+        config.write(catalogfile)
 
 
 def delete_host(catalog, host):
@@ -961,8 +1006,40 @@ def delete_host(catalog, host):
                           utility.PrintColor.END)
     rmtree(root)
     # Write file
-    with open(catalog, 'w') as configfile:
-        config.write(configfile)
+    with open(catalog, 'w') as catalogfile:
+        config.write(catalogfile)
+
+
+def delete_backup(catalog, path):
+    """
+    :param catalog: catalog file
+    :param path: path of the given backup
+    """
+    from shutil import rmtree
+    config = read_catalog(catalog)
+    #root = os.path.join(os.path.dirname(catalog), host)
+    root = path
+    for cid in config.sections():
+        if config.get(cid, "path") == path:
+            if not os.path.exists(config[cid]['path']):
+                print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
+                config.remove_section(cid)
+            else:
+                path = config.get(cid, 'path')
+                date = config.get(cid, 'timestamp')
+                cleanup = utility.cleanup(path, date, 0)
+                if cleanup == 0:
+                    print(utility.PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
+                          utility.PrintColor.END)
+                    print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
+                    config.remove_section(cid)
+                elif cleanup == 1:
+                    print(utility.PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
+                          utility.PrintColor.END)
+    rmtree(root)
+    # Write file
+    with open(catalog, 'w') as catalogfile:
+        config.write(catalogfile)
 
 
 def clean_catalog(catalog):
@@ -1003,8 +1080,8 @@ def clean_catalog(catalog):
                   'WARNING: The backup-id {0} has been set to default value, because he was corrupt. '
                   'Check it!'.format(cid) + utility.PrintColor.END)
     # Write file
-    with open(catalog, 'w') as configfile:
-        config.write(configfile)
+    with open(catalog, 'w') as catalogfile:
+        config.write(catalogfile)
 
 
 def parse_arguments():
@@ -1052,6 +1129,8 @@ def parse_arguments():
     single_or_list_group = group_backup.add_mutually_exclusive_group(required=True)
     single_or_list_group.add_argument('--computer', '-c', help='Hostname or ip address to backup', dest='hostname',
                                       action='store')
+    single_or_list_group.add_argument('--hostpart', '-S', help='A part of backup to split backup of one host to multiple part', dest='hostpart',
+                                      action='store')
     single_or_list_group.add_argument('--list', '-L', help='File list of computers or ip addresses to backup',
                                       dest='list', action='store')
     group_backup.add_argument('--destination', '-d', help='Destination path', dest='destination', action='store',
@@ -1081,6 +1160,7 @@ def parse_arguments():
     group_backup.add_argument('--bwlimit', '-b', help='Bandwidth limit in KBPS.', dest='bwlimit', action='store',
                               type=int)
     group_backup.add_argument('--ssh-port', '-P', help='Custom ssh port.', dest='port', action='store', type=int)
+    group_backup.add_argument('--rsync-port', '-Y', help='Custom rsync port.', dest='rport', action='store', type=int)
     group_backup.add_argument('--exclude', '-E', help='Exclude pattern', dest='exclude', action='store', nargs='+')
     group_backup.add_argument('--start-from', '-s', help='Backup id where start a new backup', dest='sfrom',
                               action='store', metavar='ID')
@@ -1107,6 +1187,7 @@ def parse_arguments():
     group_restore.add_argument('--bwlimit', '-b', help='Bandwidth limit in KBPS.', dest='bwlimit', action='store',
                                type=int)
     group_restore.add_argument('--ssh-port', '-P', help='Custom ssh port.', dest='port', action='store', type=int)
+    group_restore.add_argument('--rsync-port', '-Y', help='Custom rsync port.', dest='rport', action='store', type=int)
     group_restore.add_argument('--exclude', '-E', help='Exclude pattern', dest='exclude', action='store', nargs='+')
     # archive session
     archive = action.add_parser('archive', help='Archive options', parents=[parent_parser])
@@ -1157,24 +1238,37 @@ def parse_arguments():
     group_export.add_argument('--bwlimit', '-b', help='Bandwidth limit in KBPS.', dest='bwlimit', action='store',
                               type=int)
     group_export.add_argument('--ssh-port', '-P', help='Custom ssh port.', dest='port', action='store', type=int)
+    group_export.add_argument('--rsync-port', '-Y', help='Custom rsync port.', dest='rport', action='store', type=int)
     # Return all args
     parser_object.add_argument('--version', '-V', help='Print version', dest='version', action='store_true')
+    parser_object.add_argument('--config-file', '-F', help='Config file. Do not use together with --config-dir-... and --main-config-... options', dest='configfile', action='store')
+    parser_object.add_argument('--config-dir-extension', '-X', help='Extension  for config files in configdir (.ext)', dest='configext', action='store')
+    parser_object.add_argument('--config-dir', '-G', help='Config dir for config files with extension defined in --config-dir-extension', dest='configdir', action='store')
+    parser_object.add_argument('--main-config-file', '-M', help='Main config file in configdir for defaults', dest='mainconfig', action='store')
+    parser_object.add_argument('--date-time', '-K', help='Set backup date and time ti given instead of now (For testing only). Format: %y%m%d%H%M', dest='datetime', action='store')
+    
     return parser_object
 
+def single_action(args,configfile=None):
 
-if __name__ == '__main__':
-    parser = parse_arguments()
-    args = parser.parse_args()
-
-    # Check version flag
-    if args.version:
-        print_version(VERSION)
-
+    global catalog_path, backup_catalog, hostname, backup_id, log_args, logs, aktlogs, rpath
+    
+    if configfile:
+        opt = vars(args)
+        args = yaml.load(open(configfile), Loader=yaml.FullLoader)
+        opt.update(args)
+        args = types.SimpleNamespace(**opt)
     # Check action
     if not args.action:
+        # print args
         parser.print_help()
-
+    
+    if args.action != 'backup':
+        print(utility.PrintColor.RED +
+                "ERROR: Only 'backup' mode works! '{0}' mode has not yet tested".format(args.action) + utility.PrintColor.END)
+        exit(1)
     # Check config session
+
     if args.action == 'config':
         if args.new_conf:
             new_configuration()
@@ -1200,9 +1294,11 @@ if __name__ == '__main__':
     if args.action == 'backup':
         # Check custom ssh port
         port = args.port if args.port else 22
+        # Check custom rsync port
+        rport = args.rport if args.rport else 873
         hostnames = []
-        cmds = []
-        logs = []
+        # cmds = []
+        # logs = []
         if args.hostname:
             # Computer list
             hostnames.append(args.hostname)
@@ -1217,15 +1313,31 @@ if __name__ == '__main__':
                       + utility.PrintColor.END)
         else:
             parser.print_usage()
+            # print args
             print('For ' + utility.PrintColor.BOLD + 'backup' + utility.PrintColor.END + ' usage, "--help" or "-h"')
             exit(1)
+        # print (args)
+        # exit(0)
+        # most csak egy hostra jo
         for hostname in hostnames:
-            if not utility.check_ssh(hostname, port):
-                print(utility.PrintColor.RED + 'ERROR: The port 22 on {0} is closed!'.format(hostname)
+            if args.hostpart:
+                hostname_orig=hostname
+                hostname=hostname+'-'+args.hostpart
+            else:
+                hostname_orig=hostname
+            online = True
+            if not utility.check_ssh(hostname_orig, port):
+                print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, hostname)
                       + utility.PrintColor.END)
-                continue
+                online = False
+                # continue
+            if not utility.check_rsync(hostname_orig, rport):
+                print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, hostname)
+                      + utility.PrintColor.END)
+                online = False
+                # continue
             if not args.verbose:
-                if check_configuration(hostname):
+                if check_configuration(hostname_orig):
                     print(utility.PrintColor.RED + '''ERROR: For bulk or silently backup, deploy configuration!
                             See bb deploy --help or specify --verbose''' + utility.PrintColor.END)
                     continue
@@ -1237,10 +1349,12 @@ if __name__ == '__main__':
                 'status': args.log,
                 'destination': os.path.join(args.destination, hostname, 'general.log')
             }
-            logs.append(log_args)
+            # print('Log_args: ',log_args)
+            # logs.append(log_args)
             catalog_path = os.path.join(args.destination, '.catalog.cfg')
             backup_catalog = read_catalog(catalog_path)
             # Compose command
+            #print('Compose commands: ',args)
             cmd = compose_command(args, hostname)
             # Check if start-from is specified
             if args.sfrom:
@@ -1270,30 +1384,35 @@ if __name__ == '__main__':
             else:
                 source_list = []
             # Check if hostname is localhost or 127.0.0.1
-            if (hostname == "localhost") or (hostname == "LOCALHOST") or (hostname == "127.0.0.1"):
+            if (hostname_orig == "localhost") or (hostname_orig == "LOCALHOST") or (hostname_orig == "127.0.0.1"):
                 # Compose source with only path of folder list
                 cmd.append(" ".join(source_list)[1:])
             else:
                 # Compose source <user>@<hostname> format
-                cmd.append('{0}@{1}'.format(args.user, hostname).__add__(" ".join(source_list)))
+                cmd.append('{0}@{1}'.format(args.user, hostname_orig).__add__(" ".join(source_list)))
             # Compose destination
             bck_dst = compose_destination(hostname, args.destination)
             utility.write_log(log_args['status'], log_args['destination'], 'INFO',
                               'Backup on folder {0}'.format(bck_dst))
             cmd.append(bck_dst)
             # Compose pull commands
-            cmds.append(' '.join(cmd))
+            #cmds.append(' '.join(cmd))
+            #print (cmds)
             # Write catalog file
             write_catalog(catalog_path, backup_id, 'timestamp', utility.time_for_log())
             # Create a symlink for last backup
             utility.make_symlink(bck_dst, os.path.join(args.destination, hostname, 'last_backup'))
         # Start backup
-        run_in_parallel(start_process, cmds, args.parallel)
-
+        # run_in_parallel(start_process, cmds, args.parallel)
+        # print('Single_action cmd: ',cmd)
+        #print('Single_action log: ',log_args)
+        return cmd, log_args, online
     # Check restore session
     if args.action == 'restore':
         # Check custom ssh port
         port = args.port if args.port else 22
+        # Check custom rsync port
+        rport = args.rport if args.rport else 873
         cmds = []
         logs = []
         rhost = ''
@@ -1344,8 +1463,12 @@ if __name__ == '__main__':
                 exit(1)
         # Test connection
         if not utility.check_ssh(rhost, port):
-            print(utility.PrintColor.RED + 'ERROR: The port 22 on {0} is closed!'.format(rhost)
-                  + utility.PrintColor.END)
+            print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, rhost)
+                    + utility.PrintColor.END)
+            exit(1)
+        if not utility.check_rsync(rhost, rport):
+            print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, rhost)
+                    + utility.PrintColor.END)
             exit(1)
         if not args.verbose:
             if not check_configuration(rhost):
@@ -1638,3 +1761,119 @@ if __name__ == '__main__':
             print(utility.PrintColor.RED +
                   "ERROR: Source or destination path doesn't exist!" + utility.PrintColor.END)
             exit(1)
+
+
+if __name__ == '__main__':
+    import datetime
+    import shutil
+    import subprocess
+    global std, datetime_spec
+    parser = parse_arguments()
+    args = parser.parse_args()
+    if args.version:
+        print_version(VERSION)
+    if args.mainconfig:
+        opt = vars(args)
+        args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
+        opt.update(args)
+        args = types.SimpleNamespace(**opt)
+        #print('Mainconfig: ',args)
+    utility.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
+    
+    if args.configdir:
+        cmds = []
+        aktlogs = []
+        remotes = []
+        for root, dirs, files in os.walk(args.configdir):
+            for file in files:
+                if file.endswith(args.configext):
+                    cfile=root+'/'+file
+                    #print('Config: ',file)
+                    aktcmd, aktlog, online = single_action(args,cfile)
+                    #print('Cmd: ',aktcmd)
+                    #print('Log: ',aktlog)
+                    if online:
+                        cmds.append(' '.join(aktcmd))
+                        aktlogs.append(aktlog)
+                        #print('Aktlogs: ',aktlogs)
+                        aktconfig=file.partition('.')[0]
+                        remotes.append(aktconfig)
+    else:
+        single_action(args,args.configfile)
+    #print('Vege cmds: ',cmds)
+    #print('Vege logs: ',logs)
+    #print('Vege remotes: ',remotes)
+    #print('Vege: ',args)
+    if cmds:
+        #print('Vege cmds: ',cmds)
+        #print('Vege logs: ',logs)
+        #print('Vege remotes: ',remotes)
+        #print('Vege: ',args)
+        #exit(0)
+        run_in_parallel(start_process, cmds, 8)
+        
+        #regiek torlese
+        direlo = utility.time_for_folder(False)
+        dirnap = direlo[12]
+        print('Dirnap: ',dirnap)
+        if dirnap != 'd':
+            if dirnap == 'w':
+                torlonap = 'd'
+            elif dirnap == 'm':
+                torlonap = 'w'
+            elif dirnap == 'y':
+                torlonap = 'm'
+            else:
+                torlonap = ''
+            if args.mainconfig:
+                opt = vars(args)
+                args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
+                opt.update(args)
+                args = types.SimpleNamespace(**opt)
+                print('Args.configdir: ',args.configdir)
+                if args.configdir:
+                    for root, dirs, files in os.walk(args.configdir):
+                        for file in files:
+                            if file.endswith(args.configext):
+                                cfile=root+'/'+file
+                                print('Dirconfig: ',cfile)
+                                opt = vars(args)
+                                args = yaml.load(open(cfile), Loader=yaml.FullLoader)
+                                opt.update(args)
+                                args = types.SimpleNamespace(**opt)
+                                if args.hostpart:
+                                    hostname=args.hostname+'-'+args.hostpart
+                                else:
+                                    hostname=args.hostname
+                                mentodir = args.destination + '/' + hostname
+                                print('Mentodir: ',mentodir)
+                                second_dir = {}
+                                for root2, dirs2, files2 in os.walk(mentodir):
+                                    if root2 == mentodir:
+                                        dirs2.sort(reverse=True)
+                                        dirnum = 0
+                                        for dir in dirs2:
+                                            print('Dir: ',dir)                                       
+                                            if dir.rfind(dirnap) != -1:
+                                                print('Dirkezdo: ',dir)
+                                                dirnum += 1
+                                                if dirnum == 2:
+                                                    second_dir[dirnap] = dir
+                                                    print('Second dir: ',second_dir[dirnap])
+                                                    dirs2.sort(reverse=False)
+                                                    for dir in dirs2:
+                                                        print('Dir2: ',dir)                                       
+                                                        if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
+                                                            print('Dirtorlo: ',dir)
+                                                            forras1 = mentodir + '/' + dir
+                                                            print('Forras1: ',forras1)
+                                                            forras = mentodir + '/' + dir
+                                                            print('Forras: ',forras)
+                                                            cel = mentodir + '/' + second_dir[dirnap] + '/'
+                                                            print('Cel: ',cel)
+                                                            p=subprocess.run(['cp','-aurfT',forras,cel])
+                                                            print('P: ',p)
+                                                            #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
+                                                            catalog_path = args.destination + '/' + '.catalog.cfg'
+                                                            delete_backup(catalog_path, forras1)
+                                                                                       

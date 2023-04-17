@@ -1,0 +1,3 @@
+hostname: sasfacan.crocus.hu
+hostpart: home
+customdata: [/home]

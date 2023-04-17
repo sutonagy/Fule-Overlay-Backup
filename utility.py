@@ -21,6 +21,19 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+global datetime_spec
+
+def get_today_datetime():
+    """
+    Get today date and time
+    :return: datetime object
+    """
+    print('datetime_spec: ', datetime_spec)
+    import datetime
+    if datetime_spec:
+        return datetime_spec
+    else:
+        return datetime.datetime.now()
 
 class PrintColor:
     """
@@ -114,13 +127,32 @@ def make_dir(directory):
         os.makedirs(directory)
 
 
-def time_for_folder():
+def time_for_folder(isFull=False):
     """
     Time now() in this format: %Y_%m_%d__%H_%M
     :return: string time
     """
-    import time
-    return time.strftime('%Y_%m_%d__%H_%M')
+    from datetime import datetime
+    mainap=get_today_datetime()
+    folderend=mainap.strftime('%y%m%d-%H%M')
+    wd=mainap.weekday()
+    nap=mainap.day
+    honap=mainap.month
+    if isFull:
+        toldalek='f'
+    else:
+        if wd < 6:
+            toldalek='d'
+        else:
+            if nap < 8:
+                if honap == 6:
+                    toldalek='y'
+                else:
+                    toldalek='m'
+            else:
+                toldalek='w'
+    folderend=folderend+'-'+toldalek
+    return folderend
 
 
 def time_for_log():
@@ -143,7 +175,7 @@ def cleanup(path, date, days):
     from shutil import rmtree
     from time import mktime
     from datetime import datetime, timedelta
-    d = datetime.today() - timedelta(days=days)
+    d = get_today_datetime() - timedelta(days=days)
     seconds = mktime(d.timetuple())
     date_s = mktime(string_to_time(date).timetuple())
     if date_s < seconds:
@@ -254,8 +286,36 @@ def check_ssh(ip, port=22):
     import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
+        print(PrintColor.YELLOW + 'Waiting for port {0} on host {1} ...'.format(port, ip)
+                + PrintColor.END)
+        s.settimeout(60)
         s.connect((ip, port))
+        s.settimeout(None)
         s.shutdown(2)
+        print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
+                + PrintColor.END)
+        return True
+    except socket.error:
+        return False
+
+
+def check_rsync(ip, port=873):
+    """
+    Test rsync connection
+    :param ip: ip address or hostname of machine
+    :param port: rsync port (default is 873)
+    """
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        print(PrintColor.YELLOW + 'Waiting for port {0} on host {1} ...'.format(port, ip)
+                + PrintColor.END)
+        s.settimeout(60)
+        s.connect((ip, port))
+        s.settimeout(None)
+        s.shutdown(2)
+        print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
+                + PrintColor.END)
         return True
     except socket.error:
         return False
@@ -275,7 +335,7 @@ def archive(path, date, days, destination):
     from time import mktime
     from datetime import datetime, timedelta
 
-    d = datetime.today() - timedelta(days=days)
+    d = get_today_datetime - timedelta(days=days)
     seconds = mktime(d.timetuple())
     date_s = mktime(string_to_time(date).timetuple())
     if date_s < seconds:

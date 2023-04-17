@@ -1,0 +1,27 @@
+destination: /backup/rsync
+mode: Differential
+customdata: [/etc, /home, /root, /usr, /var, /boot, /fejleszt, /opt, /pki, /*adat]
+user: root
+type: Unix
+exclude: ['*/*tmp/', '*/*temp/', '*/*cache/', '*/*lock/', '*/log/', '/home/vscode/.vscode-server', '/root/.vscode-server', '/var/lib/mysql/*/', '/var/lib/pgsql/*/data/*/', '*/*backup*/', '*/*rsync*/', '/var/newmail/*/', '/var/oldmail/*/']
+action: backup
+verbose: False
+log: True
+dry_run: False
+version: False
+list: null
+data: null
+compress: False
+retention: null
+parallel: 8
+timeout: null
+skip_err: False
+rsync: null
+bwlimit: null
+port: null
+rport: null
+sfrom: null
+logdirectory: /backup/rsync/log/
+configfile: null
+configdir: /home/alma/Fule-Butterfly-Backup
+configext: .bck
