@@ -1865,8 +1865,10 @@ if __name__ == '__main__':
                                                         if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
                                                             print('Dirtorlo: ',dir)
                                                             forras = mentodir + '/' + dir
+                                                            print('Forras: ',forras)
                                                             cel = mentodir + '/' + second_dir[dirnap]
+                                                            print('Cel: ',cel)
+                                                            shutil.copytree(forras, cel)
                                                             catalog_path = args.destination + '/' + '.catalog.cfg'
-                                                            shutil.copytree(forras, cel, symlinks=True, dirs_exist_ok=True)
                                                             delete_backup(catalog_path, forras)
                                                                                        
