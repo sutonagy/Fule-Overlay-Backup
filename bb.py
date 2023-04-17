@@ -1744,7 +1744,7 @@ if __name__ == '__main__':
         opt.update(args)
         args = types.SimpleNamespace(**opt)
         #print('Mainconfig: ',args)
-    utility.datetime_spec=datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
+    utility.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
     
     if args.configdir:
         cmds = []
