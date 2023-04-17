@@ -1875,5 +1875,5 @@ if __name__ == '__main__':
                                                             print('P: ',p)
                                                             #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
                                                             catalog_path = args.destination + '/' + '.catalog.cfg'
-                                                            delete_backup(catalog_path, forras)
+                                                            delete_backup(catalog_path, forras1)
                                                                                        
