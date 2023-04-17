@@ -1,0 +1,4 @@
+hostname: sasfacan.crocus.hu
+hostpart: null
+customdata: [/etc, /home]
+rport: 18075
