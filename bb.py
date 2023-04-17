@@ -1808,8 +1808,8 @@ if __name__ == '__main__':
                                     dirs2.sort(reverse=True)
                                     dirnum = 0
                                     for dir in dirs2:
-                                        print('Dir: ',dir)
-                                        if dir.startswith(dirnap):
+                                        print('Dir: ',dir)                                       
+                                        if dir.substr(12,1) == dirnap:
                                             print('Dirkezdo: ',dir)
                                             dirnum += 1
                                             if dirnum == 2:
