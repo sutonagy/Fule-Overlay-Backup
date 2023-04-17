@@ -1869,7 +1869,7 @@ if __name__ == '__main__':
                                                             print('Forras1: ',forras1)
                                                             forras = mentodir + '/' + dir + '/' + '*'
                                                             print('Forras: ',forras)
-                                                            cel = mentodir + '/' + second_dir[dirnap] + '/'
+                                                            cel = mentodir + '/' + second_dir[dirnap]
                                                             print('Cel: ',cel)
                                                             p=subprocess.run(['cp','-aurfv',forras,cel])
                                                             print('P: ',p)
