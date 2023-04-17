@@ -1010,6 +1010,38 @@ def delete_host(catalog, host):
         config.write(catalogfile)
 
 
+def delete_backup(catalog, path):
+    """
+    :param catalog: catalog file
+    :param path: path of the given backup
+    """
+    from shutil import rmtree
+    config = read_catalog(catalog)
+    #root = os.path.join(os.path.dirname(catalog), host)
+    root = path
+    for cid in config.sections():
+        if config.get(cid, "path") == path:
+            if not os.path.exists(config[cid]['path']):
+                print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
+                config.remove_section(cid)
+            else:
+                path = config.get(cid, 'path')
+                date = config.get(cid, 'timestamp')
+                cleanup = utility.cleanup(path, date, 0)
+                if cleanup == 0:
+                    print(utility.PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
+                          utility.PrintColor.END)
+                    print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
+                    config.remove_section(cid)
+                elif cleanup == 1:
+                    print(utility.PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
+                          utility.PrintColor.END)
+    rmtree(root)
+    # Write file
+    with open(catalog, 'w') as catalogfile:
+        config.write(catalogfile)
+
+
 def clean_catalog(catalog):
     """
     :param catalog: catalog file
@@ -1733,6 +1765,7 @@ def single_action(args,configfile=None):
 
 if __name__ == '__main__':
     import datetime
+    import shutil
     global std, datetime_spec
     parser = parse_arguments()
     args = parser.parse_args()
@@ -1830,4 +1863,10 @@ if __name__ == '__main__':
                                                     for dir in dirs2:
                                                         print('Dir2: ',dir)                                       
                                                         if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
-                                                            print('Dirtorlo: ',dir)                                        
+                                                            print('Dirtorlo: ',dir)
+                                                            forras = mentodir + '/' + dir
+                                                            cel = mentodir + '/' + second_dir[dirnap]
+                                                            catalog_path = args.destination + '/' + '.catalog.cfg'
+                                                            shutil.copy2(forras, cel)
+                                                            delete_backup(catalog_path, forras)
+                                                                                       
