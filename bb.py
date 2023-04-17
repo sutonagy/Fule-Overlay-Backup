@@ -1771,12 +1771,12 @@ if __name__ == '__main__':
         #print('Vege remotes: ',remotes)
         #print('Vege: ',args)
         #exit(0)
-        #run_in_parallel(start_process, cmds, 8)
+        run_in_parallel(start_process, cmds, 8)
         
         #regiek torlese
         direlo = utility.time_for_folder(False)
-        dirkezdo = direlo[0]
-        if dirkezdo != 'd':
+        dirnap = direlo[12]
+        if dirnap != 'd':
             if args.mainconfig:
                 opt = vars(args)
                 args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
@@ -1804,8 +1804,8 @@ if __name__ == '__main__':
                                     dirnum = 0
                                     for dir in dirs2:
                                         print('Dir: ',dir)
-                                        if dir.startswith(dirkezdo):
+                                        if dir.startswith(dirnap):
                                             print('Dirkezdo: ',dir)
                                             dirnum += 1
                                             if dirnum == 2:
-                                                second_dir[dirkezdo] = dir
+                                                second_dir[dirnap] = dir

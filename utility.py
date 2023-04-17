@@ -138,7 +138,7 @@ def time_for_folder(isFull=False):
                     toldalek='m'
             else:
                 toldalek='w'
-    folderend=toldalek+'-'+folderend
+    folderend=folderend+'-'+toldalek
     return folderend
 
 
