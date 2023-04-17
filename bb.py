@@ -1869,7 +1869,7 @@ if __name__ == '__main__':
                                                             print('Forras: ',forras)
                                                             cel = mentodir + '/' + second_dir[dirnap]
                                                             print('Cel: ',cel)
-                                                            p=subprocess.run(['cp','-rf',forras,cel])
+                                                            p=subprocess.run(['cp','-aurf',forras,cel])
                                                             #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
                                                             catalog_path = args.destination + '/' + '.catalog.cfg'
                                                             delete_backup(catalog_path, forras)
