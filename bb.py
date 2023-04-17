@@ -1766,6 +1766,7 @@ def single_action(args,configfile=None):
 if __name__ == '__main__':
     import datetime
     import shutil
+    import subprocess
     global std, datetime_spec
     parser = parse_arguments()
     args = parser.parse_args()
@@ -1868,6 +1869,7 @@ if __name__ == '__main__':
                                                             print('Forras: ',forras)
                                                             cel = mentodir + '/' + second_dir[dirnap]
                                                             print('Cel: ',cel)
+                                                            
                                                             #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
                                                             catalog_path = args.destination + '/' + '.catalog.cfg'
                                                             #delete_backup(catalog_path, forras)
