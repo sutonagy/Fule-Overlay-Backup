@@ -1867,11 +1867,11 @@ if __name__ == '__main__':
                                                             print('Dirtorlo: ',dir)
                                                             forras1 = mentodir + '/' + dir
                                                             print('Forras1: ',forras1)
-                                                            forras = mentodir + '/' + dir + '/' + '*'
+                                                            forras = mentodir + '/' + dir
                                                             print('Forras: ',forras)
-                                                            cel = mentodir + '/' + second_dir[dirnap]
+                                                            cel = mentodir + '/' + second_dir[dirnap] + '/'
                                                             print('Cel: ',cel)
-                                                            p=subprocess.run(['cp','-aurfv',forras,cel])
+                                                            p=subprocess.run(['cp','-aurfvT',forras,cel])
                                                             print('P: ',p)
                                                             #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
                                                             catalog_path = args.destination + '/' + '.catalog.cfg'
