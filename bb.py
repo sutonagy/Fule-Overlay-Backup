@@ -1865,12 +1865,12 @@ if __name__ == '__main__':
                                                         print('Dir2: ',dir)                                       
                                                         if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
                                                             print('Dirtorlo: ',dir)
-                                                            forras = mentodir + '/' + dir
+                                                            forras = mentodir + '/' + dir + '/' + '*'
                                                             print('Forras: ',forras)
                                                             cel = mentodir + '/' + second_dir[dirnap]
                                                             print('Cel: ',cel)
-                                                            
+                                                            p=subprocess.run(['cp','-rf',forras,cel])
                                                             #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
                                                             catalog_path = args.destination + '/' + '.catalog.cfg'
-                                                            #delete_backup(catalog_path, forras)
+                                                            delete_backup(catalog_path, forras)
                                                                                        
