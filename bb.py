@@ -1826,8 +1826,8 @@ if __name__ == '__main__':
                                                 if dirnum == 2:
                                                     second_dir[dirnap] = dir
                                                     print('Second dir: ',second_dir[dirnap])
-                                        dirs2.sort(reverse=True)
-                                        for dir in dirs2:
-                                            print('Dir2: ',dir)                                       
-                                            if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
-                                                print('Dirtorlo: ',dir)                                        
+                                                    dirs2.sort(reverse=True)
+                                                    for dir in dirs2:
+                                                        print('Dir2: ',dir)                                       
+                                                        if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
+                                                            print('Dirtorlo: ',dir)                                        
