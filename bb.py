@@ -1867,9 +1867,9 @@ if __name__ == '__main__':
                                                             print('Dirtorlo: ',dir)
                                                             forras1 = mentodir + '/' + dir
                                                             print('Forras1: ',forras1)
-                                                            forras = mentodir + '/' + dir
+                                                            forras = mentodir + '/' + dir + '/' + '*'
                                                             print('Forras: ',forras)
-                                                            cel = mentodir + '/' + second_dir[dirnap]
+                                                            cel = mentodir + '/' + second_dir[dirnap] + '/'
                                                             print('Cel: ',cel)
                                                             p=subprocess.run(['cp','-aurfv',forras,cel])
                                                             print('P: ',p)
