@@ -1776,7 +1776,7 @@ if __name__ == '__main__':
         #print('Vege remotes: ',remotes)
         #print('Vege: ',args)
         #exit(0)
-        #run_in_parallel(start_process, cmds, 8)
+        run_in_parallel(start_process, cmds, 8)
         
         #regiek torlese
         direlo = utility.time_for_folder(False)
