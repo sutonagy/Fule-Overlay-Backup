@@ -1415,12 +1415,12 @@ def single_action(args,configfile=None):
             else:
                 source_list = []
             # Check if hostname is localhost or 127.0.0.1
-            # if (hostname_orig == "localhost") or (hostname_orig == "LOCALHOST") or (hostname_orig == "127.0.0.1"):
+            if (hostname_orig == "localhost") or (hostname_orig == "LOCALHOST") or (hostname_orig == "127.0.0.1"):
                 # Compose source with only path of folder list
-            #    cmd.append(" ".join(source_list)[1:])
-            # else:
+               cmd.append(" ".join(source_list)[1:])
+            else:
                 # Compose source <user>@<hostname> format
-            cmd.append('{0}@{1}'.format(args.user, hostname_orig).__add__(" ".join(source_list)))
+                cmd.append('{0}@{1}'.format(args.user, hostname_orig).__add__(" ".join(source_list)))
             # Compose destination
             bck_dst = compose_destination(hostname, args.destination)
             utility.write_log(log_args['status'], log_args['destination'], 'INFO',
