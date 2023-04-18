@@ -1106,7 +1106,9 @@ def parse_arguments():
                                             + utility.PrintColor.END,
                                             formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                                             epilog='''
-                                            In the YAML files you can use the CAPITAL letter variables from this help in lowercase.
+                                            Currently only the "backup" action is supported.
+                                            To see the backup options, use the command "bb backup -h".
+                                            In the YAML files you can use the CAPITAL letter variables from these helps in lowercase.
                                             See the example YAML files.
                                             
                                             ''',
