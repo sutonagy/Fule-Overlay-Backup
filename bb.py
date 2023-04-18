@@ -1104,7 +1104,7 @@ def parse_arguments():
     # Create principal parser
     parser_object = argparse.ArgumentParser(prog='bb', description=utility.PrintColor.BOLD + 'Fule Butterfly Backup'
                                             + utility.PrintColor.END,
-                                            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+                                            formatter_class=argparse.RawTextHelpFormatter,
                                             epilog='''
                                             Currently only the "backup" action is supported.\n
                                             To see the backup options, use the command "bb backup -h".\n
