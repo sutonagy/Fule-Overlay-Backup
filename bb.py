@@ -1096,7 +1096,7 @@ def parse_arguments():
     parent_parser.add_argument('--dry-run', '-N', help='Dry run mode', dest='dry_run', action='store_true')
 
     # Create principal parser
-    parser_object = argparse.ArgumentParser(prog='bb', description=utility.PrintColor.BOLD + 'Butterfly Backup'
+    parser_object = argparse.ArgumentParser(prog='bb', description=utility.PrintColor.BOLD + 'Fule Butterfly Backup'
                                             + utility.PrintColor.END, epilog=check_rsync(),
                                             parents=[parent_parser])
     parser_object.add_argument('--version', '-V', help='Print version', dest='version', action='store_true')
