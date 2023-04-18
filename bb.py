@@ -66,7 +66,7 @@ from utility import print_verbose
 from shutil import rmtree
 
 # region Global Variables
-VERSION = '1.8.sun02'
+VERSION = 'v0.9.01'
 
 
 # endregion
