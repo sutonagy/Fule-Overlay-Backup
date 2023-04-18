@@ -13,7 +13,7 @@ Butterfly Backup is a simple command line wrapper of rsync for complex task, wri
 .SH OPTIONS
 .TP
 action:
-  Valid actions
+  Valid action
 
   {config,backup,restore,archive,list,export}
                         Available actions

@@ -19,9 +19,9 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = u'Butterfly Backup'
-copyright = u'2018, Matteo Guadrini <matteo.guadrini@hotmail.it>'
-author = u'Matteo Guadrini <matteo.guadrini@hotmail.it>'
+project = u'Fule-Butterfly Backup'
+copyright = u'2018, Matteo Guadrini; 2023 laszlo Suto Nagy'
+author = u'Matteo Guadrini - Laszlo Suto Nagy>'
 
 # The short X.Y version
 version = u''

@@ -1100,10 +1100,10 @@ def parse_arguments():
                                             + utility.PrintColor.END, epilog=check_rsync(),
                                             parents=[parent_parser])
     parser_object.add_argument('--version', '-V', help='Print version', dest='version', action='store_true')
-    parser_object.add_argument('--config-file', '-F', help='Config file. Do not use together with --config-dir-... and --main-config-... options', dest='configfile', action='store')
+    parser_object.add_argument('--config-file', '-F', help='Yaml config file. Do not use together with --config-dir-... and --main-config-... options', dest='configfile', action='store')
     parser_object.add_argument('--config-dir-extension', '-X', help='Extension  for config files in configdir (.ext)', dest='configext', action='store')
-    parser_object.add_argument('--config-dir', '-G', help='Config dir for config files with extension defined in --config-dir-extension', dest='configdir', action='store')
-    parser_object.add_argument('--main-config-file', '-M', help='Main config file in configdir for defaults', dest='mainconfig', action='store')
+    parser_object.add_argument('--config-dir', '-G', help='Config dir for yaml config files with extension defined in --config-dir-extension', dest='configdir', action='store')
+    parser_object.add_argument('--main-config-file', '-M', help='Main yaml config file for defaults', dest='mainconfig', action='store')
     parser_object.add_argument('--date-time', '-K', help='Set backup date and time instead of now (For testing the program only). Format: %y%m%d%H%M', dest='datetime', action='store')
 
     # Create sub_parser "action"
