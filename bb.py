@@ -1106,12 +1106,13 @@ def parse_arguments():
                                             + utility.PrintColor.END,
                                             formatter_class=argparse.RawTextHelpFormatter,
                                             epilog='''
-                                            Currently only the "backup" action is supported.\n
-                                            To see the backup options, use the command "bb backup -h".\n
-                                            In the YAML files you can use the CAPITAL letter variables from these helps in lowercase.\n
-                                            See the example YAML files.\n
-                                            The hierarchy of the options is the following. The command line options will be overwited by the main config YAML file and these will be overwited by the specific YAML files which are in the configdir with extension of configext.\n
-                                            \n
+
+Currently only the "backup" action is supported.
+To see the backup options, use the command "bb backup -h".
+In the YAML files you can use the CAPITAL letter variables from these helps in lowercase.
+See the example YAML files.
+The hierarchy of the options is the following. The command line options will be overwited by the main config YAML file and these will be overwited by the specific YAML files which are in the configdir with extension of configext.
+
                                             ''',
                                             parents=[parent_parser])
 
