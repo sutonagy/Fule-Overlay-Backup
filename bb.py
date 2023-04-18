@@ -1120,7 +1120,7 @@ In bb.yaml you can define the configdir and configext options.
 configdir: /etc/bb/hosts
 configext: .yaml
 "
-The program will read all the YAML files in the configdir with the extension of configext (*.bck in /etc/bb/hosts) and will merge them with the main config YAML file.
+The program will read all the YAML files in the configdir with the extension of configext (i.e. *.yaml in /etc/bb/hosts) and will merge them with the main config YAML file.
 
                                             ''',
                                             parents=[parent_parser])
@@ -1274,7 +1274,7 @@ The program will read all the YAML files in the configdir with the extension of 
 def single_action(args,configfile=None):
 
     """
-    Function to preapare the actual rsync command.
+    Function to preapare one actual rsync command.
     :param args: the configurtion from the command line and the yaml files
     :param configfile: the actual yaml config file
     :return aktcmd: the actual rsync command
