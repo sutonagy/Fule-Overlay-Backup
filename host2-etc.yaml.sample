@@ -1,0 +1,3 @@
+hostname: host2.example.com
+hostpart: etc
+customdata: [/etc]

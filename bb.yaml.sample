@@ -1,0 +1,28 @@
+destination: /backup
+mode: Differential #First make a full rsync backup and later hardlink to dis full backup the unchanged files.
+customdata: [/etc, /home, /root, /usr, /var, /boot, /fejleszt, /opt, /pki, /*adat]
+user: root #user for ssh connection
+type: Unix #operation system type
+exclude: ['*/*tmp/', '*/*temp/', '*/*cache/', '*/*lock/', '*/log/', '/home/vscode/.vscode-server', '/root/.vscode-server', '/var/lib/mysql/*/', '/var/lib/pgsql/*/data/*/', '*/*backup*/', '*/*rsync*/', '/var/newmail/*/', '/var/oldmail/*/']
+action: backup
+verbose: False
+log: True
+dry_run: False
+version: False
+list: null
+data: null
+compress: False
+retention: null
+parallel: 8
+timeout: null
+skip_err: False
+rsync: null
+bwlimit: null
+port: null #ssh port, default=22
+rport: null #rsync port, default=873
+sfrom: null
+logdirectory: /backup/log/
+configfile: null
+configdir: /etc/bb/hosts
+configext: .bck
+# Don't delete any line from this!

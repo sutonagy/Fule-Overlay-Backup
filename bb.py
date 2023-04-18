@@ -1113,6 +1113,14 @@ In the YAML files you can use the CAPITAL letter variables from these helps in l
 See the example YAML files.
 The hierarchy of the options is the following. The command line options will be overwited by the main config YAML file and these will be overwited by the specific YAML files which are in the configdir with extension of configext.
 
+Tipical usage: bb backup -M /etc/bb/bb.yaml
+In bb.yaml you can define the configdir and configext options.
+"
+configdir: /etc/bb/hosts
+configext: .yaml
+"
+The program will read all the YAML files in the configdir with the extension of configext (*.bck in /etc/bb/hosts) and will merge them with the main config YAML file.
+
                                             ''',
                                             parents=[parent_parser])
 

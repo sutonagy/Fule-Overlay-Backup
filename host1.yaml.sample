@@ -1,0 +1,2 @@
+hostname: host1.example.com
+customdata: [/etc, /home]
