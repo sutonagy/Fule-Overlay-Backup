@@ -1097,7 +1097,7 @@ def parse_arguments():
 
     # Create principal parser
     parser_object = argparse.ArgumentParser(prog='bb', description=utility.PrintColor.BOLD + 'Fule Butterfly Backup'
-                                            + utility.PrintColor.END, formatter_class=argparse.ArgumentDefaultsHelpFormatter, epilog=check_rsync(),
+                                            + utility.PrintColor.END, epilog=check_rsync(),
                                             parents=[parent_parser])
     parser_object.add_argument('--version', '-V', help='Print version', dest='version', action='store_true')
     parser_object.add_argument('--config-file', '-F', help='Yaml config file. Do not use together with --config-dir-... and --main-config-... options', dest='configfile', action='store')
