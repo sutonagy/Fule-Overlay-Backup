@@ -1108,6 +1108,7 @@ def parse_arguments():
                                             epilog='''
                                             In the YAML files you can use the CAPITAL letter variables from this help in lowercase.
                                             See the example YAML files.
+                                            
                                             ''',
                                             parents=[parent_parser])
 
