@@ -1096,7 +1096,7 @@ def parse_arguments():
     parent_parser.add_argument('--dry-run', '-N', help='Dry run mode', dest='dry_run', action='store_true')
     parent_parser.add_argument('--version', '-V', help='Print version', dest='version', action='store_true')
     parent_parser.add_argument('--config-file', '-F', help='Yaml config file. Do not use together with --config-dir-... and --main-config-... options', dest='configfile', action='store')
-    #parent_parser.add_argument('--config-dir-extension', '-X', help='Extension  for config files in configdir (.ext)', dest='configext', action='store')
+    parent_parser.add_argument('--config-dir-extension', '-X', help='Extension  for config files in configdir (.ext)', dest='configext', action='store')
     #parent_parser.add_argument('--config-dir', '-G', help='Config dir for yaml config files with extension defined in --config-dir-extension', dest='configdir', action='store')
     #parent_parser.add_argument('--main-config-file', '-M', help='Main yaml config file for defaults', dest='mainconfig', action='store')
     #parent_parser.add_argument('--date-time', '-K', help='Set backup date and time instead of now (For testing the program only). Format: %y%m%d%H%M', dest='datetime', action='store')
