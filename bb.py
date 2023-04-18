@@ -1090,7 +1090,7 @@ def parse_arguments():
     :return: parser
     """
     # Create a common parser
-    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description='Fule Butterfly Backup')
     parent_parser.add_argument('--verbose', '-v', help='Enable verbosity', dest='verbose', action='store_true')
     parent_parser.add_argument('--log', '-l', help='Create a log', dest='log', action='store_true')
     parent_parser.add_argument('--dry-run', '-N', help='Dry run mode', dest='dry_run', action='store_true')
