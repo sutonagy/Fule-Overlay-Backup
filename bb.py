@@ -63,6 +63,7 @@ import yaml
 import types
 from multiprocessing import Pool
 from utility import print_verbose
+from shutil import rmtree
 
 # region Global Variables
 VERSION = '1.8.sun02'
@@ -1015,7 +1016,6 @@ def delete_backup(catalog, path):
     :param catalog: catalog file
     :param path: path of the given backup
     """
-    from shutil import rmtree
     config = read_catalog(catalog)
     #root = os.path.join(os.path.dirname(catalog), host)
     root = path
@@ -1847,6 +1847,8 @@ if __name__ == '__main__':
                                     hostname=args.hostname
                                 mentodir = args.destination + '/' + hostname
                                 print('Mentodir: ',mentodir)
+                                remote=file.partition('.')[0]
+                                print('Remote: ',remote)
                                 second_dir = {}
                                 for root2, dirs2, files2 in os.walk(mentodir):
                                     if root2 == mentodir:
@@ -1876,4 +1878,11 @@ if __name__ == '__main__':
                                                             #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
                                                             catalog_path = args.destination + '/' + '.catalog.cfg'
                                                             delete_backup(catalog_path, forras1)
+                                                            folderend=dir
+                                                            logfile=args.logdirectory+remote+'-'+folderend+'.log'
+                                                            print('Logfile: ',logfile)
+                                                            os.remove(logfile) if os.path.getsize(logfile) == 0 else None
+                                                            errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
+                                                            print('Errfile: ',errfile)
+                                                            os.remove(errfile) if os.path.getsize(errfile) == 0 else None
                                                                                        
