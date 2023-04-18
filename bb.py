@@ -1090,14 +1090,14 @@ def parse_arguments():
     :return: parser
     """
     # Create a common parser
-    parent_parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter, description='Fule Butterfly Backup')
+    parent_parser = argparse.ArgumentParser(description='Fule Butterfly Backup')
     parent_parser.add_argument('--verbose', '-v', help='Enable verbosity', dest='verbose', action='store_true')
     parent_parser.add_argument('--log', '-l', help='Create a log', dest='log', action='store_true')
     parent_parser.add_argument('--dry-run', '-N', help='Dry run mode', dest='dry_run', action='store_true')
 
     # Create principal parser
     parser_object = argparse.ArgumentParser(prog='bb', description=utility.PrintColor.BOLD + 'Fule Butterfly Backup'
-                                            + utility.PrintColor.END, epilog=check_rsync(),
+                                            + utility.PrintColor.END, formatter_class=argparse.ArgumentDefaultsHelpFormatter, epilog=check_rsync(),
                                             parents=[parent_parser])
     parser_object.add_argument('--version', '-V', help='Print version', dest='version', action='store_true')
     parser_object.add_argument('--config-file', '-F', help='Yaml config file. Do not use together with --config-dir-... and --main-config-... options', dest='configfile', action='store')
