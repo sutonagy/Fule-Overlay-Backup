@@ -3,6 +3,7 @@
 # vim: se ts=4 et syn=python:
 
 # created by: matteo.guadrini
+# modified by: Laszlo Suto Nagy
 # utility.py -- Butterfly-Backup
 #
 #     Copyright (C) 2018 Matteo Guadrini <matteo.guadrini@hotmail.it>
