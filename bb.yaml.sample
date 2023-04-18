@@ -1,5 +1,6 @@
+# Don't delete any line from this!
 destination: /backup
-mode: Differential #First make a full rsync backup and later hardlink to dis full backup the unchanged files.
+mode: Differential #First make a full rsync backup and later hardlink to this full backup the unchanged files.
 customdata: [/etc, /home, /root, /usr, /var, /boot, /fejleszt, /opt, /pki, /*adat]
 user: root #user for ssh connection
 type: Unix #operation system type
@@ -25,4 +26,10 @@ logdirectory: /backup/log/
 configfile: null
 configdir: /etc/bb/hosts
 configext: .bck
-# Don't delete any line from this!
+delold: True #Delete old differential backup states
+# In case of Differential backup delete older backup folders
+# From day backups (on weekdays) the older ones than the second newest week backup
+# From week backups (on Sunday) the older ones than the second newest month backup
+# From month backups (on the first Sunday of each month) the older ones than the second newest year backup (on the first Sunday of each July)
+# It never deletes any year backup.
+# Before deleting, the program copy the backups to the second newest higher level (week,month or year) backup in ascending chronological order

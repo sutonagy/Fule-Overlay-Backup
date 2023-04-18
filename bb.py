@@ -218,7 +218,8 @@ def run_in_parallel(fn, commands, limit):
 def start_process(command,remote=''):
     """
     Start rsync commands
-    :param command: rsync list command
+    :param command: rsync command
+    :param remote: name of the actual yaml config file
     :return: command
     """
     
@@ -1189,6 +1190,8 @@ The program will read all the YAML files in the configdir with the extension of 
     group_backup.add_argument('--exclude', '-E', help='Exclude pattern', dest='exclude', action='store', nargs='+')
     group_backup.add_argument('--start-from', '-s', help='Backup id where start a new backup', dest='sfrom',
                               action='store', metavar='ID')
+    group_backup.add_argument('--delete-old-differential', '-O', help='Delete older Differential backup folders. See bb.yaml.sample!', dest='delold',
+                              action='store_true')
     # restore session
     restore = action.add_parser('restore', help='Restore options', parents=[parent_parser])
     group_restore = restore.add_argument_group(title='Restore options')
@@ -1269,6 +1272,15 @@ The program will read all the YAML files in the configdir with the extension of 
     return parser_object
 
 def single_action(args,configfile=None):
+
+    """
+    Function to preapare the actual rsync command.
+    :param args: the configurtion from the command line and the yaml files
+    :param configfile: the actual yaml config file
+    :return aktcmd: the actual rsync command
+    :return aktlog: the actual log file
+    :return online: check if the actual host's ssh and rsync ports are online
+    """
 
     global catalog_path, backup_catalog, hostname, backup_id, log_args, logs, aktlogs, rpath
     
