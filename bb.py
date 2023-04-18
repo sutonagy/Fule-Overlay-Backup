@@ -1105,7 +1105,7 @@ def parse_arguments():
     parser_object = argparse.ArgumentParser(prog='bb', description=utility.PrintColor.BOLD + 'Fule Butterfly Backup'
                                             + utility.PrintColor.END,
                                             formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-                                            epilog=check_rsync() + '''
+                                            epilog='''
                                             In the YAML files you can use the CAPITAL letter variables from this help in lowercase.
                                             See the example YAML files.
                                             ''',
