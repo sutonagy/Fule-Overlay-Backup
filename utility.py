@@ -38,7 +38,7 @@ def send_telegram_message(message,token=None, chat_id=None):
     print('telegram chat_id: ', chat_id)
     url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + message
     print('telegram url: ', url)
-    requests.get(url)
+    print(requests.get(url))
 
 def get_today_datetime():
     """

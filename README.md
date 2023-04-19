@@ -64,7 +64,7 @@ This means that all commands must be executed by the backup server. Of course, n
 ## Test
 If you want to try or test Butterfly Backup before installing it, run the test:
 ```console
-$ git clone https://github.com/MatteoGuadrini/Butterfly-Backup.git
+$ git clone https://github.com/sutonagy/Fule-Butterfly-Backup.git
 $ cd Butterfly-Backup
 $ bash test_bb.py
 ...
@@ -82,7 +82,8 @@ status = 0
 ## Installation
 Install Butterfly Backup is very simple; run this:
 ```bash
-git clone https://github.com/MatteoGuadrini/Butterfly-Backup.git
+pip install requests
+git clone https://github.com/sutonagy/Fule-Butterfly-Backup.git
 cd Butterfly-Backup
 sudo python3 setup.py
 bb --help
