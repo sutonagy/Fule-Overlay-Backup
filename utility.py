@@ -33,7 +33,7 @@ def send_telegram_message(message,token=None, chat_id=None):
     """
     import requests
     token = '6081081821:AAHL0EkjfRyTYR6H67PssyqxvHeceJ759F0' if not token else token
-    chat_id = '908623966' if not chat_id else chat_id
+    chat_id = '-1001934954219' if not chat_id else chat_id # you should insert '-100' before the chat_id of the channel
     print('telegram token: ', token)
     print('telegram chat_id: ', chat_id)
     url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + message
