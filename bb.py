@@ -255,7 +255,7 @@ def start_process(command,remote=''):
     errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
     fo = open(logfile,'w')
     fe = open(errfile,'w')
-    p = subprocess.run(command, shell=True, capture_output=True, check=True)
+    p = subprocess.call(command, shell=True, stdout=fo, stderr=fe)
     return p
 
 
