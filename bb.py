@@ -1806,13 +1806,6 @@ if __name__ == '__main__':
     try:
         parser = parse_arguments()
         args = parser.parse_args()
-        logfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
-        if args.loglevel:
-            loglevel = args.loglevel.upper()
-        else:
-            loglevel = logging.DEBUG if args.verbose else logging.INFO
-        logging.basicConfig(level=loglevel, filename=logfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
-        logging.info('Eleje')
         if args.version:
             print_version(VERSION)
         if args.mainconfig:
@@ -1821,6 +1814,13 @@ if __name__ == '__main__':
             opt.update(args)
             args = types.SimpleNamespace(**opt)
             #print('Mainconfig: ',args)
+        logfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
+        if args.loglevel:
+            loglevel = args.loglevel.upper()
+        else:
+            loglevel = logging.DEBUG if args.verbose else logging.INFO
+        logging.basicConfig(level=loglevel, filename=logfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
+        logging.info('Eleje')
         utility.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
         
         if args.configdir:
