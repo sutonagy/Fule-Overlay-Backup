@@ -1101,6 +1101,8 @@ def parse_arguments():
     parent_parser.add_argument('--config-dir', '-G', help='Config dir for yaml config files with extension defined in --config-dir-extension', dest='configdir', action='store')
     parent_parser.add_argument('--main-config-file', '-M', help='Main yaml config file for defaults', dest='mainconfig', action='store')
     parent_parser.add_argument('--date-time', '-K', help='Set backup date and time instead of now (For testing the program only). Format: yymmddHHMM', dest='datetime', action='store')
+    parent_parser.add_argument('--logfile', '-K', help='Set backup date and time instead of now (For testing the program only). Format: yymmddHHMM', dest='logfile', action='store')
+    parent_parser.add_argument('--loglevel', '-K', help='Set backup date and time instead of now (For testing the program only). Format: yymmddHHMM', dest='loglevel', action='store')
 
     # Create principal parser
     parser_object = argparse.ArgumentParser(prog='bb', description=utility.PrintColor.BOLD + 'Fule Butterfly Backup'
@@ -1798,122 +1800,147 @@ if __name__ == '__main__':
     import datetime
     import shutil
     import subprocess
+    import traceback
+    import logging
+    import sys
     global std, datetime_spec
-    parser = parse_arguments()
-    args = parser.parse_args()
-    if args.version:
-        print_version(VERSION)
-    if args.mainconfig:
-        opt = vars(args)
-        args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
-        opt.update(args)
-        args = types.SimpleNamespace(**opt)
-        #print('Mainconfig: ',args)
-    utility.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
-    
-    if args.configdir:
-        cmds = []
-        aktlogs = []
-        remotes = []
-        for root, dirs, files in os.walk(args.configdir):
-            for file in files:
-                if file.endswith(args.configext):
-                    cfile=root+'/'+file
-                    #print('Config: ',file)
-                    aktcmd, aktlog, online = single_action(args,cfile)
-                    #print('Cmd: ',aktcmd)
-                    #print('Log: ',aktlog)
-                    if online:
-                        cmds.append(' '.join(aktcmd))
-                        aktlogs.append(aktlog)
-                        #print('Aktlogs: ',aktlogs)
-                        aktconfig=file.partition('.')[0]
-                        remotes.append(aktconfig)
-    else:
-        single_action(args,args.configfile)
-    #print('Vege cmds: ',cmds)
-    #print('Vege logs: ',logs)
-    #print('Vege remotes: ',remotes)
-    #print('Vege: ',args)
-    if cmds:
+    try:
+        parser = parse_arguments()
+        args = parser.parse_args()
+        logfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
+        if args.loglevel:
+            loglevel = args.loglevel.upper()
+        else:
+            loglevel = logging.DEBUG if args.verbose else logging.INFO
+        logging.basicConfig(level=loglevel, filename=logfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
+        logging.info('Eleje')
+        if args.version:
+            print_version(VERSION)
+        if args.mainconfig:
+            opt = vars(args)
+            args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
+            opt.update(args)
+            args = types.SimpleNamespace(**opt)
+            #print('Mainconfig: ',args)
+        utility.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
+        
+        if args.configdir:
+            cmds = []
+            aktlogs = []
+            remotes = []
+            for root, dirs, files in os.walk(args.configdir):
+                for file in files:
+                    if file.endswith(args.configext):
+                        cfile=root+'/'+file
+                        #print('Config: ',file)
+                        aktcmd, aktlog, online = single_action(args,cfile)
+                        #print('Cmd: ',aktcmd)
+                        #print('Log: ',aktlog)
+                        if online:
+                            cmds.append(' '.join(aktcmd))
+                            aktlogs.append(aktlog)
+                            #print('Aktlogs: ',aktlogs)
+                            aktconfig=file.partition('.')[0]
+                            remotes.append(aktconfig)
+        else:
+            single_action(args,args.configfile)
         #print('Vege cmds: ',cmds)
         #print('Vege logs: ',logs)
         #print('Vege remotes: ',remotes)
         #print('Vege: ',args)
-        #exit(0)
-        run_in_parallel(start_process, cmds, 8)
-        
-        #regiek torlese
-        direlo = utility.time_for_folder(False)
-        dirnap = direlo[12]
-        print('Dirnap: ',dirnap)
-        if dirnap != 'd':
-            if dirnap == 'w':
-                torlonap = 'd'
-            elif dirnap == 'm':
-                torlonap = 'w'
-            elif dirnap == 'y':
-                torlonap = 'm'
-            else:
-                torlonap = ''
-            if args.mainconfig:
-                opt = vars(args)
-                args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
-                opt.update(args)
-                args = types.SimpleNamespace(**opt)
-                print('Args.configdir: ',args.configdir)
-                if args.configdir:
-                    for root, dirs, files in os.walk(args.configdir):
-                        for file in files:
-                            if file.endswith(args.configext):
-                                cfile=root+'/'+file
-                                print('Dirconfig: ',cfile)
-                                opt = vars(args)
-                                args = yaml.load(open(cfile), Loader=yaml.FullLoader)
-                                opt.update(args)
-                                args = types.SimpleNamespace(**opt)
-                                if args.hostpart:
-                                    hostname=args.hostname+'-'+args.hostpart
-                                else:
-                                    hostname=args.hostname
-                                mentodir = args.destination + '/' + hostname
-                                print('Mentodir: ',mentodir)
-                                remote=file.partition('.')[0]
-                                print('Remote: ',remote)
-                                second_dir = {}
-                                for root2, dirs2, files2 in os.walk(mentodir):
-                                    if root2 == mentodir:
-                                        dirs2.sort(reverse=True)
-                                        dirnum = 0
-                                        for dir in dirs2:
-                                            print('Dir: ',dir)                                       
-                                            if dir.rfind(dirnap) != -1:
-                                                print('Dirkezdo: ',dir)
-                                                dirnum += 1
-                                                if dirnum == 2:
-                                                    second_dir[dirnap] = dir
-                                                    print('Second dir: ',second_dir[dirnap])
-                                                    dirs2.sort(reverse=False)
-                                                    for dir in dirs2:
-                                                        print('Dir2: ',dir)                                       
-                                                        if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
-                                                            print('Dirtorlo: ',dir)
-                                                            forras1 = mentodir + '/' + dir
-                                                            print('Forras1: ',forras1)
-                                                            forras = mentodir + '/' + dir
-                                                            print('Forras: ',forras)
-                                                            cel = mentodir + '/' + second_dir[dirnap] + '/'
-                                                            print('Cel: ',cel)
-                                                            p=subprocess.run(['cp','-aurfT',forras,cel])
-                                                            print('P: ',p)
-                                                            #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
-                                                            catalog_path = args.destination + '/' + '.catalog.cfg'
-                                                            delete_backup(catalog_path, forras1)
-                                                            folderend=dir
-                                                            logfile=args.logdirectory+remote+'-'+folderend+'.log'
-                                                            print('Logfile: ',logfile)
-                                                            os.remove(logfile) if os.path.getsize(logfile) == 0 else None
-                                                            errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
-                                                            print('Errfile: ',errfile)
-                                                            os.remove(errfile) if os.path.getsize(errfile) == 0 else None
-                                                                                       
+        if cmds:
+            #print('Vege cmds: ',cmds)
+            #print('Vege logs: ',logs)
+            #print('Vege remotes: ',remotes)
+            #print('Vege: ',args)
+            #exit(0)
+            run_in_parallel(start_process, cmds, 8)
+            
+            #regiek torlese
+            direlo = utility.time_for_folder(False)
+            dirnap = direlo[12]
+            print('Dirnap: ',dirnap)
+            if (dirnap != 'd') and args.delold:
+                if dirnap == 'w':
+                    torlonap = 'd'
+                elif dirnap == 'm':
+                    torlonap = 'w'
+                elif dirnap == 'y':
+                    torlonap = 'm'
+                else:
+                    torlonap = ''
+                if args.mainconfig:
+                    opt = vars(args)
+                    args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
+                    opt.update(args)
+                    args = types.SimpleNamespace(**opt)
+                    print('Args.configdir: ',args.configdir)
+                    if args.configdir:
+                        for root, dirs, files in os.walk(args.configdir):
+                            for file in files:
+                                if file.endswith(args.configext):
+                                    cfile=root+'/'+file
+                                    print('Dirconfig: ',cfile)
+                                    opt = vars(args)
+                                    args = yaml.load(open(cfile), Loader=yaml.FullLoader)
+                                    opt.update(args)
+                                    args = types.SimpleNamespace(**opt)
+                                    if args.hostpart:
+                                        hostname=args.hostname+'-'+args.hostpart
+                                    else:
+                                        hostname=args.hostname
+                                    mentodir = args.destination + '/' + hostname
+                                    print('Mentodir: ',mentodir)
+                                    remote=file.partition('.')[0]
+                                    print('Remote: ',remote)
+                                    second_dir = {}
+                                    for root2, dirs2, files2 in os.walk(mentodir):
+                                        if root2 == mentodir:
+                                            dirs2.sort(reverse=True)
+                                            dirnum = 0
+                                            for dir in dirs2:
+                                                print('Dir: ',dir)                                       
+                                                if dir.rfind(dirnap) != -1:
+                                                    print('Dirkezdo: ',dir)
+                                                    dirnum += 1
+                                                    if dirnum == 2:
+                                                        second_dir[dirnap] = dir
+                                                        print('Second dir: ',second_dir[dirnap])
+                                                        dirs2.sort(reverse=False)
+                                                        for dir in dirs2:
+                                                            print('Dir2: ',dir)                                       
+                                                            if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
+                                                                print('Dirtorlo: ',dir)
+                                                                forras1 = mentodir + '/' + dir
+                                                                print('Forras1: ',forras1)
+                                                                forras = mentodir + '/' + dir
+                                                                print('Forras: ',forras)
+                                                                cel = mentodir + '/' + second_dir[dirnap] + '/'
+                                                                print('Cel: ',cel)
+                                                                p=subprocess.run(['cp','-aurfT',forras,cel])
+                                                                print('P: ',p)
+                                                                #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
+                                                                catalog_path = args.destination + '/' + '.catalog.cfg'
+                                                                delete_backup(catalog_path, forras1)
+                                                                folderend=dir
+                                                                logfile=args.logdirectory+remote+'-'+folderend+'.log'
+                                                                print('Logfile: ',logfile)
+                                                                os.remove(logfile) if os.path.getsize(logfile) == 0 else None
+                                                                errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
+                                                                print('Errfile: ',errfile)
+                                                                os.remove(errfile) if os.path.getsize(errfile) == 0 else None
+        utility.send_telegram_message('Backup OK')
+    except Exception as e:
+        exception_message = str(e)
+        exception_type, exception_object, exception_traceback = sys.exc_info()
+        filename = exception_traceback.tb_frame.f_code.co_filename
+        lines = traceback.format_exception(exception_type, exception_object, exception_traceback) # nem az exception_traceback, hanem a traceback modul
+        logging.error(f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}")
+        error_lines = ""
+        for line in lines:
+            logging.error(line)
+            error_lines += line
+        error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"
+        t_message = f"{error_message} {error_lines}"
+        utility.send_telegram_message(t_message)
+                                                                             

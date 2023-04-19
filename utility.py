@@ -24,6 +24,22 @@
 
 global datetime_spec
 
+def send_telegram_message(message,token=None, chat_id=None):
+    """
+    Send a message to a chat_id
+    :param token: token of bot
+    :param chat_id: chat_id of bot
+    :param message: message to send
+    """
+    import requests
+    token = '6081081821:AAHL0EkjfRyTYR6H67PssyqxvHeceJ759F0' if not token else token
+    chat_id = '908623966' if not chat_id else chat_id
+    print('telegram token: ', token)
+    print('telegram chat_id: ', chat_id)
+    url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + message
+    print('telegram url: ', url)
+    requests.get(url)
+
 def get_today_datetime():
     """
     Get today date and time

@@ -27,6 +27,8 @@ configfile: null
 configdir: /etc/bb/hosts
 configext: .bck
 delold: True #Delete old differential backup states
+loglevel:
+logfile:
 # In case of Differential backup delete older backup folders
 # From day backups (on weekdays) the older ones than the second newest week backup
 # From week backups (on Sunday) the older ones than the second newest month backup
