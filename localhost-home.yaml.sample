@@ -1,0 +1,3 @@
+hostname: localhost
+hostpart: home
+customdata: [/home] # There is an issue that at the moment you can give only one folder per yaml file in case of localhost.
