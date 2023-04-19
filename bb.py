@@ -1101,7 +1101,7 @@ def parse_arguments():
     parent_parser.add_argument('--config-dir', '-G', help='Config dir for yaml config files with extension defined in --config-dir-extension', dest='configdir', action='store')
     parent_parser.add_argument('--main-config-file', '-M', help='Main yaml config file for defaults', dest='mainconfig', action='store')
     parent_parser.add_argument('--date-time', '-K', help='Set backup date and time instead of now (For testing the program only). Format: yymmddHHMM', dest='datetime', action='store')
-    #parent_parser.add_argument('--logfile', '-Q', help='Set python logfile', dest='logfile', action='store')
+    parent_parser.add_argument('--logfile', '-Q', help='Set python logfile', dest='logfile', action='store')
     #parent_parser.add_argument('--loglevel', '-H', help='Set python loglevel (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET)', dest='loglevel', action='store')
     # Create principal parser
     parser_object = argparse.ArgumentParser(prog='bb', description=utility.PrintColor.BOLD + 'Fule Butterfly Backup'
