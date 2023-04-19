@@ -73,6 +73,22 @@ VERSION = 'v0.9.01'
 
 global is_last_full
 
+
+class Error(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+
+class RsyncRunError(Error):
+    """Error if rsync run exits with error.
+    """
+
+    def __init__(self, message):
+        """! InvoiceGrossamountError class initializer.
+        @param message  A hibaüzenet.
+        """
+        self.message = message
+
 def print_version(version):
     """
     Print version of Butterfly Backup
@@ -195,6 +211,7 @@ def run_in_parallel(fn, commands, limit):
                 if args.retention and args.skip_err:
                     # Retention policy
                     retention_policy(plog['hostname'], catalog_path, plog['destination'])
+            raise RsyncRunError(p.get()
 
         else:
             print(utility.PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + utility.PrintColor.END)
