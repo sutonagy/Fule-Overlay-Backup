@@ -1465,6 +1465,8 @@ def single_action(args,configfile=None):
                 last_full = get_last_full(backup_catalog)
                 if not last_full:
                     is_last_full = True
+            print('is_last_full in single_action: ',is_last_full)
+            logging.debug('is_last_full in single_action: {}'.format(is_last_full))
             bck_dst, folderend = compose_destination(hostname, args.destination)
             cmd = compose_command(args, hostname, folderend)
             # Check if start-from is specified
@@ -1937,6 +1939,8 @@ if __name__ == '__main__':
             #print('Vege remotes: ',remotes)
             #print('Vege: ',args)
             #exit(0)
+            print('is_last_full in main: ',is_last_full)
+            logging.debug('is_last_full in main: {}'.format(is_last_full))
             run_in_parallel(start_process, cmds, 8)
             if args.delold:
                 #regiek torlese
