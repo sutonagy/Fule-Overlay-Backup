@@ -1974,7 +1974,7 @@ if __name__ == '__main__':
                                                                 errfile=args.logdirectory+remote+'-error-'+dir+'.log'
                                                                 print('Errfile: ',errfile)
                                                                 os.remove(errfile) if os.path.getsize(errfile) == 0 else None
-        utility.send_telegram_message('Backup' + endfolder[0:11] + 'OK')
+        utility.send_telegram_message('Backup ' + endfolder[0:11] + ' OK')
     except Exception as e:
         exception_message = str(e)
         exception_type, exception_object, exception_traceback = sys.exc_info()
