@@ -1077,7 +1077,11 @@ def delete_backup(catalog, path):
     config = read_catalog(catalog)
     #root = os.path.join(os.path.dirname(catalog), host)
     root = path
+    print('path: {0}'.format(path))
+    logging.debug('path: {0}'.format(path))
     for cid in config.sections():
+        print('cid path: {0}'.format(config.get(cid, "path")))
+        logging.debug('cid path: {0}'.format(config.get(cid, "path")))
         if config.get(cid, "path") == path:
             if not os.path.exists(config[cid]['path']):
                 print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
