@@ -187,7 +187,7 @@ def run_in_parallel(fn, commands, limit):
     for command, plog, remote in zip(commands, aktlogs, remotes):
         # Run the function
         # print('Parallel command: ',command)
-        proc = pool.apply_async(func=fn, args=(command,remote,folderend))
+        proc = pool.apply_async(func=fn, args=(command,folderend,remote))
         jobs.append(proc)
         print('Start {0} {1}'.format(args.action, plog['hostname']))
         logging.info('Start {0} {1}'.format(args.action, plog['hostname']))
