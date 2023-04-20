@@ -423,7 +423,8 @@ def compose_command(flags, host, folderend):
             for exclude in flags.exclude:
                 command.append('--exclude={0}'.format(exclude))
         if flags.log:
-            log_path = os.path.join(compose_destination(host, flags.destination,folderend), 'backup.log')
+            second_layer, folderend = compose_destination(host, flags.destination,folderend)
+            log_path = os.path.join(second_layer, 'backup.log')
             command.append(
                 '--log-file={0}'.format(log_path)
             )
