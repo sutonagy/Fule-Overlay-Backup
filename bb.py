@@ -182,7 +182,8 @@ def run_in_parallel(fn, commands, limit):
     folderend=endfolder if not is_last_full else endfolder[0:12] + '-f'
     #print('Parallel commands: ',commands)
     #print('Parallel aktlogs: ',aktlogs)
-    #print('Parallel remotes: ',remotes)
+    print('Parallel remotes: ',remotes)
+    logging.debug('Parallel remotes: {0}'.format(remotes))
     for command, plog, remote in zip(commands, aktlogs, remotes):
         # Run the function
         # print('Parallel command: ',command)
