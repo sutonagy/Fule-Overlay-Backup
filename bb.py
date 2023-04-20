@@ -72,7 +72,8 @@ VERSION = 'v0.9.01'
 
 # endregion
 
-global is_last_full, endfolder
+endfolder = ''
+is_last_full = False
 
 
 
@@ -347,7 +348,6 @@ def compose_command(flags, host, folderend):
     :return: list
     """
     
-    global is_last_full
     is_last_full = False
     print_verbose(args.verbose, 'Build a rsync command')
     # Set rsync binary
@@ -1453,7 +1453,6 @@ def single_action(args,configfile=None):
             backup_catalog = read_catalog(catalog_path)
             # Compose command
             #print('Compose commands: ',args)
-            global is_last_full
             is_last_full = False
             if args.mode == 'Full':
                 is_last_full = True
