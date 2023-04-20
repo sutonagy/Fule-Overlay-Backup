@@ -179,7 +179,7 @@ def run_in_parallel(fn, commands, limit):
     # Start a Pool with "limit" processes
     pool = Pool(processes=limit)
     jobs = []
-    folderend=endfolder if not is_last_full else endfolder[0:12] + 'f'
+    folderend=endfolder if not is_last_full else endfolder[0:12] + '-f'
     #print('Parallel commands: ',commands)
     #print('Parallel aktlogs: ',aktlogs)
     #print('Parallel remotes: ',remotes)
@@ -1891,8 +1891,10 @@ if __name__ == '__main__':
             loglevel = args.loglevel.upper()
         else:
             loglevel = logging.DEBUG if args.verbose else logging.INFO
+        print('Loglevel: ',loglevel)
         logging.basicConfig(level=loglevel, filename=pylogfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
         logging.info('Eleje')
+        logging.info('loglevel: %s', loglevel)
         utility.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
         endfolder = utility.time_for_folder(False)
         
