@@ -1910,7 +1910,7 @@ if __name__ == '__main__':
         else:
             loglevel = logging.DEBUG if args.verbose else logging.INFO
         print('Loglevel: ',loglevel)
-        logging.basicConfig(level=loglevel, filename=pylogfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
+        logging.basicConfig(level=loglevel, filename=pylogfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s', style='{')
         logging.info('Eleje')
         logging.info('loglevel: %s', loglevel)
         utility.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
