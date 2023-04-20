@@ -266,7 +266,11 @@ def start_process(command,folderend,remote=''):
     else:
         p = subprocess.call(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     """
+    print('Remote in start_process: ',remote)
+    logging.debug('Remote in start_process: {0}'.format(remote))
     logfile=args.logdirectory+remote+'-'+folderend+'.log'
+    print('Logfile in start_process: ',logfile)
+    logging.debug('Logfile in start_process: {0}'.format(logfile))
     errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
     fo = open(logfile,'w')
     fe = open(errfile,'w')
@@ -1915,6 +1919,8 @@ if __name__ == '__main__':
                             aktlogs.append(aktlog)
                             #print('Aktlogs: ',aktlogs)
                             aktconfig=file.partition('.')[0]
+                            print('Aktconfig in main: ',aktconfig)
+                            logging.debug('Aktconfig in main: '+aktconfig)
                             remotes.append(aktconfig)
         else:
             single_action(args,args.configfile)
