@@ -2008,7 +2008,7 @@ if __name__ == '__main__':
                                                                 catalog_path = args.destination + '/' + '.catalog.cfg'
                                                                 delete_backup(catalog_path, forras1)
                                                                 akthost = os.path.basename(os.path.normpath(mentodir))
-                                                                logfile=args.logdirectory+dir+'-'+remote+'-'+'.log'
+                                                                logfile=args.logdirectory+dir+'-'+remote+'.log'
                                                                 print('Logfile: ',logfile)
                                                                 logging.debug('Logfile: '+logfile)
                                                                 os.remove(logfile) if os.path.getsize(logfile) == 0 else None
