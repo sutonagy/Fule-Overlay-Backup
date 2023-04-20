@@ -624,7 +624,7 @@ def compose_destination(computer_name, folder, folderend=None):
         #print('Computer_name: {0}'.format(computer_name))
         #print('Folder: {0}'.format(folder))
         if not folderend:
-            folderend=endfolder if not is_last_full else endfolder[0:11] + 'f'
+            folderend=endfolder if not is_last_full else endfolder[0:12] + 'f'
         second_layer = os.path.join(first_layer, folderend)
     else:
         second_layer = os.path.join(first_layer, 'mirror_backup')
