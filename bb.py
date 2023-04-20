@@ -214,6 +214,7 @@ def run_in_parallel(fn, commands, limit):
                 if args.retention and args.skip_err:
                     # Retention policy
                     retention_policy(plog['hostname'], catalog_path, plog['destination'])
+            folderend=utility.time_for_folder(is_last_full)
             errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
             emessage = p.get()
             if os.path.getsize(errfile) != 0:
