@@ -1415,6 +1415,18 @@ def single_action(args,configfile=None):
             backup_catalog = read_catalog(catalog_path)
             # Compose command
             #print('Compose commands: ',args)
+            global is_last_full
+            is_last_full = False
+            if args.mode == 'Full':
+                is_last_full = True
+            elif args.mode == 'Incremental':
+                last_bck = get_last_backup(backup_catalog)
+                if not last_bck:
+                    is_last_full = True
+            elif args.mode == 'Differential':
+                last_full = get_last_full(backup_catalog)
+                if not last_full:
+                    is_last_full = True
             bck_dst, folderend = compose_destination(hostname, args.destination)
             cmd = compose_command(args, hostname, folderend)
             # Check if start-from is specified
