@@ -1886,12 +1886,12 @@ if __name__ == '__main__':
             opt.update(args)
             args = types.SimpleNamespace(**opt)
             #print('Mainconfig: ',args)
-        logfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
+        pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
         if args.loglevel:
             loglevel = args.loglevel.upper()
         else:
             loglevel = logging.DEBUG if args.verbose else logging.INFO
-        logging.basicConfig(level=loglevel, filename=logfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
+        logging.basicConfig(level=loglevel, filename=pylogfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
         logging.info('Eleje')
         utility.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
         endfolder = utility.time_for_folder(False)
@@ -2008,11 +2008,11 @@ if __name__ == '__main__':
                                                                 catalog_path = args.destination + '/' + '.catalog.cfg'
                                                                 delete_backup(catalog_path, forras1)
                                                                 akthost = os.path.basename(os.path.normpath(mentodir))
-                                                                logfile=args.logdirectory+akthost+'-'+dir+'.log'
+                                                                logfile=args.logdirectory+remote+'-'+dir+'.log'
                                                                 print('Logfile: ',logfile)
                                                                 logging.debug('Logfile: '+logfile)
                                                                 os.remove(logfile) if os.path.getsize(logfile) == 0 else None
-                                                                errfile=args.logdirectory+akthost+'-error-'+dir+'.log'
+                                                                errfile=args.logdirectory+remote+'-error-'+dir+'.log'
                                                                 print('Errfile: ',errfile)
                                                                 logging.debug('Errfile: '+errfile)
                                                                 os.remove(errfile) if os.path.getsize(errfile) == 0 else None
