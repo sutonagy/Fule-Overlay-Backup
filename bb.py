@@ -1844,11 +1844,11 @@ def single_action(args,configfile=None):
 
 if __name__ == '__main__':
     import datetime
-    import shutil
     import subprocess
     import traceback
     import logging
     import sys
+    import os
     global std, datetime_spec
     try:
         parser = parse_arguments()
@@ -1968,10 +1968,11 @@ if __name__ == '__main__':
                                                                 #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
                                                                 catalog_path = args.destination + '/' + '.catalog.cfg'
                                                                 delete_backup(catalog_path, forras1)
-                                                                logfile=args.logdirectory+remote+'-'+dir+'.log'
+                                                                akthost = os.path.basename(os.path.normpath(mentodir))
+                                                                logfile=args.logdirectory+akthost+'-'+dir+'.log'
                                                                 print('Logfile: ',logfile)
                                                                 os.remove(logfile) if os.path.getsize(logfile) == 0 else None
-                                                                errfile=args.logdirectory+remote+'-error-'+dir+'.log'
+                                                                errfile=args.logdirectory+akthost+'-error-'+dir+'.log'
                                                                 print('Errfile: ',errfile)
                                                                 os.remove(errfile) if os.path.getsize(errfile) == 0 else None
         utility.send_telegram_message('Backup ' + endfolder[0:11] + ' OK')
