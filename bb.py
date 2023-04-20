@@ -1911,6 +1911,8 @@ if __name__ == '__main__':
             loglevel = logging.DEBUG if args.verbose else logging.INFO
         print('Loglevel: ',loglevel)
         #logging.basicConfig(level=loglevel, filename=pylogfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
+        for handler in logging.root.handlers[:]:
+            logging.root.removeHandler(handler)        
         logging.basicConfig(level=loglevel, filename=pylogfile, format='{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
         logging.info('Eleje')
         logging.info('loglevel: %s', loglevel)
