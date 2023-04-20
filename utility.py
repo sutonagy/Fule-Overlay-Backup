@@ -42,7 +42,7 @@ def send_telegram_message(message,token=None, chat_id=None):
     url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + message
     print('telegram url: ', url)
     urlvalasz = requests.get(url)
-    logging.debug('Token: %s, Chat_id: %s, url: %s, requests: %' % (token, chat_id, url, urlvalasz))
+    logging.debug('Token: %s, Chat_id: %s, url: %s, requests: %s' % (token, chat_id, url, urlvalasz))
 
 def get_today_datetime():
     """
