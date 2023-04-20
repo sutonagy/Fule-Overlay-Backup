@@ -218,7 +218,7 @@ def run_in_parallel(fn, commands, limit):
             errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
             emessage = p.get()
             if os.path.getsize(errfile) != 0:
-                emessage += Path(errfile).read_text()
+                emessage = emessage + Path(errfile).read_text()
             raise RsyncRunError(emessage)
 
         else:
