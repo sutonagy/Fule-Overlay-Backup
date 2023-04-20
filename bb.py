@@ -71,7 +71,7 @@ VERSION = 'v0.9.01'
 
 # endregion
 
-global is_last_full, folderend, errfrile
+global is_last_full, endfolder
 
 
 
@@ -178,14 +178,14 @@ def run_in_parallel(fn, commands, limit):
     # Start a Pool with "limit" processes
     pool = Pool(processes=limit)
     jobs = []
-    folderend=utility.time_for_folder(is_last_full)
+    folderend=endfolder if not is_last_full else endfolder[0:11] + 'f'
     #print('Parallel commands: ',commands)
     #print('Parallel aktlogs: ',aktlogs)
     #print('Parallel remotes: ',remotes)
     for command, plog, remote in zip(commands, aktlogs, remotes):
         # Run the function
         # print('Parallel command: ',command)
-        proc = pool.apply_async(func=fn, args=(command,remote))
+        proc = pool.apply_async(func=fn, args=(command,remote,folderend))
         jobs.append(proc)
         print('Start {0} {1}'.format(args.action, plog['hostname']))
         print_verbose(args.verbose, "rsync command: {0}".format(command))
@@ -241,7 +241,7 @@ def run_in_parallel(fn, commands, limit):
     pool.join()
 
 
-def start_process(command,remote=''):
+def start_process(command,folderend,remote=''):
     """
     Start rsync commands
     :param command: rsync command
@@ -324,7 +324,7 @@ def map_dict_folder(os_name):
     return folders
 
 
-def compose_command(flags, host):
+def compose_command(flags, host, folderend):
     """
     Compose rsync command for action
     :param flags: Dictionary than contains info for command
@@ -423,7 +423,7 @@ def compose_command(flags, host):
             for exclude in flags.exclude:
                 command.append('--exclude={0}'.format(exclude))
         if flags.log:
-            log_path = os.path.join(compose_destination(host, flags.destination), 'backup.log')
+            log_path = os.path.join(compose_destination(host, flags.destination,folderend), 'backup.log')
             command.append(
                 '--log-file={0}'.format(log_path)
             )
@@ -584,7 +584,9 @@ def compose_restore_src_dst(backup_os, restore_os, restore_path):
                 return rsrc, rdst
         else:
             rsrc = restore_path
-            rdst = os.path.join(r_folders['System'], 'restore_{0}'.format(utility.time_for_folder(is_last_full)))
+            fo
+            folderend=endfolder if not is_last_full else endfolder[0:11] + 'f'
+            rdst = os.path.join(r_folders['System'], 'restore_{0}'.format(folderend))
             if rsrc and rdst:
                 return rsrc, rdst
 
@@ -598,7 +600,7 @@ def get_restore_os():
     return config.get(args.id, 'os')
 
 
-def compose_destination(computer_name, folder):
+def compose_destination(computer_name, folder, folderend=None):
     """
     Compose folder destination of backup
     :param computer_name: name of source computer
@@ -612,7 +614,9 @@ def compose_destination(computer_name, folder):
         #print('Is_last_full: {0}'.format(is_last_full))
         #print('Computer_name: {0}'.format(computer_name))
         #print('Folder: {0}'.format(folder))
-        second_layer = os.path.join(first_layer, utility.time_for_folder(is_last_full))
+        if not folderend:
+            folderend=endfolder if not is_last_full else endfolder[0:11] + 'f'
+        second_layer = os.path.join(first_layer, folderend)
     else:
         second_layer = os.path.join(first_layer, 'mirror_backup')
     if not os.path.exists(first_layer):
@@ -626,7 +630,7 @@ def compose_destination(computer_name, folder):
     # Write catalog file
     write_catalog(catalog_path, backup_id, 'path', second_layer)
     print_verbose(args.verbose, 'Destination is {0}'.format(second_layer))
-    return second_layer
+    return second_layer, folderend
 
 
 def get_last_full(catalog):
@@ -1411,7 +1415,8 @@ def single_action(args,configfile=None):
             backup_catalog = read_catalog(catalog_path)
             # Compose command
             #print('Compose commands: ',args)
-            cmd = compose_command(args, hostname)
+            bck_dst, folderend = compose_destination(hostname, args.destination)
+            cmd = compose_command(args, hostname, folderend)
             # Check if start-from is specified
             if args.sfrom:
                 if backup_catalog.has_section(args.sfrom):
@@ -1447,7 +1452,6 @@ def single_action(args,configfile=None):
                 # Compose source <user>@<hostname> format
                 cmd.append('{0}@{1}'.format(args.user, hostname_orig).__add__(" ".join(source_list)))
             # Compose destination
-            bck_dst = compose_destination(hostname, args.destination)
             utility.write_log(log_args['status'], log_args['destination'], 'INFO',
                               'Backup on folder {0}'.format(bck_dst))
             cmd.append(bck_dst)
@@ -1846,6 +1850,7 @@ if __name__ == '__main__':
         logging.basicConfig(level=loglevel, filename=logfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
         logging.info('Eleje')
         utility.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
+        endfolder = utility.time_for_folder(False)
         
         if args.configdir:
             cmds = []
@@ -1880,8 +1885,7 @@ if __name__ == '__main__':
             run_in_parallel(start_process, cmds, 8)
             
             #regiek torlese
-            direlo = utility.time_for_folder(False)
-            dirnap = direlo[12]
+            dirnap = endfolder[12]
             print('Dirnap: ',dirnap)
             if (dirnap != 'd') and args.delold:
                 if dirnap == 'w':
