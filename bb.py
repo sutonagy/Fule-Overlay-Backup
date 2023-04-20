@@ -199,7 +199,7 @@ def run_in_parallel(fn, commands, limit):
         time.sleep(5)
 
     # Check exit code of command
-    for p, command, plog in zip(jobs, commands, aktlogs):
+    for p, command, plog, remote in zip(jobs, commands, aktlogs, remotes):
         if p.get() != 0:
             print(utility.PrintColor.RED + 'ERROR: Command {0} exit with code: {1}'.format(command, p.get()) +
                   utility.PrintColor.END)
@@ -214,6 +214,7 @@ def run_in_parallel(fn, commands, limit):
                 if args.retention and args.skip_err:
                     # Retention policy
                     retention_policy(plog['hostname'], catalog_path, plog['destination'])
+            errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
             emessage = p.get()
             if os.path.getsize(errfile) != 0:
                 emessage += Path(errfile).read_text()
