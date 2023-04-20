@@ -1104,7 +1104,7 @@ def delete_backup(catalog, path):
                 logging.info('Delete {0} successfully.'.format(path))
                 #elif cleanup == 1:
                     #print(utility.PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
-                          utility.PrintColor.END)
+                    #      utility.PrintColor.END)
                     #logging.error('Delete {0} failed.'.format(path))
     rmtree(root)
     # Write file
