@@ -226,6 +226,8 @@ def run_in_parallel(fn, commands, limit):
                     retention_policy(plog['hostname'], catalog_path, plog['destination'])
             errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
             emessage = p.get()
+            print('emessage in paralell : ',emessage)
+            logging.debug('emessage in paralell : {0}'.format(emessage))
             if os.path.getsize(errfile) != 0:
                 emessage = emessage + Path(errfile).read_text()
             raise RsyncRunError(emessage)
@@ -1083,8 +1085,10 @@ def delete_backup(catalog, path):
         print('cid path: {0}'.format(config.get(cid, "path")))
         logging.debug('cid path: {0}'.format(config.get(cid, "path")))
         if config.get(cid, "path") == path:
+            print('cid path in if: {0}'.format(config.get(cid, "path")))
             if not os.path.exists(config[cid]['path']):
-                print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
+                #print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
+                print("Backup-id {0} has been removed to catalog!".format(cid))
                 config.remove_section(cid)
                 logging.info("Backup-id {0} has been removed to catalog!".format(cid))
             else:
