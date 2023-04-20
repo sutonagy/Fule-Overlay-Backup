@@ -1094,18 +1094,18 @@ def delete_backup(catalog, path):
             else:
                 path = config.get(cid, 'path')
                 date = config.get(cid, 'timestamp')
-                cleanup = utility.cleanup(path, date, 0)
-                if cleanup == 0:
-                    print(utility.PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
+                #cleanup = utility.cleanup(path, date, 0)
+                #if cleanup == 0:
+                print(utility.PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
+                        utility.PrintColor.END)
+                #print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
+                config.remove_section(cid)
+                print("Backup-id {0} has been removed to catalog!".format(cid))
+                logging.info('Delete {0} successfully.'.format(path))
+                #elif cleanup == 1:
+                    #print(utility.PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
                           utility.PrintColor.END)
-                    #print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
-                    config.remove_section(cid)
-                    print("Backup-id {0} has been removed to catalog!".format(cid))
-                    logging.info('Delete {0} successfully.'.format(path))
-                elif cleanup == 1:
-                    print(utility.PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
-                          utility.PrintColor.END)
-                    logging.error('Delete {0} failed.'.format(path))
+                    #logging.error('Delete {0} failed.'.format(path))
     rmtree(root)
     # Write file
     with open(catalog, 'w') as catalogfile:
