@@ -71,7 +71,8 @@ VERSION = 'v0.9.01'
 
 # endregion
 
-global is_last_full
+global is_last_full, folderend, errfrile
+
 
 
 class Error(Exception):
@@ -177,6 +178,7 @@ def run_in_parallel(fn, commands, limit):
     # Start a Pool with "limit" processes
     pool = Pool(processes=limit)
     jobs = []
+    folderend=utility.time_for_folder(is_last_full)
     #print('Parallel commands: ',commands)
     #print('Parallel aktlogs: ',aktlogs)
     #print('Parallel remotes: ',remotes)
@@ -214,7 +216,6 @@ def run_in_parallel(fn, commands, limit):
                 if args.retention and args.skip_err:
                     # Retention policy
                     retention_policy(plog['hostname'], catalog_path, plog['destination'])
-            folderend=utility.time_for_folder(is_last_full)
             errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
             emessage = p.get()
             if os.path.getsize(errfile) != 0:
@@ -257,8 +258,6 @@ def start_process(command,remote=''):
     else:
         p = subprocess.call(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     """
-    global folderend, errfrile
-    folderend=utility.time_for_folder(is_last_full)
     logfile=args.logdirectory+remote+'-'+folderend+'.log'
     errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
     fo = open(logfile,'w')
@@ -1946,11 +1945,10 @@ if __name__ == '__main__':
                                                                 #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
                                                                 catalog_path = args.destination + '/' + '.catalog.cfg'
                                                                 delete_backup(catalog_path, forras1)
-                                                                folderend=dir
-                                                                logfile=args.logdirectory+remote+'-'+folderend+'.log'
+                                                                logfile=args.logdirectory+remote+'-'+dir+'.log'
                                                                 print('Logfile: ',logfile)
                                                                 os.remove(logfile) if os.path.getsize(logfile) == 0 else None
-                                                                errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
+                                                                errfile=args.logdirectory+remote+'-error-'+dir+'.log'
                                                                 print('Errfile: ',errfile)
                                                                 os.remove(errfile) if os.path.getsize(errfile) == 0 else None
         utility.send_telegram_message('Backup OK')
