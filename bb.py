@@ -179,7 +179,7 @@ def run_in_parallel(fn, commands, limit):
     # Start a Pool with "limit" processes
     pool = Pool(processes=limit)
     jobs = []
-    folderend=endfolder if not is_last_full else endfolder[0:12] + '-f'
+    #folderend=endfolder if not is_last_full else endfolder[0:12] + 'f'
     #print('Parallel commands: ',commands)
     #print('Parallel aktlogs: ',aktlogs)
     print('Parallel remotes: ',remotes)
