@@ -272,6 +272,8 @@ def start_process(command,folderend,remote=''):
     logfile=args.logdirectory+remote+'-'+folderend+'.log'
     print('Logfile in start_process: ',logfile)
     logging.debug('Logfile in start_process: {0}'.format(logfile))
+    print('Folderend in start_process: ',folderend)
+    logging.debug('Folderend in start_process: {0}'.format(folderend))
     errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
     fo = open(logfile,'w')
     fe = open(errfile,'w')
@@ -1936,95 +1938,95 @@ if __name__ == '__main__':
             #print('Vege: ',args)
             #exit(0)
             run_in_parallel(start_process, cmds, 8)
-            
-            #regiek torlese
-            dirnap = endfolder[12]
-            print('Dirnap: ',dirnap)
-            logging.debug('Dirnap: '+dirnap)
-            if (dirnap != 'd') and args.delold:
-                if dirnap == 'w':
-                    torlonap = 'd'
-                elif dirnap == 'm':
-                    torlonap = 'w'
-                elif dirnap == 'y':
-                    torlonap = 'm'
-                else:
-                    torlonap = ''
-                if args.mainconfig:
-                    opt = vars(args)
-                    args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
-                    opt.update(args)
-                    args = types.SimpleNamespace(**opt)
-                    print('Args.configdir: ',args.configdir)
-                    logging.debug('Args.configdir: '+args.configdir)
-                    if args.configdir:
-                        for root, dirs, files in os.walk(args.configdir):
-                            for file in files:
-                                if file.endswith(args.configext):
-                                    cfile=root+'/'+file
-                                    print('Dirconfig: ',cfile)
-                                    logging.debug('Dirconfig: '+cfile)
-                                    opt = vars(args)
-                                    args = yaml.load(open(cfile), Loader=yaml.FullLoader)
-                                    opt.update(args)
-                                    args = types.SimpleNamespace(**opt)
-                                    if args.hostpart:
-                                        hostname=args.hostname+'-'+args.hostpart
-                                    else:
-                                        hostname=args.hostname
-                                    mentodir = args.destination + '/' + hostname
-                                    print('Mentodir: ',mentodir)
-                                    logging.debug('Mentodir: '+mentodir)
-                                    remote=file.partition('.')[0]
-                                    print('Remote: ',remote)
-                                    logging.debug('Remote: '+remote)
-                                    second_dir = {}
-                                    for root2, dirs2, files2 in os.walk(mentodir):
-                                        if root2 == mentodir:
-                                            dirs2.sort(reverse=True)
-                                            dirnum = 0
-                                            for dir in dirs2:
-                                                print('Dir: ',dir)
-                                                logging.debug('Dir: '+dir)                                       
-                                                if dir.rfind(dirnap) != -1:
-                                                    print('Dirkezdo: ',dir)
-                                                    logging.debug('Dirkezdo: '+dir)
-                                                    dirnum += 1
-                                                    if dirnum == 2:
-                                                        second_dir[dirnap] = dir
-                                                        print('Second dir: ',second_dir[dirnap])
-                                                        logging.debug('Second dir: '+second_dir[dirnap])
-                                                        dirs2.sort(reverse=False)
-                                                        for dir in dirs2:
-                                                            print('Dir2: ',dir)
-                                                            logging.debug('Dir2: '+dir)              
-                                                            if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
-                                                                print('Dirtorlo: ',dir)
-                                                                logging.debug('Dirtorlo: '+dir)
-                                                                forras1 = mentodir + '/' + dir
-                                                                print('Forras1: ',forras1)
-                                                                logging.debug('Forras1: '+forras1)
-                                                                forras = mentodir + '/' + dir
-                                                                print('Forras: ',forras)
-                                                                logging.debug('Forras: '+forras)
-                                                                cel = mentodir + '/' + second_dir[dirnap] + '/'
-                                                                print('Cel: ',cel)
-                                                                logging.debug('Cel: '+cel)
-                                                                p=subprocess.run(['cp','-aurfT',forras,cel])
-                                                                print('cp result: ',p)
-                                                                logging.debug('cp result: '+str(p))
-                                                                #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
-                                                                catalog_path = args.destination + '/' + '.catalog.cfg'
-                                                                delete_backup(catalog_path, forras1)
-                                                                akthost = os.path.basename(os.path.normpath(mentodir))
-                                                                logfile=args.logdirectory+dir+'-'+remote+'.log'
-                                                                print('Logfile: ',logfile)
-                                                                logging.debug('Logfile: '+logfile)
-                                                                os.remove(logfile) if os.path.getsize(logfile) == 0 else None
-                                                                errfile=args.logdirectory+dir+'-error-'+remote+'.log'
-                                                                print('Errfile: ',errfile)
-                                                                logging.debug('Errfile: '+errfile)
-                                                                os.remove(errfile) if os.path.getsize(errfile) == 0 else None
+            if args.delold:
+                #regiek torlese
+                dirnap = endfolder[12]
+                print('Dirnap: ',dirnap)
+                logging.debug('Dirnap: '+dirnap)
+                if (dirnap != 'd') and args.delold:
+                    if dirnap == 'w':
+                        torlonap = 'd'
+                    elif dirnap == 'm':
+                        torlonap = 'w'
+                    elif dirnap == 'y':
+                        torlonap = 'm'
+                    else:
+                        torlonap = ''
+                    if args.mainconfig:
+                        opt = vars(args)
+                        args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
+                        opt.update(args)
+                        args = types.SimpleNamespace(**opt)
+                        print('Args.configdir: ',args.configdir)
+                        logging.debug('Args.configdir: '+args.configdir)
+                        if args.configdir:
+                            for root, dirs, files in os.walk(args.configdir):
+                                for file in files:
+                                    if file.endswith(args.configext):
+                                        cfile=root+'/'+file
+                                        print('Dirconfig: ',cfile)
+                                        logging.debug('Dirconfig: '+cfile)
+                                        opt = vars(args)
+                                        args = yaml.load(open(cfile), Loader=yaml.FullLoader)
+                                        opt.update(args)
+                                        args = types.SimpleNamespace(**opt)
+                                        if args.hostpart:
+                                            hostname=args.hostname+'-'+args.hostpart
+                                        else:
+                                            hostname=args.hostname
+                                        mentodir = args.destination + '/' + hostname
+                                        print('Mentodir: ',mentodir)
+                                        logging.debug('Mentodir: '+mentodir)
+                                        remote=file.partition('.')[0]
+                                        print('Remote: ',remote)
+                                        logging.debug('Remote: '+remote)
+                                        second_dir = {}
+                                        for root2, dirs2, files2 in os.walk(mentodir):
+                                            if root2 == mentodir:
+                                                dirs2.sort(reverse=True)
+                                                dirnum = 0
+                                                for dir in dirs2:
+                                                    print('Dir: ',dir)
+                                                    logging.debug('Dir: '+dir)                                       
+                                                    if dir.rfind(dirnap) != -1:
+                                                        print('Dirkezdo: ',dir)
+                                                        logging.debug('Dirkezdo: '+dir)
+                                                        dirnum += 1
+                                                        if dirnum == 2:
+                                                            second_dir[dirnap] = dir
+                                                            print('Second dir: ',second_dir[dirnap])
+                                                            logging.debug('Second dir: '+second_dir[dirnap])
+                                                            dirs2.sort(reverse=False)
+                                                            for dir in dirs2:
+                                                                print('Dir2: ',dir)
+                                                                logging.debug('Dir2: '+dir)              
+                                                                if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
+                                                                    print('Dirtorlo: ',dir)
+                                                                    logging.debug('Dirtorlo: '+dir)
+                                                                    forras1 = mentodir + '/' + dir
+                                                                    print('Forras1: ',forras1)
+                                                                    logging.debug('Forras1: '+forras1)
+                                                                    forras = mentodir + '/' + dir
+                                                                    print('Forras: ',forras)
+                                                                    logging.debug('Forras: '+forras)
+                                                                    cel = mentodir + '/' + second_dir[dirnap] + '/'
+                                                                    print('Cel: ',cel)
+                                                                    logging.debug('Cel: '+cel)
+                                                                    p=subprocess.run(['cp','-aurfT',forras,cel])
+                                                                    print('cp result: ',p)
+                                                                    logging.debug('cp result: '+str(p))
+                                                                    #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
+                                                                    catalog_path = args.destination + '/' + '.catalog.cfg'
+                                                                    delete_backup(catalog_path, forras1)
+                                                                    akthost = os.path.basename(os.path.normpath(mentodir))
+                                                                    logfile=args.logdirectory+remote+'-'+dir+'.log'
+                                                                    print('Logfile: ',logfile)
+                                                                    logging.debug('Logfile: '+logfile)
+                                                                    os.remove(logfile) if os.path.getsize(logfile) == 0 else None
+                                                                    errfile=args.logdirectory+remote+'-error-'+dir+'.log'
+                                                                    print('Errfile: ',errfile)
+                                                                    logging.debug('Errfile: '+errfile)
+                                                                    os.remove(errfile) if os.path.getsize(errfile) == 0 else None
         utility.send_telegram_message('Backup ' + endfolder[0:11] + ' OK')
     except Exception as e:
         exception_message = str(e)
