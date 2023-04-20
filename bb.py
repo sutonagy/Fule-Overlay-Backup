@@ -178,7 +178,7 @@ def run_in_parallel(fn, commands, limit):
     # Start a Pool with "limit" processes
     pool = Pool(processes=limit)
     jobs = []
-    folderend=endfolder if not is_last_full else endfolder[0:11] + 'f'
+    folderend=endfolder if not is_last_full else endfolder[0:12] + 'f'
     #print('Parallel commands: ',commands)
     #print('Parallel aktlogs: ',aktlogs)
     #print('Parallel remotes: ',remotes)
@@ -585,7 +585,7 @@ def compose_restore_src_dst(backup_os, restore_os, restore_path):
         else:
             rsrc = restore_path
             fo
-            folderend=endfolder if not is_last_full else endfolder[0:11] + 'f'
+            folderend=endfolder if not is_last_full else endfolder[0:12] + 'f'
             rdst = os.path.join(r_folders['System'], 'restore_{0}'.format(folderend))
             if rsrc and rdst:
                 return rsrc, rdst
@@ -643,15 +643,18 @@ def get_last_full(catalog):
     if config:
         dates = []
         for bid in config.sections():
-            if config.get(bid, 'type') == 'Full' \
-                    and config.get(bid, 'name') == hostname \
-                    and (not config.has_option(bid, 'cleaned') or not config.has_option(bid, 'archived')):
-                try:
-                    dates.append(utility.string_to_time(config.get(bid, 'timestamp')))
-                except configparser.NoOptionError:
-                    print(utility.PrintColor.RED +
-                          "ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + utility.PrintColor.END)
-                    exit(2)
+            if config.has_option(bid, 'type') and config.has_option(bid, 'name'):
+                if config.get(bid, 'type') == 'Full' \
+                        and config.get(bid, 'name') == hostname \
+                        and (not config.has_option(bid, 'cleaned') or not config.has_option(bid, 'archived')):
+                    try:
+                        dates.append(utility.string_to_time(config.get(bid, 'timestamp')))
+                    except configparser.NoOptionError:
+                        print(utility.PrintColor.RED +
+                            "ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + utility.PrintColor.END)
+                        exit(2)
+            else:
+                return False
         if dates:
             last_full = utility.time_to_string(max(dates))
             if last_full:
@@ -675,14 +678,17 @@ def get_last_backup(catalog):
     dates = []
     if config:
         for bid in config.sections():
-            if config.get(bid, 'name') == hostname \
-                    and (not config.has_option(bid, 'cleaned') or not config.has_option(bid, 'archived')):
-                try:
-                    dates.append(utility.string_to_time(config.get(bid, 'timestamp')))
-                except configparser.NoOptionError:
-                    print(utility.PrintColor.RED +
-                          "ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + utility.PrintColor.END)
-                    exit(2)
+            if config.has_option(bid, 'type') and config.has_option(bid, 'name'):
+                if config.get(bid, 'name') == hostname \
+                        and (not config.has_option(bid, 'cleaned') or not config.has_option(bid, 'archived')):
+                    try:
+                        dates.append(utility.string_to_time(config.get(bid, 'timestamp')))
+                    except configparser.NoOptionError:
+                        print(utility.PrintColor.RED +
+                            "ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + utility.PrintColor.END)
+                        exit(2)
+            else:
+                return False
         if dates:
             dates.sort()
             last = utility.time_to_string(dates[-1])
