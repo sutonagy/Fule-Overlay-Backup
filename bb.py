@@ -1086,6 +1086,7 @@ def delete_backup(catalog, path):
             if not os.path.exists(config[cid]['path']):
                 print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
                 config.remove_section(cid)
+                logging.info("Backup-id {0} has been removed to catalog!".format(cid))
             else:
                 path = config.get(cid, 'path')
                 date = config.get(cid, 'timestamp')
@@ -1093,9 +1094,9 @@ def delete_backup(catalog, path):
                 if cleanup == 0:
                     print(utility.PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
                           utility.PrintColor.END)
-                    logging.info('Delete {0} successfully.'.format(path))
                     print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
                     config.remove_section(cid)
+                    logging.info('Delete {0} successfully.'.format(path))
                 elif cleanup == 1:
                     print(utility.PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
                           utility.PrintColor.END)
