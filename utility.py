@@ -31,7 +31,7 @@ def send_telegram_message(message,token=None, chat_id=None):
     :param chat_id: chat_id of bot
     :param message: message to send
     """
-    import requests
+    import requests # pip install requests is necessary
     token = '6081081821:AAHL0EkjfRyTYR6H67PssyqxvHeceJ759F0' if not token else token
     chat_id = '-1001934954219' if not chat_id else chat_id # you should insert '-100' before the chat_id of the channel
     print('telegram token: ', token)

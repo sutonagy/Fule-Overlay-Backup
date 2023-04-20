@@ -171,6 +171,9 @@ def run_in_parallel(fn, commands, limit):
     :param commands: args commands of function
     :param limit: number of parallel process
     """
+    
+    from pathlib import Path
+
     # Start a Pool with "limit" processes
     pool = Pool(processes=limit)
     jobs = []
@@ -211,7 +214,10 @@ def run_in_parallel(fn, commands, limit):
                 if args.retention and args.skip_err:
                     # Retention policy
                     retention_policy(plog['hostname'], catalog_path, plog['destination'])
-            raise RsyncRunError(p.get())
+            emessage = p.get()
+            if os.path.getsize(errfile) != 0:
+                emessage += Path(errfile).read_text()
+            raise RsyncRunError(emessage)
 
         else:
             print(utility.PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + utility.PrintColor.END)
@@ -249,7 +255,7 @@ def start_process(command,remote=''):
     else:
         p = subprocess.call(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     """
-    global folderend
+    global folderend, errfrile
     folderend=utility.time_for_folder(is_last_full)
     logfile=args.logdirectory+remote+'-'+folderend+'.log'
     errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
