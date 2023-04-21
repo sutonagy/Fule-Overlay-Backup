@@ -307,6 +307,7 @@ logger.addHandler(ch)
 logger.addHandler(fh)
 logger.info('Eleje')
 logger.info('Loglevel: {0}, console loglevel: {1}'.format(fh.level, ch.level))
+print('Loglevel: {0}, console loglevel: {1}'.format(fh.level, ch.level))
 #logger.info('loglevel: %s', args.loglevel)
 
 
