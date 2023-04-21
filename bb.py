@@ -280,10 +280,10 @@ def logger_init(loggername):
                                 reset=True,
                                 log_colors={
                                     'DEBUG':    'cyan',
-                                    'INFO':     'white',
+                                    'INFO':     'light_green',
                                     'WARNING':  'yellow',
                                     'ERROR':    'red',
-                                    'CRITICAL': 'red,bg_white',
+                                    'CRITICAL': 'bold,red,bg_white',
                                 },
                                 secondary_log_colors={},
                                 style='{'
