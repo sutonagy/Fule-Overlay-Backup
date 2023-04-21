@@ -50,7 +50,7 @@ def get_today_datetime():
     :return: datetime object
     """
     #print('datetime_spec: ', datetime_spec)
-    logger.debug('datetime_spec: %s' % datetime_spec)
+    logger.debug('datetime_spec: {0}'.format(datetime_spec))
     import datetime
     if datetime_spec:
         return datetime_spec
