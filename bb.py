@@ -57,7 +57,7 @@ import argparse
 import configparser
 import os
 import subprocess
-import utility
+import utility.PrintColor, utility.print_verbose, utility.check_tool, utility.write_log, utility.time_to_sting, utility.string_to_time, utility.touch, utility.cleanup, utility.archive, utility.time_for_log, utility.check_ssh, utility.check_rsync, utility.make_symlink, utility.confirm, utility.pager, utility.find_replace, utility.datetime_spec, utility.time_for_folder, utility.send_telegram_message
 import time
 import yaml
 import types
