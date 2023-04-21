@@ -66,6 +66,21 @@ from multiprocessing import Pool
 from shutil import rmtree
 
 
+class PrintColor:
+    """
+    Class for print string in color
+    """
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
+
 
 def parse_arguments():
     """
@@ -320,21 +335,6 @@ VERSION = 'v0.9.01'
 
 endfolder = ''
 is_last_full = False
-
-class PrintColor:
-    """
-    Class for print string in color
-    """
-    PURPLE = '\033[95m'
-    CYAN = '\033[96m'
-    DARKCYAN = '\033[36m'
-    BLUE = '\033[94m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    END = '\033[0m'
 
 
 class Error(Exception):
