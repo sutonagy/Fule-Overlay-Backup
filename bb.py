@@ -271,61 +271,59 @@ The program will read all the YAML files in the configdir with the extension of 
     return parser_object
 
 
+def logger_init(loggername):
 
-import logging
-from colorlog import ColoredFormatter
+    import logging
+    from colorlog import ColoredFormatter
 
-formatter = ColoredFormatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}',
-                            datefmt=None,
-                            reset=True,
-                            log_colors={
-                                'DEBUG':    'cyan',
-                                'INFO':     'white',
-                                'WARNING':  'yellow',
-                                'ERROR':    'red',
-                                'CRITICAL': 'red,bg_white',
-                            },
-                            secondary_log_colors={},
-                            style='{'
-                            )
+    formatter = ColoredFormatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}',
+                                datefmt=None,
+                                reset=True,
+                                log_colors={
+                                    'DEBUG':    'cyan',
+                                    'INFO':     'white',
+                                    'WARNING':  'yellow',
+                                    'ERROR':    'red',
+                                    'CRITICAL': 'red,bg_white',
+                                },
+                                secondary_log_colors={},
+                                style='{'
+                                )
 
 
-#logger.basicConfig(level=loglevel, filename=pylogfile, format='{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
-parser = parse_arguments()
-args = parser.parse_args()
-if args.mainconfig:
-    opt = vars(args)
-    args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
-    opt.update(args)
-    args = types.SimpleNamespace(**opt)
-    #print('Mainconfig: ',args)
-pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
-logger = logging.getLogger('Fule-Butterfly-Backup')
-# create file handler which logs even debug messages
-fh = logging.FileHandler(pylogfile)
-if args.loglevel:
-    fh.setLevel(args.loglevel.upper())
-else:
-    fh.setLevel(logging.DEBUG) if args.verbose else logger.setLevel(logging.INFO)
-# create console handler with a higher log level
-ch = logging.StreamHandler()
-if args.consoleloglevel:
-    ch.setLevel(args.consoleloglevel.upper())
-else:
-    ch.setLevel(fh.level)
-#ch.setLevel(logging.DEBUG)
-# create formatter and add it to the handlers
-formatter2 = logging.Formatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
-ch.setFormatter(formatter)
-fh.setFormatter(formatter2)
-# add the handlers to logger
-logger.addHandler(ch)
-logger.addHandler(fh)
-logger.info('Eleje')
-logger.info('Loglevel: {0}, console loglevel: {1}'.format(logging.getLevelName(fh.level), logging.getLevelName(ch.level)))
-print('Loglevel: {0}, console loglevel: {1}'.format(logging.getLevelName(fh.level), logging.getLevelName(ch.level)))
-#logger.info('loglevel: %s', args.loglevel)
-
+    #logger.basicConfig(level=loglevel, filename=pylogfile, format='{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
+    parser = parse_arguments()
+    args = parser.parse_args()
+    if args.mainconfig:
+        opt = vars(args)
+        args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
+        opt.update(args)
+        args = types.SimpleNamespace(**opt)
+        #print('Mainconfig: ',args)
+    pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
+    logger = logging.getLogger(loggername)
+    # create file handler which logs even debug messages
+    fh = logging.FileHandler(pylogfile)
+    if args.loglevel:
+        fh.setLevel(args.loglevel.upper())
+    else:
+        fh.setLevel(logging.DEBUG) if args.verbose else logger.setLevel(logging.INFO)
+    # create console handler with a higher log level
+    ch = logging.StreamHandler()
+    if args.consoleloglevel:
+        ch.setLevel(args.consoleloglevel.upper())
+    else:
+        ch.setLevel(fh.level)
+    #ch.setLevel(logging.DEBUG)
+    # create formatter and add it to the handlers
+    formatter2 = logging.Formatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
+    ch.setFormatter(formatter)
+    fh.setFormatter(formatter2)
+    # add the handlers to logger
+    logger.addHandler(ch)
+    logger.addHandler(fh)
+    #logger.info('loglevel: %s', args.loglevel)
+    return logger
 
 # region Global Variables
 VERSION = 'v0.9.01'
@@ -1966,6 +1964,10 @@ if __name__ == '__main__':
     import traceback
     import sys
     import os
+    logger=logger_init('main')
+    logger.info('Eleje')
+    logger.info('Loglevel: {0}, console loglevel: {1}'.format(logging.getLevelName(fh.level), logging.getLevelName(ch.level)))
+    print('Loglevel: {0}, console loglevel: {1}'.format(logging.getLevelName(fh.level), logging.getLevelName(ch.level)))
     global std, datetime_spec
     try:
         parser = parse_arguments()
