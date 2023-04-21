@@ -301,8 +301,6 @@ def logger_init(loggername):
         args = types.SimpleNamespace(**opt)
         #print('Mainconfig: ',args)
     pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
-    for handler in logging.root.handlers[:]:
-        logging.root.removeHandler(handler)
     logger = logging.getLogger(loggername)
     # create file handler which logs even debug messages
     fh = logging.FileHandler(pylogfile)
@@ -327,7 +325,7 @@ def logger_init(loggername):
     #logger.info('loglevel: %s', args.loglevel)
     return logger, fh, ch, logging
 
-logger, fh, ch, logging = logger_init('fule-butterfly-backup')
+logger, fh, ch, logging = logger_init('fule-bb')
 
 # region Global Variables
 VERSION = 'v0.9.01'
@@ -1983,11 +1981,13 @@ if __name__ == '__main__':
             opt.update(args)
             args = types.SimpleNamespace(**opt)
             #print('Mainconfig: ',args)
-        pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
+        #pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
+        '''
         if args.loglevel:
             loglevel = args.loglevel.upper()
         else:
             loglevel = logger.DEBUG if args.verbose else logger.INFO
+        '''
         #print('Loglevel: ',loglevel)
         #logger.basicConfig(level=loglevel, filename=pylogfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
         uty.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
