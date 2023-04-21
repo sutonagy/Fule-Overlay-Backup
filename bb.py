@@ -62,7 +62,7 @@ import time
 import yaml
 import types
 from multiprocessing import Pool
-from utility import print_verbose
+#from utility import print_verbose
 from shutil import rmtree
 
 
@@ -342,7 +342,7 @@ def print_version(version):
     Print version of Butterfly Backup
     :return: str
     """
-    print_verbose(args.verbose, 'Print version and logo')
+    utility.print_verbose(args.verbose, 'Print version and logo')
     if args.verbose:
         print_logo()
     print(utility.PrintColor.BOLD + 'Version: ' + utility.PrintColor.END + version)
@@ -408,7 +408,7 @@ def dry_run(message):
     :return: boolean
     """
     if args.dry_run:
-        print_verbose(True, message)
+        utility.print_verbose(True, message)
         return True
 
 
@@ -437,7 +437,7 @@ def run_in_parallel(fn, commands, limit):
         jobs.append(proc)
         #print('Start {0} {1}'.format(args.action, plog['hostname']))
         logger.info('Start {0} {1}'.format(args.action, plog['hostname']))
-        print_verbose(args.verbose, "rsync command: {0}".format(command))
+        utility.print_verbose(args.verbose, "rsync command: {0}".format(command))
         logger.info("rsync command: {0}".format(command))
         utility.write_log(log_args['status'], plog['destination'], 'INFO', 'Start process {0} on {1}'.format(
             args.action, plog['hostname']
@@ -596,7 +596,7 @@ def compose_command(flags, host, folderend):
     """
     
     is_last_full = False
-    print_verbose(args.verbose, 'Build a rsync command')
+    utility.print_verbose(args.verbose, 'Build a rsync command')
     # Set rsync binary
     if flags.rsync:
         if os.path.exists(flags.rsync):
@@ -785,7 +785,7 @@ def compose_command(flags, host, folderend):
             )
             utility.write_log(log_args['status'], log_args['destination'], 'INFO',
                               'rsync log path: {0}'.format(log_path))
-    print_verbose(args.verbose, 'Command flags are: {0}'.format(' '.join(command)))
+    utility.print_verbose(args.verbose, 'Command flags are: {0}'.format(' '.join(command)))
     return command
 
 
@@ -825,7 +825,7 @@ def compose_source(action, os_name, sources):
                 src_list.append(':{0}'.format("'" + custom_data.replace("'", "'\\''") + "'"))
         utility.write_log(log_args['status'], log_args['destination'], 'INFO',
                           'OS {0}; backup folder {1}'.format(os_name, ' '.join(src_list)))
-        print_verbose(args.verbose, 'Include this criteria: {0}'.format(' '.join(src_list)))
+        utility.print_verbose(args.verbose, 'Include this criteria: {0}'.format(' '.join(src_list)))
         return src_list
 
 
@@ -892,7 +892,7 @@ def compose_destination(computer_name, folder, folderend=None):
                           'Create folder {0}'.format(second_layer))
     # Write catalog file
     write_catalog(catalog_path, backup_id, 'path', second_layer)
-    print_verbose(args.verbose, 'Destination is {0}'.format(second_layer))
+    utility.print_verbose(args.verbose, 'Destination is {0}'.format(second_layer))
     return second_layer, folderend
 
 
@@ -922,7 +922,7 @@ def get_last_full(catalog):
         if dates:
             last_full = utility.time_to_string(max(dates))
             if last_full:
-                print_verbose(args.verbose, 'Last full is {0}'.format(last_full))
+                utility.print_verbose(args.verbose, 'Last full is {0}'.format(last_full))
                 for bid in config.sections():
                     if config.get(bid, 'type') == 'Full' and \
                             config.get(bid, 'name') == hostname and \
@@ -1008,7 +1008,7 @@ def read_catalog(catalog):
     if file:
         return config
     else:
-        print_verbose(args.verbose, 'Catalog not found! Create a new one.')
+        utility.print_verbose(args.verbose, 'Catalog not found! Create a new one.')
         if os.path.exists(os.path.dirname(catalog)):
             utility.touch(catalog)
             config.read(catalog)
@@ -1139,14 +1139,14 @@ def deploy_configuration(computer, user):
     ssh_folder = os.path.join(home, '.ssh')
     # Remove private key file
     id_rsa_pub_file = os.path.join(ssh_folder, 'id_rsa.pub')
-    print_verbose(args.verbose, 'Public id_rsa is {0}'.format(id_rsa_pub_file))
+    utility.print_verbose(args.verbose, 'Public id_rsa is {0}'.format(id_rsa_pub_file))
     if not dry_run('Copying configuration to {0}'.format(computer)):
         if os.path.exists(id_rsa_pub_file):
             print('Copying configuration to' + utility.PrintColor.BOLD + ' {0}'.format(computer) +
                   utility.PrintColor.END + '; write the password:')
             return_code = subprocess.call('ssh-copy-id -i {0} {1}@{2}'.format(id_rsa_pub_file, user, computer),
                                           shell=True)
-            print_verbose(args.verbose, 'Return code of ssh-copy-id: {0}'.format(return_code))
+            utility.print_verbose(args.verbose, 'Return code of ssh-copy-id: {0}'.format(return_code))
             if return_code == 0:
                 print(utility.PrintColor.GREEN + "SUCCESS: Configuration copied successfully on {0}!".format(computer) +
                       utility.PrintColor.END)
@@ -1171,7 +1171,7 @@ def remove_configuration():
         if utility.confirm('Are you sure to remove existing rsa keys?'):
             # Remove private key file
             id_rsa_file = os.path.join(ssh_folder, 'id_rsa')
-            print_verbose(args.verbose, 'Remove private id_rsa {0}'.format(id_rsa_file))
+            utility.print_verbose(args.verbose, 'Remove private id_rsa {0}'.format(id_rsa_file))
             if os.path.exists(id_rsa_file):
                 os.remove(id_rsa_file)
             else:
@@ -1181,7 +1181,7 @@ def remove_configuration():
                 exit(2)
             # Remove public key file
             id_rsa_pub_file = os.path.join(ssh_folder, 'id_rsa.pub')
-            print_verbose(args.verbose, 'Remove public id_rsa {0}'.format(id_rsa_pub_file))
+            utility.print_verbose(args.verbose, 'Remove public id_rsa {0}'.format(id_rsa_pub_file))
             if os.path.exists(id_rsa_pub_file):
                 os.remove(id_rsa_pub_file)
             else:
@@ -1202,15 +1202,15 @@ def new_configuration():
 
     if not dry_run('Generate private/public key pair'):
         # Generate private/public key pair
-        print_verbose(args.verbose, 'Generate private/public key pair')
+        utility.print_verbose(args.verbose, 'Generate private/public key pair')
         private_key = rsa.generate_private_key(backend=default_backend(), public_exponent=65537,
                                                key_size=2048)
         # Get public key in OpenSSH format
-        print_verbose(args.verbose, 'Get public key in OpenSSH format')
+        utility.print_verbose(args.verbose, 'Get public key in OpenSSH format')
         public_key = private_key.public_key().public_bytes(serialization.Encoding.OpenSSH,
                                                            serialization.PublicFormat.OpenSSH)
         # Get private key in PEM container format
-        print_verbose(args.verbose, 'Get private key in PEM container format')
+        utility.print_verbose(args.verbose, 'Get private key in PEM container format')
         pem = private_key.private_bytes(encoding=serialization.Encoding.PEM,
                                         format=serialization.PrivateFormat.TraditionalOpenSSL,
                                         encryption_algorithm=serialization.NoEncryption())
@@ -1221,12 +1221,12 @@ def new_configuration():
         home = os.path.expanduser('~')
         # Create folder .ssh
         ssh_folder = os.path.join(home, '.ssh')
-        print_verbose(args.verbose, 'Create folder {0}'.format(ssh_folder))
+        utility.print_verbose(args.verbose, 'Create folder {0}'.format(ssh_folder))
         if not os.path.exists(ssh_folder):
             os.mkdir(ssh_folder, mode=0o755)
         # Create private key file
         id_rsa_file = os.path.join(ssh_folder, 'id_rsa')
-        print_verbose(args.verbose, 'Create private key file {0}'.format(id_rsa_file))
+        utility.print_verbose(args.verbose, 'Create private key file {0}'.format(id_rsa_file))
         if not os.path.exists(id_rsa_file):
             with open(id_rsa_file, 'w') as id_rsa:
                 os.chmod(id_rsa_file, mode=0o600)
@@ -1240,7 +1240,7 @@ def new_configuration():
             exit(2)
         # Create private key file
         id_rsa_pub_file = os.path.join(ssh_folder, 'id_rsa.pub')
-        print_verbose(args.verbose, 'Create public key file {0}'.format(id_rsa_pub_file))
+        utility.print_verbose(args.verbose, 'Create public key file {0}'.format(id_rsa_pub_file))
         if not os.path.exists(id_rsa_pub_file):
             with open(id_rsa_pub_file, 'w') as id_rsa_pub:
                 os.chmod(id_rsa_pub_file, mode=0o644)
@@ -1278,7 +1278,7 @@ def init_catalog(catalog):
     config = read_catalog(catalog)
     for cid in config.sections():
         if not os.path.exists(config[cid]['path']):
-            print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
+            utility.print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
             config.remove_section(cid)
     # Write file
     with open(catalog, 'w') as catalogfile:
@@ -1296,7 +1296,7 @@ def delete_host(catalog, host):
     for cid in config.sections():
         if config.get(cid, "name") == host:
             if not os.path.exists(config[cid]['path']):
-                print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
+                utility.print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
                 config.remove_section(cid)
             else:
                 path = config.get(cid, 'path')
@@ -1305,7 +1305,7 @@ def delete_host(catalog, host):
                 if cleanup == 0:
                     print(utility.PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
                           utility.PrintColor.END)
-                    print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
+                    utility.print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
                     config.remove_section(cid)
                 elif cleanup == 1:
                     print(utility.PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
@@ -1362,9 +1362,9 @@ def clean_catalog(catalog):
     :param catalog: catalog file
     """
     config = read_catalog(catalog)
-    print_verbose(args.verbose, "Start check catalog file: {0}!".format(catalog))
+    utility.print_verbose(args.verbose, "Start check catalog file: {0}!".format(catalog))
     for cid in config.sections():
-        print_verbose(args.verbose, "Check backup-id: {0}!".format(cid))
+        utility.print_verbose(args.verbose, "Check backup-id: {0}!".format(cid))
         mod = False
         if not config.get(cid, 'type', fallback=''):
             config.set(cid, 'type', 'Incremental')
@@ -1554,7 +1554,7 @@ def single_action(args,configfile=None):
                           #+ utility.PrintColor.END)
                     logger.error('ERROR: Backup id {0} not exist in catalog {1}!'.format(args.sfrom, args.destination))
                     exit(1)
-            print_verbose(args.verbose, 'Create a folder structure for {0} os'.format(args.type))
+            utility.print_verbose(args.verbose, 'Create a folder structure for {0} os'.format(args.type))
             # Write catalog file
             write_catalog(catalog_path, backup_id, 'name', hostname)
             # Compose source
@@ -1893,7 +1893,7 @@ def single_action(args,configfile=None):
                 logs = list()
                 logs.append(log_args)
                 # Compose command
-                print_verbose(args.verbose, 'Build a rsync command')
+                utility.print_verbose(args.verbose, 'Build a rsync command')
                 cmd = compose_command(args, None)
                 # Add source
                 cmd.append('{}'.format(os.path.join(args.catalog, '')))
@@ -1915,13 +1915,13 @@ def single_action(args,configfile=None):
                 logs = list()
                 logs.append(log_args)
                 # Compose command
-                print_verbose(args.verbose, 'Build a rsync command')
+                utility.print_verbose(args.verbose, 'Build a rsync command')
                 cmd = compose_command(args, None)
                 # Export
                 utility.write_log(log_args['status'], log_args['destination'], 'INFO',
                                   'Export {0}. Folder {1} to {2}'.format(args.id, export_catalog[args.id]['Path'],
                                                                          args.destination))
-                print_verbose(args.verbose, 'Export backup with id {0}'.format(args.id))
+                utility.print_verbose(args.verbose, 'Export backup with id {0}'.format(args.id))
                 if os.path.exists(export_catalog[args.id]['Path']):
                     # Add source
                     cmd.append('{}'.format(export_catalog[args.id]['Path']))
