@@ -57,7 +57,6 @@ import argparse
 import configparser
 import os
 import subprocess
-from utility import PrintColor
 import utility.print_verbose, utility.check_tool, utility.write_log, utility.time_to_sting, utility.string_to_time, utility.touch, utility.cleanup, utility.archive, utility.time_for_log, utility.check_ssh, utility.check_rsync, utility.make_symlink, utility.confirm, utility.pager, utility.find_replace, utility.datetime_spec, utility.time_for_folder, utility.send_telegram_message
 import time
 import yaml
@@ -65,6 +64,21 @@ import types
 from multiprocessing import Pool
 #from utility import print_verbose
 from shutil import rmtree
+
+class PrintColor:
+    """
+    Class for print string in color
+    """
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
 
 
 def parse_arguments():
@@ -87,8 +101,8 @@ def parse_arguments():
     parent_parser.add_argument('--loglevel', '-Z', help='Set python loglevel (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET)', dest='loglevel', action='store')
     parent_parser.add_argument('--console-loglevel', '-W', help='Set the python loglevel (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET) of the messages to console', dest='consoleloglevel', action='store')
     # Create principal parser
-    parser_object = argparse.ArgumentParser(prog='bb', description=utility.PrintColor.BOLD + 'Fule Butterfly Backup'
-                                            + utility.PrintColor.END,
+    parser_object = argparse.ArgumentParser(prog='bb', description=PrintColor.BOLD + 'Fule Butterfly Backup'
+                                            + PrintColor.END,
                                             formatter_class=argparse.RawTextHelpFormatter,
                                             epilog='''
 
@@ -346,7 +360,7 @@ def print_version(version):
     utility.print_verbose(args.verbose, 'Print version and logo')
     if args.verbose:
         print_logo()
-    print(utility.PrintColor.BOLD + 'Version: ' + utility.PrintColor.END + version)
+    print(PrintColor.BOLD + 'Version: ' + PrintColor.END + version)
     exit()
 
 
@@ -389,9 +403,9 @@ def check_rsync():
     :return: string
     """
     if not utility.check_tool('rsync'):
-        print(utility.PrintColor.RED +
+        print(PrintColor.RED +
               'ERROR: rsync tool is required!' +
-              utility.PrintColor.END +
+              PrintColor.END +
               """
 Red-Hat/CentOS/Fedora:    yum install rsync
 Debian/Ubuntu/Mint:       apt-get install rsync
@@ -455,8 +469,8 @@ def run_in_parallel(fn, commands, limit):
     # Check exit code of command
     for p, command, plog, remote in zip(jobs, commands, aktlogs, remotes):
         if p.get() != 0:
-            #print(utility.PrintColor.RED + 'ERROR: Command {0} exit with code: {1}'.format(command, p.get()) +
-                  #utility.PrintColor.END)
+            #print(PrintColor.RED + 'ERROR: Command {0} exit with code: {1}'.format(command, p.get()) +
+                  #PrintColor.END)
             logger.error('ERROR: Command {0} exit with code: {1}'.format(command, p.get()))
             utility.write_log(log_args['status'], plog['destination'], 'INFO',
                               'ERROR: Command {0} exit with code: {1} on {2}'.format(command, p.get(), plog['hostname']))
@@ -479,7 +493,7 @@ def run_in_parallel(fn, commands, limit):
             raise RsyncRunError(emessage)
 
         else:
-            #print(utility.PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + utility.PrintColor.END)
+            #print(PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + PrintColor.END)
             logger.info('SUCCESS: Command {0}'.format(command))
             utility.write_log(log_args['status'], plog['destination'], 'INFO',
                               'SUCCESS: Command {0} on {1}'.format(command, plog['hostname']))
@@ -603,9 +617,9 @@ def compose_command(flags, host, folderend):
         if os.path.exists(flags.rsync):
             command = [flags.rsync]
         else:
-            #print(utility.PrintColor.YELLOW +
+            #print(PrintColor.YELLOW +
                   #'WARNING: rsync binary {0} not exist! Set default.'.format(args.rsync)
-                  #+ utility.PrintColor.END)
+                  #+ PrintColor.END)
             logger.warning('WARNING: rsync binary {0} not exist! Set default.'.format(args.rsync))
             command = ['rsync']
     else:
@@ -914,8 +928,8 @@ def get_last_full(catalog):
                     try:
                         dates.append(utility.string_to_time(config.get(bid, 'timestamp')))
                     except configparser.NoOptionError:
-                        #print(utility.PrintColor.RED +
-                            #"ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + utility.PrintColor.END)
+                        #print(PrintColor.RED +
+                            #"ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + PrintColor.END)
                         logger.error("ERROR: Corrupted catalog! No found timestamp in {0}".format(bid))
                         exit(2)
             else:
@@ -949,8 +963,8 @@ def get_last_backup(catalog):
                     try:
                         dates.append(utility.string_to_time(config.get(bid, 'timestamp')))
                     except configparser.NoOptionError:
-                        print(utility.PrintColor.RED +
-                            "ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + utility.PrintColor.END)
+                        print(PrintColor.RED +
+                            "ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + PrintColor.END)
                         logger.error("ERROR: Corrupted catalog! No found timestamp in {0}".format(bid))
                         exit(2)
             else:
@@ -1015,8 +1029,8 @@ def read_catalog(catalog):
             config.read(catalog)
             return config
         else:
-            #print(utility.PrintColor.RED +
-                  #'ERROR: Folder {0} not exist!'.format(os.path.dirname(catalog)) + utility.PrintColor.END)
+            #print(PrintColor.RED +
+                  #'ERROR: Folder {0} not exist!'.format(os.path.dirname(catalog)) + PrintColor.END)
             logger.error('ERROR: Folder {0} not exist!'.format(os.path.dirname(catalog)))
             exit(1)
 
@@ -1053,9 +1067,9 @@ def retention_policy(host, catalog, logpath):
     config = read_catalog(catalog)
     full_count = count_full(config, host)
     if len(args.retention) >= 3:
-        #print(utility.PrintColor.RED + 'ERROR: The "--retention or -r" parameter must have two integers. '
+        #print(PrintColor.RED + 'ERROR: The "--retention or -r" parameter must have two integers. '
                                        #'Three or more arguments specified: {}'.format(args.retention) +
-              #utility.PrintColor.END)
+              #PrintColor.END)
         logger.error('ERROR: The "--retention or -r" parameter must have two integers. ')
         return
     if args.retention[1]:
@@ -1080,13 +1094,13 @@ def retention_policy(host, catalog, logpath):
                     cleanup = 0
                 if cleanup == 0:
                     write_catalog(catalog, bid, 'cleaned', 'True')
-                    print(utility.PrintColor.GREEN + 'SUCCESS: Cleanup {0} successfully.'.format(path) +
-                          utility.PrintColor.END)
+                    print(PrintColor.GREEN + 'SUCCESS: Cleanup {0} successfully.'.format(path) +
+                          PrintColor.END)
                     utility.write_log(log_args['status'], logpath, 'INFO',
                                       'Cleanup {0} successfully.'.format(path))
                 elif cleanup == 1:
-                    print(utility.PrintColor.RED + 'ERROR: Cleanup {0} failed.'.format(path) +
-                          utility.PrintColor.END)
+                    print(PrintColor.RED + 'ERROR: Cleanup {0} failed.'.format(path) +
+                          PrintColor.END)
                     utility.write_log(log_args['status'], logpath, 'ERROR',
                                       'Cleanup {0} failed.'.format(path))
                 else:
@@ -1116,13 +1130,13 @@ def archive_policy(catalog, destination):
                 archive = utility.archive(path, date, args.days, destination)
             if archive == 0:
                 write_catalog(catalog, bid, 'archived', 'True')
-                print(utility.PrintColor.GREEN + 'SUCCESS: Archive {0} successfully.'.format(path) +
-                      utility.PrintColor.END)
+                print(PrintColor.GREEN + 'SUCCESS: Archive {0} successfully.'.format(path) +
+                      PrintColor.END)
                 utility.write_log(log_args['status'], logpath, 'INFO',
                                   'Archive {0} successfully.'.format(path))
             elif archive == 1:
-                print(utility.PrintColor.RED + 'ERROR: Archive {0} failed.'.format(path) +
-                      utility.PrintColor.END)
+                print(PrintColor.RED + 'ERROR: Archive {0} failed.'.format(path) +
+                      PrintColor.END)
                 utility.write_log(log_args['status'], logpath, 'ERROR',
                                   'Archive {0} failed.'.format(path))
             else:
@@ -1143,21 +1157,21 @@ def deploy_configuration(computer, user):
     utility.print_verbose(args.verbose, 'Public id_rsa is {0}'.format(id_rsa_pub_file))
     if not dry_run('Copying configuration to {0}'.format(computer)):
         if os.path.exists(id_rsa_pub_file):
-            print('Copying configuration to' + utility.PrintColor.BOLD + ' {0}'.format(computer) +
-                  utility.PrintColor.END + '; write the password:')
+            print('Copying configuration to' + PrintColor.BOLD + ' {0}'.format(computer) +
+                  PrintColor.END + '; write the password:')
             return_code = subprocess.call('ssh-copy-id -i {0} {1}@{2}'.format(id_rsa_pub_file, user, computer),
                                           shell=True)
             utility.print_verbose(args.verbose, 'Return code of ssh-copy-id: {0}'.format(return_code))
             if return_code == 0:
-                print(utility.PrintColor.GREEN + "SUCCESS: Configuration copied successfully on {0}!".format(computer) +
-                      utility.PrintColor.END)
+                print(PrintColor.GREEN + "SUCCESS: Configuration copied successfully on {0}!".format(computer) +
+                      PrintColor.END)
             else:
-                print(utility.PrintColor.RED + "ERROR: Configuration has not been copied successfully on {0}!".format(
+                print(PrintColor.RED + "ERROR: Configuration has not been copied successfully on {0}!".format(
                     computer) +
-                      utility.PrintColor.END)
+                      PrintColor.END)
         else:
-            print(utility.PrintColor.YELLOW + "WARNING: Public key ~/.ssh/id_rsa.pub is not exist" +
-                  utility.PrintColor.END)
+            print(PrintColor.YELLOW + "WARNING: Public key ~/.ssh/id_rsa.pub is not exist" +
+                  PrintColor.END)
             exit(2)
 
 
@@ -1177,8 +1191,8 @@ def remove_configuration():
                 os.remove(id_rsa_file)
             else:
                 print(
-                    utility.PrintColor.YELLOW + "WARNING: Private key ~/.ssh/id_rsa is not exist" +
-                    utility.PrintColor.END)
+                    PrintColor.YELLOW + "WARNING: Private key ~/.ssh/id_rsa is not exist" +
+                    PrintColor.END)
                 exit(2)
             # Remove public key file
             id_rsa_pub_file = os.path.join(ssh_folder, 'id_rsa.pub')
@@ -1187,10 +1201,10 @@ def remove_configuration():
                 os.remove(id_rsa_pub_file)
             else:
                 print(
-                    utility.PrintColor.YELLOW + "WARNING: Public key ~/.ssh/id_rsa.pub is not exist" +
-                    utility.PrintColor.END)
+                    PrintColor.YELLOW + "WARNING: Public key ~/.ssh/id_rsa.pub is not exist" +
+                    PrintColor.END)
                 exit(2)
-            print(utility.PrintColor.GREEN + "SUCCESS: Removed configuration successfully!" + utility.PrintColor.END)
+            print(PrintColor.GREEN + "SUCCESS: Removed configuration successfully!" + PrintColor.END)
 
 
 def new_configuration():
@@ -1233,7 +1247,7 @@ def new_configuration():
                 os.chmod(id_rsa_file, mode=0o600)
                 id_rsa.write(private_key_str)
         else:
-            #print(utility.PrintColor.YELLOW + "WARNING: Private key ~/.ssh/id_rsa exists" + utility.PrintColor.END)
+            #print(PrintColor.YELLOW + "WARNING: Private key ~/.ssh/id_rsa exists" + PrintColor.END)
             logger.warning('Private key ~/.ssh/id_rsa exists')
             #print('If you want to use the existing key, run "bb config --deploy name_of_machine", '
                   #'otherwise to remove it, '
@@ -1247,13 +1261,13 @@ def new_configuration():
                 os.chmod(id_rsa_pub_file, mode=0o644)
                 id_rsa_pub.write(public_key_str)
         else:
-            #print(utility.PrintColor.YELLOW + "WARNING: Public key ~/.ssh/id_rsa.pub exists" + utility.PrintColor.END)
+            #print(PrintColor.YELLOW + "WARNING: Public key ~/.ssh/id_rsa.pub exists" + PrintColor.END)
             logger.warning('Public key ~/.ssh/id_rsa.pub exists')
             #print('If you want to use the existing key, run "bb config --deploy name_of_machine", '
                   #'otherwise to remove it, '
                   #'run "bb config --remove"')
             exit(2)
-        #print(utility.PrintColor.GREEN + "SUCCESS: New configuration successfully created!" + utility.PrintColor.END)
+        #print(PrintColor.GREEN + "SUCCESS: New configuration successfully created!" + PrintColor.END)
         logger.info('New configuration successfully created!')
 
 
@@ -1304,13 +1318,13 @@ def delete_host(catalog, host):
                 date = config.get(cid, 'timestamp')
                 cleanup = utility.cleanup(path, date, 0)
                 if cleanup == 0:
-                    print(utility.PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
-                          utility.PrintColor.END)
+                    print(PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
+                          PrintColor.END)
                     utility.print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
                     config.remove_section(cid)
                 elif cleanup == 1:
-                    print(utility.PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
-                          utility.PrintColor.END)
+                    print(PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
+                          PrintColor.END)
     rmtree(root)
     # Write file
     with open(catalog, 'w') as catalogfile:
@@ -1342,15 +1356,15 @@ def delete_backup(catalog, path):
                 date = config.get(cid, 'timestamp')
                 #cleanup = utility.cleanup(path, date, 0)
                 #if cleanup == 0:
-                #print(utility.PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
-                        #utility.PrintColor.END)
+                #print(PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
+                        #PrintColor.END)
                 #print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
                 config.remove_section(cid)
                 #print("Backup-id {0} has been removed to catalog!".format(cid))
                 logger.info('Delete {0} successfully.'.format(path))
                 #elif cleanup == 1:
-                    #print(utility.PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
-                    #      utility.PrintColor.END)
+                    #print(PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
+                    #      PrintColor.END)
                     #logger.error('Delete {0} failed.'.format(path))
     rmtree(root)
     # Write file
@@ -1392,9 +1406,9 @@ def clean_catalog(catalog):
             config.set(cid, 'status', '0')
             mod = True
         if mod:
-            #print(utility.PrintColor.YELLOW +
+            #print(PrintColor.YELLOW +
                   #'WARNING: The backup-id {0} has been set to default value, because he was corrupt. '
-                  #'Check it!'.format(cid) + utility.PrintColor.END)
+                  #'Check it!'.format(cid) + PrintColor.END)
             logger.warning('The backup-id {0} has been set to default value, because he was corrupt. '
                             'Check it!'.format(cid))
     # Write file
@@ -1427,8 +1441,8 @@ def single_action(args,configfile=None):
         parser.print_help()
     
     if args.action != 'backup':
-        #print(utility.PrintColor.RED +
-                #"ERROR: Only 'backup' mode works! '{0}' mode has not yet tested".format(args.action) + utility.PrintColor.END)
+        #print(PrintColor.RED +
+                #"ERROR: Only 'backup' mode works! '{0}' mode has not yet tested".format(args.action) + PrintColor.END)
         logger.error("ERROR: Only 'backup' mode works! '{0}' mode has not yet tested".format(args.action))
         exit(1)
     # Check config session
@@ -1451,7 +1465,7 @@ def single_action(args,configfile=None):
             clean_catalog(catalog_path)
         else:
             parser.print_usage()
-            print('For ' + utility.PrintColor.BOLD + 'config' + utility.PrintColor.END + ' usage, "--help" or "-h"')
+            print('For ' + PrintColor.BOLD + 'config' + PrintColor.END + ' usage, "--help" or "-h"')
             exit(1)
 
     # Check backup session
@@ -1473,13 +1487,13 @@ def single_action(args,configfile=None):
                     # Computer list
                     hostnames.append(line)
             else:
-                #print(utility.PrintColor.RED + 'ERROR: The file {0} not exist!'.format(args.list)
-                      #+ utility.PrintColor.END)
+                #print(PrintColor.RED + 'ERROR: The file {0} not exist!'.format(args.list)
+                      #+ PrintColor.END)
                 logger.error('ERROR: The file {0} not exist!'.format(args.list))
         else:
             parser.print_usage()
             # print args
-            print('For ' + utility.PrintColor.BOLD + 'backup' + utility.PrintColor.END + ' usage, "--help" or "-h"')
+            print('For ' + PrintColor.BOLD + 'backup' + PrintColor.END + ' usage, "--help" or "-h"')
             exit(1)
         # print (args)
         # exit(0)
@@ -1492,21 +1506,21 @@ def single_action(args,configfile=None):
                 hostname_orig=hostname
             online = True
             if not utility.check_ssh(hostname_orig, port):
-                #print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, hostname)
-                      #+ utility.PrintColor.END)
+                #print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, hostname)
+                      #+ PrintColor.END)
                 logger.error('ERROR: The port {0} on {1} is closed!'.format(port, hostname))
                 online = False
                 # continue
             if not utility.check_rsync(hostname_orig, rport):
-                #print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, hostname)
-                      #+ utility.PrintColor.END)
+                #print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, hostname)
+                      #+ PrintColor.END)
                 logger.error('ERROR: The port {0} on {1} is closed!'.format(rport, hostname))
                 online = False
                 # continue
             if not args.verbose:
                 if check_configuration(hostname_orig):
-                    #print(utility.PrintColor.RED + '''ERROR: For bulk or silently backup, deploy configuration!
-                            #See bb deploy --help or specify --verbose''' + utility.PrintColor.END)
+                    #print(PrintColor.RED + '''ERROR: For bulk or silently backup, deploy configuration!
+                            #See bb deploy --help or specify --verbose''' + PrintColor.END)
                     logger.error('ERROR: For bulk or silently backup, deploy configuration! (Copy the public key to the remote host)')
                     continue
             # Log information's
@@ -1545,14 +1559,14 @@ def single_action(args,configfile=None):
                     if os.path.exists(backup_catalog[args.sfrom]['path']):
                         cmd.append('--copy-dest={0}'.format(backup_catalog[args.sfrom]['path']))
                     else:
-                        #print(utility.PrintColor.YELLOW +
+                        #print(PrintColor.YELLOW +
                               #'WARNING: Backup folder {0} not exist!'.format(backup_catalog[args.sfrom]['path'])
-                              #+ utility.PrintColor.END)
+                              #+ PrintColor.END)
                         logger.warning('WARNING: Backup folder {0} not exist!'.format(backup_catalog[args.sfrom]['path']))
                 else:
-                    #print(utility.PrintColor.RED +
+                    #print(PrintColor.RED +
                           #'ERROR: Backup id {0} not exist in catalog {1}!'.format(args.sfrom, args.destination)
-                          #+ utility.PrintColor.END)
+                          #+ PrintColor.END)
                     logger.error('ERROR: Backup id {0} not exist in catalog {1}!'.format(args.sfrom, args.destination))
                     exit(1)
             utility.print_verbose(args.verbose, 'Create a folder structure for {0} os'.format(args.type))
@@ -1621,8 +1635,8 @@ def single_action(args,configfile=None):
                 ros = args.type
                 rfolders = [f.path for f in os.scandir(rpath) if f.is_dir()]
             else:
-                print(utility.PrintColor.RED + 'ERROR: Backup folder {0} not exist!'.format(rpath) +
-                      utility.PrintColor.END)
+                print(PrintColor.RED + 'ERROR: Backup folder {0} not exist!'.format(rpath) +
+                      PrintColor.END)
                 exit(1)
         elif args.id:
             # Check catalog backup id
@@ -1635,28 +1649,28 @@ def single_action(args,configfile=None):
                     ros = args.type
                     rfolders = [f.path for f in os.scandir(rpath) if f.is_dir()]
                 else:
-                    print(utility.PrintColor.RED +
+                    print(PrintColor.RED +
                           'ERROR: Backup folder {0} not exist!'.format(restore_catalog[args.id]['path'])
-                          + utility.PrintColor.END)
+                          + PrintColor.END)
                     exit(1)
             else:
-                print(utility.PrintColor.RED +
+                print(PrintColor.RED +
                       'ERROR: Backup id {0} not exist in catalog {1}!'.format(args.id, args.catalog)
-                      + utility.PrintColor.END)
+                      + PrintColor.END)
                 exit(1)
         # Test connection
         if not utility.check_ssh(rhost, port):
-            print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, rhost)
-                    + utility.PrintColor.END)
+            print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, rhost)
+                    + PrintColor.END)
             exit(1)
         if not utility.check_rsync(rhost, rport):
-            print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, rhost)
-                    + utility.PrintColor.END)
+            print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, rhost)
+                    + PrintColor.END)
             exit(1)
         if not args.verbose:
             if not check_configuration(rhost):
-                print(utility.PrintColor.RED + '''ERROR: For bulk or silently backup to deploy configuration!
-                                            See bb deploy --help or specify --verbose''' + utility.PrintColor.END)
+                print(PrintColor.RED + '''ERROR: For bulk or silently backup to deploy configuration!
+                                            See bb deploy --help or specify --verbose''' + PrintColor.END)
                 exit(1)
         log_args = {
             'hostname': rhost,
@@ -1718,78 +1732,78 @@ def single_action(args,configfile=None):
             if not args.oneline:
                 utility.print_verbose(args.verbose, "Select backup-id: {0}".format(args.id))
                 if not list_catalog.has_section(args.id):
-                    print(utility.PrintColor.RED +
+                    print(PrintColor.RED +
                           'ERROR: Backup-id {0} not exist!'.format(args.id)
-                          + utility.PrintColor.END)
+                          + PrintColor.END)
                     exit(1)
-                print('Backup id: ' + utility.PrintColor.BOLD + args.id +
-                      utility.PrintColor.END)
-                print('Hostname or ip: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['name'] +
-                      utility.PrintColor.END)
-                print('Type: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['type'] +
-                      utility.PrintColor.END)
-                print('Timestamp: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['timestamp'] +
-                      utility.PrintColor.END)
-                print('Start: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['start'] +
-                      utility.PrintColor.END)
-                print('Finish: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['end'] +
-                      utility.PrintColor.END)
-                print('OS: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['os'] +
-                      utility.PrintColor.END)
-                print('ExitCode: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['status'] +
-                      utility.PrintColor.END)
-                print('Path: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['path'] +
-                      utility.PrintColor.END)
+                print('Backup id: ' + PrintColor.BOLD + args.id +
+                      PrintColor.END)
+                print('Hostname or ip: ' + PrintColor.DARKCYAN + list_catalog[args.id]['name'] +
+                      PrintColor.END)
+                print('Type: ' + PrintColor.DARKCYAN + list_catalog[args.id]['type'] +
+                      PrintColor.END)
+                print('Timestamp: ' + PrintColor.DARKCYAN + list_catalog[args.id]['timestamp'] +
+                      PrintColor.END)
+                print('Start: ' + PrintColor.DARKCYAN + list_catalog[args.id]['start'] +
+                      PrintColor.END)
+                print('Finish: ' + PrintColor.DARKCYAN + list_catalog[args.id]['end'] +
+                      PrintColor.END)
+                print('OS: ' + PrintColor.DARKCYAN + list_catalog[args.id]['os'] +
+                      PrintColor.END)
+                print('ExitCode: ' + PrintColor.DARKCYAN + list_catalog[args.id]['status'] +
+                      PrintColor.END)
+                print('Path: ' + PrintColor.DARKCYAN + list_catalog[args.id]['path'] +
+                      PrintColor.END)
                 if list_catalog.get(args.id, 'cleaned', fallback=False):
-                    print('Cleaned: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['cleaned'] +
-                          utility.PrintColor.END)
+                    print('Cleaned: ' + PrintColor.DARKCYAN + list_catalog[args.id]['cleaned'] +
+                          PrintColor.END)
                 elif list_catalog.get(args.id, 'archived', fallback=False):
-                    print('Archived: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['archived'] +
-                          utility.PrintColor.END)
+                    print('Archived: ' + PrintColor.DARKCYAN + list_catalog[args.id]['archived'] +
+                          PrintColor.END)
                 else:
-                    print('List: ' + utility.PrintColor.DARKCYAN + '\n'.join(os.listdir(list_catalog[args.id]['path']))
-                          + utility.PrintColor.END)
+                    print('List: ' + PrintColor.DARKCYAN + '\n'.join(os.listdir(list_catalog[args.id]['path']))
+                          + PrintColor.END)
             else:
                 if not list_catalog.has_section(args.id):
-                    print(utility.PrintColor.RED +
+                    print(PrintColor.RED +
                           'ERROR: Backup-id {0} not exist!'.format(args.id)
-                          + utility.PrintColor.END)
+                          + PrintColor.END)
                     exit(1)
-                print('Id: ' + utility.PrintColor.BOLD + args.id +
-                      utility.PrintColor.END, end=' - ')
-                print('Name: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['name'] +
-                      utility.PrintColor.END, end=' - ')
-                print('Type: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['type'] +
-                      utility.PrintColor.END, end=' - ')
-                print('Timestamp: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['timestamp'] +
-                      utility.PrintColor.END, end=' - ')
-                print('Start: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['start'] +
-                      utility.PrintColor.END, end=' - ')
-                print('Finish: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['end'] +
-                      utility.PrintColor.END, end=' - ')
-                print('OS: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['os'] +
-                      utility.PrintColor.END, end=' - ')
-                print('ExitCode: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['status'] +
-                      utility.PrintColor.END, end=' - ')
-                print('Path: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['path'] +
-                      utility.PrintColor.END, end=' - ')
+                print('Id: ' + PrintColor.BOLD + args.id +
+                      PrintColor.END, end=' - ')
+                print('Name: ' + PrintColor.DARKCYAN + list_catalog[args.id]['name'] +
+                      PrintColor.END, end=' - ')
+                print('Type: ' + PrintColor.DARKCYAN + list_catalog[args.id]['type'] +
+                      PrintColor.END, end=' - ')
+                print('Timestamp: ' + PrintColor.DARKCYAN + list_catalog[args.id]['timestamp'] +
+                      PrintColor.END, end=' - ')
+                print('Start: ' + PrintColor.DARKCYAN + list_catalog[args.id]['start'] +
+                      PrintColor.END, end=' - ')
+                print('Finish: ' + PrintColor.DARKCYAN + list_catalog[args.id]['end'] +
+                      PrintColor.END, end=' - ')
+                print('OS: ' + PrintColor.DARKCYAN + list_catalog[args.id]['os'] +
+                      PrintColor.END, end=' - ')
+                print('ExitCode: ' + PrintColor.DARKCYAN + list_catalog[args.id]['status'] +
+                      PrintColor.END, end=' - ')
+                print('Path: ' + PrintColor.DARKCYAN + list_catalog[args.id]['path'] +
+                      PrintColor.END, end=' - ')
                 if list_catalog.get(args.id, 'cleaned', fallback=False):
-                    print('Cleaned: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['cleaned'] +
-                          utility.PrintColor.END, end=' - ')
+                    print('Cleaned: ' + PrintColor.DARKCYAN + list_catalog[args.id]['cleaned'] +
+                          PrintColor.END, end=' - ')
                 elif list_catalog.get(args.id, 'archived', fallback=False):
-                    print('Archived: ' + utility.PrintColor.DARKCYAN + list_catalog[args.id]['archived'] +
-                          utility.PrintColor.END, end=' - ')
+                    print('Archived: ' + PrintColor.DARKCYAN + list_catalog[args.id]['archived'] +
+                          PrintColor.END, end=' - ')
                 else:
-                    print('List: ' + utility.PrintColor.DARKCYAN + ' '.join(os.listdir(list_catalog[args.id]['path'])) +
-                          utility.PrintColor.END)
+                    print('List: ' + PrintColor.DARKCYAN + ' '.join(os.listdir(list_catalog[args.id]['path'])) +
+                          PrintColor.END)
         elif args.detail:
             log_args['hostname'] = list_catalog[args.detail]['name']
             logs = [log_args]
             utility.print_verbose(args.verbose, "List detail of backup-id: {0}".format(args.detail))
-            print('Detail of backup folder: ' + utility.PrintColor.DARKCYAN
-                  + list_catalog[args.detail]['path'] + utility.PrintColor.END)
-            print('List: ' + utility.PrintColor.DARKCYAN + '\n'.join(os.listdir(list_catalog[args.detail]['path']))
-                  + utility.PrintColor.END)
+            print('Detail of backup folder: ' + PrintColor.DARKCYAN
+                  + list_catalog[args.detail]['path'] + PrintColor.END)
+            print('List: ' + PrintColor.DARKCYAN + '\n'.join(os.listdir(list_catalog[args.detail]['path']))
+                  + PrintColor.END)
             if log_args['status']:
                 utility.write_log(log_args['status'], log_args['destination'], 'INFO',
                                   'BUTTERFLY BACKUP DETAIL (BACKUP-ID: {0} PATH: {1})'.format(
@@ -1903,9 +1917,9 @@ def single_action(args,configfile=None):
             else:
                 # Check specified argument backup-id
                 if not export_catalog.has_section(args.id):
-                    print(utility.PrintColor.RED +
+                    print(PrintColor.RED +
                           'ERROR: Backup-id {0} not exist!'.format(args.id)
-                          + utility.PrintColor.END)
+                          + PrintColor.END)
                     exit(1)
                 # Log info
                 log_args = {
@@ -1941,8 +1955,8 @@ def single_action(args,configfile=None):
                 utility.find_replace(os.path.join(args.destination, '.catalog.cfg'), args.catalog.rstrip('/'),
                                      args.destination.rstrip('/'))
         else:
-            print(utility.PrintColor.RED +
-                  "ERROR: Source or destination path doesn't exist!" + utility.PrintColor.END)
+            print(PrintColor.RED +
+                  "ERROR: Source or destination path doesn't exist!" + PrintColor.END)
             exit(1)
 
 
