@@ -320,7 +320,7 @@ def logger_init(loggername):
         logger.setLevel(colorlog.DEBUG) if args.verbose else logger.setLevel(colorlog.INFO)
     logger.addHandler(fh)
     #logger.info('loglevel: %s', args.loglevel)
-    return logger, colorlog.level
+    return logger, logger.level
 
 logger, loglevel = logger_init('fule-bb')
 
