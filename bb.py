@@ -320,9 +320,9 @@ def logger_init(loggername):
         logger.setLevel(colorlog.DEBUG) if args.verbose else logger.setLevel(colorlog.INFO)
     logger.addHandler(fh)
     #logger.info('loglevel: %s', args.loglevel)
-    return logger, fh, ch, colorlog
+    return logger, colorlog.level
 
-logger, fh, ch, colorlog = logger_init('fule-bb')
+logger, loglevel = logger_init('fule-bb')
 
 # region Global Variables
 VERSION = 'v0.9.01'
@@ -1964,8 +1964,8 @@ if __name__ == '__main__':
     import sys
     import os
     logger.info('Eleje')
-    logger.info('Loglevel: {0}, console loglevel: {1}'.format(logging.getLevelName(fh.level), logging.getLevelName(ch.level)))
-    print('Loglevel: {0}, console loglevel: {1}'.format(logging.getLevelName(fh.level), logging.getLevelName(ch.level)))
+    logger.info('Loglevel: {0}'.format(loglevel))
+    print('Loglevel: {0}'.format(loglevel))
     global std, datetime_spec
     try:
         parser = parse_arguments()
