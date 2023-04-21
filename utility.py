@@ -37,10 +37,10 @@ def send_telegram_message(message,token=None, chat_id=None):
     import requests # pip install requests is necessary
     token = '6081081821:AAHL0EkjfRyTYR6H67PssyqxvHeceJ759F0' if not token else token
     chat_id = '-1001934954219' if not chat_id else chat_id # you should insert '-100' before the chat_id of the channel
-    print('telegram token: ', token)
-    print('telegram chat_id: ', chat_id)
+    #print('telegram token: ', token)
+    #print('telegram chat_id: ', chat_id)
     url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + message
-    print('telegram url: ', url)
+    #print('telegram url: ', url)
     urlvalasz = requests.get(url)
     logging.debug('Token: %s, Chat_id: %s, url: %s, requests: %s' % (token, chat_id, url, urlvalasz))
 
@@ -49,7 +49,7 @@ def get_today_datetime():
     Get today date and time
     :return: datetime object
     """
-    print('datetime_spec: ', datetime_spec)
+    #print('datetime_spec: ', datetime_spec)
     logging.debug('datetime_spec: %s' % datetime_spec)
     import datetime
     if datetime_spec:
@@ -308,15 +308,15 @@ def check_ssh(ip, port=22):
     import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        print(PrintColor.YELLOW + 'Waiting for port {0} on host {1} ...'.format(port, ip)
-                + PrintColor.END)
+        #print(PrintColor.YELLOW + 'Waiting for port {0} on host {1} ...'.format(port, ip)
+                #+ PrintColor.END)
         logging.debug('Waiting for port {0} on host {1} ...'.format(port, ip))
         s.settimeout(60)
         s.connect((ip, port))
         s.settimeout(None)
         s.shutdown(2)
-        print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
-                + PrintColor.END)
+        #print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
+                #+ PrintColor.END)
         logging.debug('The port {0} on {1} is open!'.format(port, ip))
         return True
     except socket.error:
@@ -332,15 +332,15 @@ def check_rsync(ip, port=873):
     import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        print(PrintColor.YELLOW + 'Waiting for port {0} on host {1} ...'.format(port, ip)
-                + PrintColor.END)
+        #print(PrintColor.YELLOW + 'Waiting for port {0} on host {1} ...'.format(port, ip)
+                #+ PrintColor.END)
         logging.debug('Waiting for port {0} on host {1} ...'.format(port, ip))
         s.settimeout(60)
         s.connect((ip, port))
         s.settimeout(None)
         s.shutdown(2)
-        print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
-                + PrintColor.END)
+        #print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
+                #+ PrintColor.END)
         logging.debug('The port {0} on {1} is open!'.format(port, ip))
         return True
     except socket.error:
