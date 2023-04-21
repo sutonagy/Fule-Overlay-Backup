@@ -84,6 +84,7 @@ def parse_arguments():
     parent_parser.add_argument('--date-time', '-K', help='Set backup date and time instead of now (For testing the program only). Format: yymmddHHMM', dest='datetime', action='store')
     parent_parser.add_argument('--logfile', '-Q', help='Set python logfile', dest='logfile', action='store')
     parent_parser.add_argument('--loglevel', '-Z', help='Set python loglevel (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET)', dest='loglevel', action='store')
+    parent_parser.add_argument('--console-loglevel', '-W', help='Set the python loglevel (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET) of the messages to console', dest='consoleloglevel', action='store')
     # Create principal parser
     parser_object = argparse.ArgumentParser(prog='bb', description=utility.PrintColor.BOLD + 'Fule Butterfly Backup'
                                             + utility.PrintColor.END,
@@ -256,6 +257,23 @@ The program will read all the YAML files in the configdir with the extension of 
 
 
 import logging
+from colorlog import ColoredFormatter
+
+formatter = ColoredFormatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}',
+                            datefmt=None,
+                            reset=True,
+                            log_colors={
+                                'DEBUG':    'cyan',
+                                'INFO':     'white',
+                                'WARNING':  'yellow',
+                                'ERROR':    'red',
+                                'CRITICAL': 'red,bg_white',
+                            },
+                            secondary_log_colors={},
+                            style='{'
+                            )
+
+
 #logger.basicConfig(level=loglevel, filename=pylogfile, format='{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
 parser = parse_arguments()
 args = parser.parse_args()
@@ -267,24 +285,23 @@ if args.mainconfig:
     #print('Mainconfig: ',args)
 pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
 logger = logging.getLogger('server_logger')
-#logger.setLevel(logging.DEBUG)
 # create file handler which logs even debug messages
 fh = logging.FileHandler(pylogfile)
 if args.loglevel:
     fh.setLevel(args.loglevel.upper())
-    #loglevel = args.loglevel.upper()
 else:
-    #loglevel = logger.DEBUG if args.verbose else logger.INFO
     fh.setLevel(logging.DEBUG) if args.verbose else logger.setLevel(logging.INFO)
-
-#fh.setLevel(logging.DEBUG)
 # create console handler with a higher log level
 ch = logging.StreamHandler()
-ch.setLevel(logging.WARNING)
+if args.consoleloglevel:
+    ch.setLevel(args.consoleloglevel.upper())
+else:
+    ch.setLevel(fh.level)
+#ch.setLevel(logging.DEBUG)
 # create formatter and add it to the handlers
-formatter = logging.Formatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
+formatter2 = logging.Formatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
 ch.setFormatter(formatter)
-fh.setFormatter(formatter)
+fh.setFormatter(formatter2)
 # add the handlers to logger
 logger.addHandler(ch)
 logger.addHandler(fh)
