@@ -1216,8 +1216,8 @@ def new_configuration():
             #print(utility.PrintColor.YELLOW + "WARNING: Private key ~/.ssh/id_rsa exists" + utility.PrintColor.END)
             logger.warning('Private key ~/.ssh/id_rsa exists')
             #print('If you want to use the existing key, run "bb config --deploy name_of_machine", '
-                  'otherwise to remove it, '
-                  'run "bb config --remove"')
+                  #'otherwise to remove it, '
+                  #'run "bb config --remove"')
             exit(2)
         # Create private key file
         id_rsa_pub_file = os.path.join(ssh_folder, 'id_rsa.pub')
@@ -1230,8 +1230,8 @@ def new_configuration():
             #print(utility.PrintColor.YELLOW + "WARNING: Public key ~/.ssh/id_rsa.pub exists" + utility.PrintColor.END)
             logger.warning('Public key ~/.ssh/id_rsa.pub exists')
             #print('If you want to use the existing key, run "bb config --deploy name_of_machine", '
-                  'otherwise to remove it, '
-                  'run "bb config --remove"')
+                  #'otherwise to remove it, '
+                  #'run "bb config --remove"')
             exit(2)
         #print(utility.PrintColor.GREEN + "SUCCESS: New configuration successfully created!" + utility.PrintColor.END)
         logger.info('New configuration successfully created!')
