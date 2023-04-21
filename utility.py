@@ -23,7 +23,7 @@
 #
 
 import bb as bbmain
-logger= bbmain.logger_init('utility')
+logger, fh, ch, logging = bbmain.logger_init('utility')
 
 global datetime_spec
 
