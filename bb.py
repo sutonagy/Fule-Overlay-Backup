@@ -100,7 +100,7 @@ def parse_arguments():
     parent_parser.add_argument('--date-time', '-K', help='Set backup date and time instead of now (For testing the program only). Format: yymmddHHMM', dest='datetime', action='store')
     parent_parser.add_argument('--logfile', '-Q', help='Set python logfile', dest='logfile', action='store')
     parent_parser.add_argument('--loglevel', '-Z', help='Set python loglevel (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET)', dest='loglevel', action='store')
-    parent_parser.add_argument('--console-loglevel', '-W', help='Set the python loglevel (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET) of the messages to console', dest='consoleloglevel', action='store')
+    parent_parser.add_argument('--console-loglevel', '-W', help='Print the log messages to the console too', dest='consolelog', action='store')
     # Create principal parser
     parser_object = argparse.ArgumentParser(prog='bb', description=PrintColor.BOLD + 'Fule Butterfly Backup'
                                             + PrintColor.END,
@@ -305,22 +305,19 @@ def logger_init(loggername):
     # create file handler which logs even debug messages
     fh = logging.FileHandler(pylogfile)
     if args.loglevel:
-        fh.setLevel(args.loglevel.upper())
+        logger.setLevel(args.loglevel.upper())
     else:
-        fh.setLevel(logging.DEBUG) if args.verbose else logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG) if args.verbose else logger.setLevel(logging.INFO)
     # create console handler with a higher log level
-    ch = logging.StreamHandler()
-    if args.consoleloglevel:
-        ch.setLevel(args.consoleloglevel.upper())
-    else:
-        ch.setLevel(fh.level)
+    if args.consolelog:
+        ch = logging.StreamHandler()
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
     #ch.setLevel(logging.DEBUG)
     # create formatter and add it to the handlers
     formatter2 = logging.Formatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
-    ch.setFormatter(formatter)
     fh.setFormatter(formatter2)
     # add the handlers to logger
-    logger.addHandler(ch)
     logger.addHandler(fh)
     #logger.info('loglevel: %s', args.loglevel)
     return logger, fh, ch, logging
