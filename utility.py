@@ -22,8 +22,7 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import logging
-
+from bb import logger
 
 global datetime_spec
 
