@@ -325,6 +325,8 @@ def logger_init(loggername):
     #logger.info('loglevel: %s', args.loglevel)
     return logger, fh, ch, logging
 
+logger, fh, ch, logging = logger_init('fule-butterfly-backup')
+
 # region Global Variables
 VERSION = 'v0.9.01'
 
@@ -1964,7 +1966,6 @@ if __name__ == '__main__':
     import traceback
     import sys
     import os
-    logger, fh, ch, logging = logger_init('main')
     logger.info('Eleje')
     logger.info('Loglevel: {0}, console loglevel: {1}'.format(logging.getLevelName(fh.level), logging.getLevelName(ch.level)))
     print('Loglevel: {0}, console loglevel: {1}'.format(logging.getLevelName(fh.level), logging.getLevelName(ch.level)))
