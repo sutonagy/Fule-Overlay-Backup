@@ -343,7 +343,7 @@ def print_version(version):
     Print version of Butterfly Backup
     :return: str
     """
-        print_verbose(args.verbose, 'Print version and logo')
+    uty.print_verbose(args.verbose, 'Print version and logo')
     if args.verbose:
         print_logo()
     print(uty.PrintColor.BOLD + 'Version: ' + uty.PrintColor.END + version)
