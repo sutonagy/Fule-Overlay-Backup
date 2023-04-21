@@ -274,9 +274,9 @@ The program will read all the YAML files in the configdir with the extension of 
 def logger_init(loggername):
 
     import logging
-    from colorlog import ColoredFormatter
+    import colorlog
 
-    formatter = ColoredFormatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}',
+    formatter = colorlog.ColoredFormatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}',
                                 datefmt=None,
                                 reset=True,
                                 log_colors={
@@ -310,7 +310,7 @@ def logger_init(loggername):
         logger.setLevel(logging.DEBUG) if args.verbose else logger.setLevel(logging.INFO)
     # create console handler with a higher log level
     if args.consolelog:
-        ch = logging.StreamHandler()
+        ch = colorlog.StreamHandler()
         ch.setFormatter(formatter)
         logger.addHandler(ch)
     #ch.setLevel(logging.DEBUG)
