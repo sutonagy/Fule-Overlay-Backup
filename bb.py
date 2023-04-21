@@ -64,10 +64,216 @@ import types
 from multiprocessing import Pool
 from utility import print_verbose
 from shutil import rmtree
+
+
+def parse_arguments():
+    """
+    Function get arguments than specified in command line
+    :return: parser
+    """
+    # Create a common parser
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser.add_argument('--verbose', '-v', help='Enable verbosity', dest='verbose', action='store_true')
+    parent_parser.add_argument('--log', '-l', help='Create a log', dest='log', action='store_true')
+    parent_parser.add_argument('--dry-run', '-N', help='Dry run mode', dest='dry_run', action='store_true')
+    parent_parser.add_argument('--version', '-V', help='Print version', dest='version', action='store_true')
+    parent_parser.add_argument('--config-file', '-F', help='Yaml config file. Do not use together with --config-dir-... and --main-config-... options', dest='configfile', action='store')
+    parent_parser.add_argument('--config-dir-extension', '-X', help='Extension  for config files in configdir (.ext)', dest='configext', action='store')
+    parent_parser.add_argument('--config-dir', '-G', help='Config dir for yaml config files with extension defined in --config-dir-extension', dest='configdir', action='store')
+    parent_parser.add_argument('--main-config-file', '-M', help='Main yaml config file for defaults', dest='mainconfig', action='store')
+    parent_parser.add_argument('--date-time', '-K', help='Set backup date and time instead of now (For testing the program only). Format: yymmddHHMM', dest='datetime', action='store')
+    parent_parser.add_argument('--logfile', '-Q', help='Set python logfile', dest='logfile', action='store')
+    parent_parser.add_argument('--loglevel', '-Z', help='Set python loglevel (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET)', dest='loglevel', action='store')
+    # Create principal parser
+    parser_object = argparse.ArgumentParser(prog='bb', description=utility.PrintColor.BOLD + 'Fule Butterfly Backup'
+                                            + utility.PrintColor.END,
+                                            formatter_class=argparse.RawTextHelpFormatter,
+                                            epilog='''
+
+Currently only the "backup" action is supported.
+To see the backup options, use the command "bb backup -h".
+In the YAML files you can use the CAPITAL letter variables from these helps in lowercase.
+See the example YAML files.
+The hierarchy of the options is the following. The command line options will be overwited by the main config YAML file and these will be overwited by the specific YAML files which are in the configdir with extension of configext.
+
+Tipical usage: bb backup -M /etc/bb/bb.yaml
+In bb.yaml you can define the configdir and configext options.
+"
+configdir: /etc/bb/hosts
+configext: .yaml
+"
+The program will read all the YAML files in the configdir with the extension of configext (i.e. *.yaml in /etc/bb/hosts) and will merge them with the main config YAML file.
+
+                                            ''',
+                                            parents=[parent_parser])
+
+    # Create sub_parser "action"
+    action = parser_object.add_subparsers(title='action', description='Valid action', help='Available actions',
+                                          dest='action')
+    # config session
+    config = action.add_parser('config', help='Configuration options', parents=[parent_parser])
+    group_config = config.add_argument_group(title='Init configuration')
+    group_config_mutually = group_config.add_mutually_exclusive_group()
+    group_config_mutually.add_argument('--new', '-n', help='Generate new configuration', dest='new_conf',
+                                       action='store_true')
+    group_config_mutually.add_argument('--remove', '-r', help='Remove exist configuration', dest='remove_conf',
+                                       action='store_true')
+    group_config_mutually.add_argument('--init', '-i', help='Reset catalog file. Specify path of backup folder.',
+                                       dest='init', metavar='CATALOG', action='store')
+    group_config_mutually.add_argument('--delete-host', '-D', help='Delete all entry for a single HOST in catalog.',
+                                       nargs=2, dest='delete', metavar=('CATALOG', 'HOST'), action='store')
+    group_config_mutually.add_argument('--clean', '-c', help='Cleans the catalog if it is corrupt, '
+                                                             'setting default values.',
+                                       dest='clean', metavar='CATALOG', action='store')
+    group_deploy = config.add_argument_group(title='Deploy configuration')
+    group_deploy_mutually = group_deploy.add_mutually_exclusive_group()
+    group_deploy_mutually.add_argument('--deploy', '-d', help='Deploy configuration to client: hostname or ip address',
+                                       dest='deploy_host', action='store')
+    group_deploy.add_argument('--user', '-u', help='User of the remote machine',
+                              dest='deploy_user', action='store', default=os.getlogin())
+    # backup session
+    backup = action.add_parser('backup', help='Backup options', parents=[parent_parser])
+    group_backup = backup.add_argument_group(title='Backup options')
+    single_or_list_group = group_backup.add_mutually_exclusive_group(required=True)
+    single_or_list_group.add_argument('--computer', '-c', help='Hostname or ip address to backup', dest='hostname',
+                                      action='store')
+    single_or_list_group.add_argument('--hostpart', '-S', help='A part of backup to split backup of one host to multiple part', dest='hostpart',
+                                      action='store')
+    single_or_list_group.add_argument('--list', '-L', help='File list of computers or ip addresses to backup',
+                                      dest='list', action='store')
+    group_backup.add_argument('--destination', '-d', help='Destination path', dest='destination', action='store',
+                              required=True)
+    group_backup.add_argument('--mode', '-m', help='Backup mode', dest='mode', action='store',
+                              choices=['Full', 'Incremental', 'Differential', 'Mirror'], default='Incremental')
+    data_or_custom = group_backup.add_mutually_exclusive_group(required=True)
+    data_or_custom.add_argument('--data', '-D', help='Data of which you want to backup', dest='data', action='store',
+                                choices=['User', 'Config', 'Application', 'System', 'Log'], nargs='+')
+    data_or_custom.add_argument('--custom-data', '-C', help='Custom path of which you want to backup',
+                                dest='customdata', action='store', nargs='+')
+    group_backup.add_argument('--user', '-u', help='Login name used to log into the remote host (being backed up)',
+                              dest='user', action='store', default=os.getlogin())
+    group_backup.add_argument('--type', '-t', help='Type of operating system to backup', dest='type', action='store',
+                              choices=['Unix', 'Windows', 'MacOS'], required=True)
+    group_backup.add_argument('--compress', '-z', help='Compress data', dest='compress',
+                              action='store_true')
+    group_backup.add_argument('--retention', '-r', help='First argument are days of backup retention. '
+                                                        'Second argument is minimum number of backup retention',
+                              dest='retention', action='store', nargs='*', metavar=('DAYS', 'NUMBER'), type=int)
+    group_backup.add_argument('--parallel', '-p', help='Number of parallel jobs', dest='parallel', action='store',
+                              type=int, default=5)
+    group_backup.add_argument('--timeout', '-T', help='I/O timeout in seconds', dest='timeout', action='store',
+                              type=int)
+    group_backup.add_argument('--skip-error', '-e', help='Skip error', dest='skip_err', action='store_true')
+    group_backup.add_argument('--rsync-path', '-R', help='Custom rsync path', dest='rsync', action='store')
+    group_backup.add_argument('--bwlimit', '-b', help='Bandwidth limit in KBPS.', dest='bwlimit', action='store',
+                              type=int)
+    group_backup.add_argument('--ssh-port', '-P', help='Custom ssh port.', dest='port', action='store', type=int)
+    group_backup.add_argument('--rsync-port', '-Y', help='Custom rsync port.', dest='rport', action='store', type=int)
+    group_backup.add_argument('--exclude', '-E', help='Exclude pattern', dest='exclude', action='store', nargs='+')
+    group_backup.add_argument('--start-from', '-s', help='Backup id where start a new backup', dest='sfrom',
+                              action='store', metavar='ID')
+    group_backup.add_argument('--delete-old-differential', '-O', help='Delete older Differential backup folders. See bb.yaml.sample!', dest='delold',
+                              action='store_true')
+    # restore session
+    restore = action.add_parser('restore', help='Restore options', parents=[parent_parser])
+    group_restore = restore.add_argument_group(title='Restore options')
+    group_restore.add_argument('--catalog', '-C', help='Folder where is catalog file', dest='catalog', action='store',
+                               required=True)
+    restore_id_or_last = group_restore.add_mutually_exclusive_group(required=True)
+    restore_id_or_last.add_argument('--backup-id', '-i', help='Backup-id of backup', dest='id', action='store')
+    restore_id_or_last.add_argument('--last', '-L', help='Last available backup', dest='last', action='store_true')
+    group_restore.add_argument('--user', '-u', help="Login name used to log into the remote host "
+                                                    "(where you're restoring)", dest='user',
+                               action='store', default=os.getlogin())
+    group_restore.add_argument('--computer', '-c', help='Hostname or ip address to perform restore', dest='hostname',
+                               action='store', required=True)
+    group_restore.add_argument('--type', '-t', help='Type of operating system to perform restore', dest='type',
+                               action='store', choices=['Unix', 'Windows', 'MacOS'])
+    group_restore.add_argument('--timeout', '-T', help='I/O timeout in seconds', dest='timeout', action='store',
+                               type=int)
+    group_restore.add_argument('--mirror', '-m', help='Mirror mode', dest='mirror', action='store_true')
+    group_restore.add_argument('--skip-error', '-e', help='Skip error', dest='skip_err', action='store_true')
+    group_restore.add_argument('--rsync-path', '-R', help='Custom rsync path', dest='rsync', action='store')
+    group_restore.add_argument('--bwlimit', '-b', help='Bandwidth limit in KBPS.', dest='bwlimit', action='store',
+                               type=int)
+    group_restore.add_argument('--ssh-port', '-P', help='Custom ssh port.', dest='port', action='store', type=int)
+    group_restore.add_argument('--rsync-port', '-Y', help='Custom rsync port.', dest='rport', action='store', type=int)
+    group_restore.add_argument('--exclude', '-E', help='Exclude pattern', dest='exclude', action='store', nargs='+')
+    # archive session
+    archive = action.add_parser('archive', help='Archive options', parents=[parent_parser])
+    group_archive = archive.add_argument_group(title='Archive options')
+    group_archive.add_argument('--catalog', '-C', help='Folder where is catalog file', dest='catalog', action='store',
+                               required=True)
+    group_archive.add_argument('--days', '-D', help='Number of days of archive retention', dest='days',
+                               action='store', type=int, default=30)
+    group_archive.add_argument('--destination', '-d', help='Archive destination path', dest='destination',
+                               action='store', required=True)
+    # list session
+    list_action = action.add_parser('list', help='List options', parents=[parent_parser])
+    group_list = list_action.add_argument_group(title='List options')
+    group_list.add_argument('--catalog', '-C', help='Folder where is catalog file', dest='catalog', action='store',
+                            required=True)
+    group_list_mutually = group_list.add_mutually_exclusive_group()
+    group_list_mutually.add_argument('--backup-id', '-i', help='Backup-id of backup', dest='id', action='store')
+    group_list_mutually.add_argument('--archived', '-a', help='List only archived backup', dest='archived',
+                                     action='store_true')
+    group_list_mutually.add_argument('--cleaned', '-c', help='List only cleaned backup', dest='cleaned',
+                                     action='store_true')
+    group_list_mutually.add_argument('--computer', '-H', help='List only match hostname or ip', dest='hostname',
+                                     action='store')
+    group_list_mutually.add_argument('--detail', '-d', help='List detail of file and folder of specific backup-id',
+                                     dest='detail', action='store', metavar='ID')
+    group_list.add_argument('--oneline', '-o', help='One line output', dest='oneline', action='store_true')
+    # export session
+    export_action = action.add_parser('export', help='Export options', parents=[parent_parser])
+    group_export = export_action.add_argument_group(title='Export options')
+    group_export.add_argument('--catalog', '-C', help='Folder where is catalog file', dest='catalog', action='store',
+                              required=True)
+    group_export_id_or_all = group_export.add_mutually_exclusive_group()
+    group_export_id_or_all.add_argument('--backup-id', '-i', help='Backup-id of backup', dest='id', action='store')
+    group_export_id_or_all.add_argument('--all', '-A', help='All backup', dest='all', action='store_true')
+    group_export.add_argument('--destination', '-d', help='Destination path', dest='destination', action='store',
+                              required=True)
+    group_export.add_argument('--mirror', '-m', help='Mirror mode', dest='mirror', action='store_true')
+    group_export.add_argument('--cut', '-c', help='Cut mode. Delete source', dest='cut', action='store_true')
+    group_export_mutually = group_export.add_mutually_exclusive_group()
+    group_export_mutually.add_argument('--include', '-I', help='Include pattern', dest='include', action='store',
+                                       nargs='+')
+    group_export_mutually.add_argument('--exclude', '-E', help='Exclude pattern', dest='exclude', action='store',
+                                       nargs='+')
+    group_export.add_argument('--timeout', '-T', help='I/O timeout in seconds', dest='timeout', action='store',
+                              type=int)
+    group_export.add_argument('--skip-error', '-e', help='Skip error', dest='skip_err', action='store_true')
+    group_export.add_argument('--rsync-path', '-R', help='Custom rsync path', dest='rsync', action='store')
+    group_export.add_argument('--bwlimit', '-b', help='Bandwidth limit in KBPS.', dest='bwlimit', action='store',
+                              type=int)
+    group_export.add_argument('--ssh-port', '-P', help='Custom ssh port.', dest='port', action='store', type=int)
+    group_export.add_argument('--rsync-port', '-Y', help='Custom rsync port.', dest='rport', action='store', type=int)
+    # Return all args
+    
+    return parser_object
+
+
+
 import logging
-#logging.basicConfig(level=loglevel, filename=pylogfile, format='{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
+#logger.basicConfig(level=loglevel, filename=pylogfile, format='{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
+parser = parse_arguments()
+args = parser.parse_args()
+if args.mainconfig:
+    opt = vars(args)
+    args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
+    opt.update(args)
+    args = types.SimpleNamespace(**opt)
+    #print('Mainconfig: ',args)
+pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
 logger = logging.getLogger('server_logger')
-logger.setLevel(logging.DEBUG)
+#logger.setLevel(logging.DEBUG)
+if args.loglevel:
+    logger.setLevel(args.loglevel.upper())
+    #loglevel = args.loglevel.upper()
+else:
+    #loglevel = logger.DEBUG if args.verbose else logger.INFO
+    logger.setLevel(logging.DEBUG) if args.verbose else logger.setLevel(logging.INFO)
 # create file handler which logs even debug messages
 fh = logging.FileHandler('server.log')
 fh.setLevel(logging.DEBUG)
@@ -203,20 +409,20 @@ def run_in_parallel(fn, commands, limit):
     #print('Parallel commands: ',commands)
     #print('Parallel aktlogs: ',aktlogs)
     print('Parallel remotes: ',remotes)
-    logging.debug('Parallel remotes: {0}'.format(remotes))
+    logger.debug('Parallel remotes: {0}'.format(remotes))
     for command, plog, remote in zip(commands, aktlogs, remotes):
         # Run the function
         # print('Parallel command: ',command)
         proc = pool.apply_async(func=fn, args=(command,folderend,remote))
         jobs.append(proc)
         print('Start {0} {1}'.format(args.action, plog['hostname']))
-        logging.info('Start {0} {1}'.format(args.action, plog['hostname']))
+        logger.info('Start {0} {1}'.format(args.action, plog['hostname']))
         print_verbose(args.verbose, "rsync command: {0}".format(command))
-        logging.info("rsync command: {0}".format(command))
+        logger.info("rsync command: {0}".format(command))
         utility.write_log(log_args['status'], plog['destination'], 'INFO', 'Start process {0} on {1}'.format(
             args.action, plog['hostname']
         ))
-        logging.info('Start process {0} on {1}'.format(args.action, plog['hostname']))
+        logger.info('Start process {0} on {1}'.format(args.action, plog['hostname']))
         if args.action == 'backup':
             # Write catalog file
             write_catalog(catalog_path, plog['id'], 'start', utility.time_for_log())
@@ -230,12 +436,12 @@ def run_in_parallel(fn, commands, limit):
         if p.get() != 0:
             print(utility.PrintColor.RED + 'ERROR: Command {0} exit with code: {1}'.format(command, p.get()) +
                   utility.PrintColor.END)
-            logging.error('ERROR: Command {0} exit with code: {1}'.format(command, p.get()))
+            logger.error('ERROR: Command {0} exit with code: {1}'.format(command, p.get()))
             utility.write_log(log_args['status'], plog['destination'], 'INFO',
                               'ERROR: Command {0} exit with code: {1} on {2}'.format(command, p.get(), plog['hostname']))
             utility.write_log(log_args['status'], plog['destination'], 'ERROR',
                               'Finish process {0} on {1} with error:{2}'.format(args.action, plog['hostname'], p.get()))
-            logging.error('Finish process {0} on {1} with error:{2}'.format(args.action, plog['hostname'], p.get()))
+            logger.error('Finish process {0} on {1} with error:{2}'.format(args.action, plog['hostname'], p.get()))
             if args.action == 'backup':
                 # Write catalog file
                 write_catalog(catalog_path, plog['id'], 'end', utility.time_for_log())
@@ -246,19 +452,19 @@ def run_in_parallel(fn, commands, limit):
             errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
             emessage = p.get()
             print('emessage in paralell : ',emessage)
-            logging.debug('emessage in paralell : {0}'.format(emessage))
+            logger.debug('emessage in paralell : {0}'.format(emessage))
             if os.path.getsize(errfile) != 0:
                 emessage = emessage + Path(errfile).read_text()
             raise RsyncRunError(emessage)
 
         else:
             print(utility.PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + utility.PrintColor.END)
-            logging.info('SUCCESS: Command {0}'.format(command))
+            logger.info('SUCCESS: Command {0}'.format(command))
             utility.write_log(log_args['status'], plog['destination'], 'INFO',
                               'SUCCESS: Command {0} on {1}'.format(command, plog['hostname']))
             utility.write_log(log_args['status'], plog['destination'], 'INFO',
                               'Finish process {0} on {1}'.format(args.action, plog['hostname']))
-            logging.info('Finish process {0} on {1}'.format(args.action, plog['hostname']))
+            logger.info('Finish process {0} on {1}'.format(args.action, plog['hostname']))
             if args.action == 'backup':
                 # Write catalog file
                 write_catalog(catalog_path, plog['id'], 'end', utility.time_for_log())
@@ -290,12 +496,12 @@ def start_process(command,folderend,remote=''):
         p = subprocess.call(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     """
     print('Remote in start_process: ',remote)
-    logging.debug('Remote in start_process: {0}'.format(remote))
+    logger.debug('Remote in start_process: {0}'.format(remote))
     logfile=args.logdirectory+remote+'-'+folderend+'.log'
     print('Logfile in start_process: ',logfile)
-    logging.debug('Logfile in start_process: {0}'.format(logfile))
+    logger.debug('Logfile in start_process: {0}'.format(logfile))
     print('Folderend in start_process: ',folderend)
-    logging.debug('Folderend in start_process: {0}'.format(folderend))
+    logger.debug('Folderend in start_process: {0}'.format(folderend))
     errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
     fo = open(logfile,'w')
     fe = open(errfile,'w')
@@ -379,7 +585,7 @@ def compose_command(flags, host, folderend):
             print(utility.PrintColor.YELLOW +
                   'WARNING: rsync binary {0} not exist! Set default.'.format(args.rsync)
                   + utility.PrintColor.END)
-            logging.warning('WARNING: rsync binary {0} not exist! Set default.'.format(args.rsync))
+            logger.warning('WARNING: rsync binary {0} not exist! Set default.'.format(args.rsync))
             command = ['rsync']
     else:
         command = ['rsync']
@@ -689,7 +895,7 @@ def get_last_full(catalog):
                     except configparser.NoOptionError:
                         print(utility.PrintColor.RED +
                             "ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + utility.PrintColor.END)
-                        logging.error("ERROR: Corrupted catalog! No found timestamp in {0}".format(bid))
+                        logger.error("ERROR: Corrupted catalog! No found timestamp in {0}".format(bid))
                         exit(2)
             else:
                 return False
@@ -724,7 +930,7 @@ def get_last_backup(catalog):
                     except configparser.NoOptionError:
                         print(utility.PrintColor.RED +
                             "ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + utility.PrintColor.END)
-                        logging.error("ERROR: Corrupted catalog! No found timestamp in {0}".format(bid))
+                        logger.error("ERROR: Corrupted catalog! No found timestamp in {0}".format(bid))
                         exit(2)
             else:
                 return False
@@ -790,7 +996,7 @@ def read_catalog(catalog):
         else:
             print(utility.PrintColor.RED +
                   'ERROR: Folder {0} not exist!'.format(os.path.dirname(catalog)) + utility.PrintColor.END)
-            logging.error('ERROR: Folder {0} not exist!'.format(os.path.dirname(catalog)))
+            logger.error('ERROR: Folder {0} not exist!'.format(os.path.dirname(catalog)))
             exit(1)
 
 
@@ -829,7 +1035,7 @@ def retention_policy(host, catalog, logpath):
         print(utility.PrintColor.RED + 'ERROR: The "--retention or -r" parameter must have two integers. '
                                        'Three or more arguments specified: {}'.format(args.retention) +
               utility.PrintColor.END)
-        logging.error('ERROR: The "--retention or -r" parameter must have two integers. ')
+        logger.error('ERROR: The "--retention or -r" parameter must have two integers. ')
         return
     if args.retention[1]:
         backup_list = list_backup(config, host)[-args.retention[1]:]
@@ -1007,7 +1213,7 @@ def new_configuration():
                 id_rsa.write(private_key_str)
         else:
             print(utility.PrintColor.YELLOW + "WARNING: Private key ~/.ssh/id_rsa exists" + utility.PrintColor.END)
-            logging.warning('Private key ~/.ssh/id_rsa exists')
+            logger.warning('Private key ~/.ssh/id_rsa exists')
             print('If you want to use the existing key, run "bb config --deploy name_of_machine", '
                   'otherwise to remove it, '
                   'run "bb config --remove"')
@@ -1021,13 +1227,13 @@ def new_configuration():
                 id_rsa_pub.write(public_key_str)
         else:
             print(utility.PrintColor.YELLOW + "WARNING: Public key ~/.ssh/id_rsa.pub exists" + utility.PrintColor.END)
-            logging.warning('Public key ~/.ssh/id_rsa.pub exists')
+            logger.warning('Public key ~/.ssh/id_rsa.pub exists')
             print('If you want to use the existing key, run "bb config --deploy name_of_machine", '
                   'otherwise to remove it, '
                   'run "bb config --remove"')
             exit(2)
         print(utility.PrintColor.GREEN + "SUCCESS: New configuration successfully created!" + utility.PrintColor.END)
-        logging.info('New configuration successfully created!')
+        logger.info('New configuration successfully created!')
 
 
 def check_configuration(ip):
@@ -1099,17 +1305,17 @@ def delete_backup(catalog, path):
     #root = os.path.join(os.path.dirname(catalog), host)
     root = path
     print('path: {0}'.format(path))
-    logging.debug('path: {0}'.format(path))
+    logger.debug('path: {0}'.format(path))
     for cid in config.sections():
         print('cid path: {0}'.format(config.get(cid, "path")))
-        logging.debug('cid path: {0}'.format(config.get(cid, "path")))
+        logger.debug('cid path: {0}'.format(config.get(cid, "path")))
         if config.get(cid, "path") == path:
             print('cid path in if: {0}'.format(config.get(cid, "path")))
             if not os.path.exists(config[cid]['path']):
                 #print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
                 print("Backup-id {0} has been removed to catalog!".format(cid))
                 config.remove_section(cid)
-                logging.info("Backup-id {0} has been removed to catalog!".format(cid))
+                logger.info("Backup-id {0} has been removed to catalog!".format(cid))
             else:
                 path = config.get(cid, 'path')
                 date = config.get(cid, 'timestamp')
@@ -1120,11 +1326,11 @@ def delete_backup(catalog, path):
                 #print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
                 config.remove_section(cid)
                 print("Backup-id {0} has been removed to catalog!".format(cid))
-                logging.info('Delete {0} successfully.'.format(path))
+                logger.info('Delete {0} successfully.'.format(path))
                 #elif cleanup == 1:
                     #print(utility.PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
                     #      utility.PrintColor.END)
-                    #logging.error('Delete {0} failed.'.format(path))
+                    #logger.error('Delete {0} failed.'.format(path))
     rmtree(root)
     # Write file
     with open(catalog, 'w') as catalogfile:
@@ -1168,199 +1374,13 @@ def clean_catalog(catalog):
             print(utility.PrintColor.YELLOW +
                   'WARNING: The backup-id {0} has been set to default value, because he was corrupt. '
                   'Check it!'.format(cid) + utility.PrintColor.END)
-            logging.warning('The backup-id {0} has been set to default value, because he was corrupt. '
+            logger.warning('The backup-id {0} has been set to default value, because he was corrupt. '
                             'Check it!'.format(cid))
     # Write file
     with open(catalog, 'w') as catalogfile:
         config.write(catalogfile)
 
 
-def parse_arguments():
-    """
-    Function get arguments than specified in command line
-    :return: parser
-    """
-    # Create a common parser
-    parent_parser = argparse.ArgumentParser(add_help=False)
-    parent_parser.add_argument('--verbose', '-v', help='Enable verbosity', dest='verbose', action='store_true')
-    parent_parser.add_argument('--log', '-l', help='Create a log', dest='log', action='store_true')
-    parent_parser.add_argument('--dry-run', '-N', help='Dry run mode', dest='dry_run', action='store_true')
-    parent_parser.add_argument('--version', '-V', help='Print version', dest='version', action='store_true')
-    parent_parser.add_argument('--config-file', '-F', help='Yaml config file. Do not use together with --config-dir-... and --main-config-... options', dest='configfile', action='store')
-    parent_parser.add_argument('--config-dir-extension', '-X', help='Extension  for config files in configdir (.ext)', dest='configext', action='store')
-    parent_parser.add_argument('--config-dir', '-G', help='Config dir for yaml config files with extension defined in --config-dir-extension', dest='configdir', action='store')
-    parent_parser.add_argument('--main-config-file', '-M', help='Main yaml config file for defaults', dest='mainconfig', action='store')
-    parent_parser.add_argument('--date-time', '-K', help='Set backup date and time instead of now (For testing the program only). Format: yymmddHHMM', dest='datetime', action='store')
-    parent_parser.add_argument('--logfile', '-Q', help='Set python logfile', dest='logfile', action='store')
-    parent_parser.add_argument('--loglevel', '-Z', help='Set python loglevel (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET)', dest='loglevel', action='store')
-    # Create principal parser
-    parser_object = argparse.ArgumentParser(prog='bb', description=utility.PrintColor.BOLD + 'Fule Butterfly Backup'
-                                            + utility.PrintColor.END,
-                                            formatter_class=argparse.RawTextHelpFormatter,
-                                            epilog='''
-
-Currently only the "backup" action is supported.
-To see the backup options, use the command "bb backup -h".
-In the YAML files you can use the CAPITAL letter variables from these helps in lowercase.
-See the example YAML files.
-The hierarchy of the options is the following. The command line options will be overwited by the main config YAML file and these will be overwited by the specific YAML files which are in the configdir with extension of configext.
-
-Tipical usage: bb backup -M /etc/bb/bb.yaml
-In bb.yaml you can define the configdir and configext options.
-"
-configdir: /etc/bb/hosts
-configext: .yaml
-"
-The program will read all the YAML files in the configdir with the extension of configext (i.e. *.yaml in /etc/bb/hosts) and will merge them with the main config YAML file.
-
-                                            ''',
-                                            parents=[parent_parser])
-
-    # Create sub_parser "action"
-    action = parser_object.add_subparsers(title='action', description='Valid action', help='Available actions',
-                                          dest='action')
-    # config session
-    config = action.add_parser('config', help='Configuration options', parents=[parent_parser])
-    group_config = config.add_argument_group(title='Init configuration')
-    group_config_mutually = group_config.add_mutually_exclusive_group()
-    group_config_mutually.add_argument('--new', '-n', help='Generate new configuration', dest='new_conf',
-                                       action='store_true')
-    group_config_mutually.add_argument('--remove', '-r', help='Remove exist configuration', dest='remove_conf',
-                                       action='store_true')
-    group_config_mutually.add_argument('--init', '-i', help='Reset catalog file. Specify path of backup folder.',
-                                       dest='init', metavar='CATALOG', action='store')
-    group_config_mutually.add_argument('--delete-host', '-D', help='Delete all entry for a single HOST in catalog.',
-                                       nargs=2, dest='delete', metavar=('CATALOG', 'HOST'), action='store')
-    group_config_mutually.add_argument('--clean', '-c', help='Cleans the catalog if it is corrupt, '
-                                                             'setting default values.',
-                                       dest='clean', metavar='CATALOG', action='store')
-    group_deploy = config.add_argument_group(title='Deploy configuration')
-    group_deploy_mutually = group_deploy.add_mutually_exclusive_group()
-    group_deploy_mutually.add_argument('--deploy', '-d', help='Deploy configuration to client: hostname or ip address',
-                                       dest='deploy_host', action='store')
-    group_deploy.add_argument('--user', '-u', help='User of the remote machine',
-                              dest='deploy_user', action='store', default=os.getlogin())
-    # backup session
-    backup = action.add_parser('backup', help='Backup options', parents=[parent_parser])
-    group_backup = backup.add_argument_group(title='Backup options')
-    single_or_list_group = group_backup.add_mutually_exclusive_group(required=True)
-    single_or_list_group.add_argument('--computer', '-c', help='Hostname or ip address to backup', dest='hostname',
-                                      action='store')
-    single_or_list_group.add_argument('--hostpart', '-S', help='A part of backup to split backup of one host to multiple part', dest='hostpart',
-                                      action='store')
-    single_or_list_group.add_argument('--list', '-L', help='File list of computers or ip addresses to backup',
-                                      dest='list', action='store')
-    group_backup.add_argument('--destination', '-d', help='Destination path', dest='destination', action='store',
-                              required=True)
-    group_backup.add_argument('--mode', '-m', help='Backup mode', dest='mode', action='store',
-                              choices=['Full', 'Incremental', 'Differential', 'Mirror'], default='Incremental')
-    data_or_custom = group_backup.add_mutually_exclusive_group(required=True)
-    data_or_custom.add_argument('--data', '-D', help='Data of which you want to backup', dest='data', action='store',
-                                choices=['User', 'Config', 'Application', 'System', 'Log'], nargs='+')
-    data_or_custom.add_argument('--custom-data', '-C', help='Custom path of which you want to backup',
-                                dest='customdata', action='store', nargs='+')
-    group_backup.add_argument('--user', '-u', help='Login name used to log into the remote host (being backed up)',
-                              dest='user', action='store', default=os.getlogin())
-    group_backup.add_argument('--type', '-t', help='Type of operating system to backup', dest='type', action='store',
-                              choices=['Unix', 'Windows', 'MacOS'], required=True)
-    group_backup.add_argument('--compress', '-z', help='Compress data', dest='compress',
-                              action='store_true')
-    group_backup.add_argument('--retention', '-r', help='First argument are days of backup retention. '
-                                                        'Second argument is minimum number of backup retention',
-                              dest='retention', action='store', nargs='*', metavar=('DAYS', 'NUMBER'), type=int)
-    group_backup.add_argument('--parallel', '-p', help='Number of parallel jobs', dest='parallel', action='store',
-                              type=int, default=5)
-    group_backup.add_argument('--timeout', '-T', help='I/O timeout in seconds', dest='timeout', action='store',
-                              type=int)
-    group_backup.add_argument('--skip-error', '-e', help='Skip error', dest='skip_err', action='store_true')
-    group_backup.add_argument('--rsync-path', '-R', help='Custom rsync path', dest='rsync', action='store')
-    group_backup.add_argument('--bwlimit', '-b', help='Bandwidth limit in KBPS.', dest='bwlimit', action='store',
-                              type=int)
-    group_backup.add_argument('--ssh-port', '-P', help='Custom ssh port.', dest='port', action='store', type=int)
-    group_backup.add_argument('--rsync-port', '-Y', help='Custom rsync port.', dest='rport', action='store', type=int)
-    group_backup.add_argument('--exclude', '-E', help='Exclude pattern', dest='exclude', action='store', nargs='+')
-    group_backup.add_argument('--start-from', '-s', help='Backup id where start a new backup', dest='sfrom',
-                              action='store', metavar='ID')
-    group_backup.add_argument('--delete-old-differential', '-O', help='Delete older Differential backup folders. See bb.yaml.sample!', dest='delold',
-                              action='store_true')
-    # restore session
-    restore = action.add_parser('restore', help='Restore options', parents=[parent_parser])
-    group_restore = restore.add_argument_group(title='Restore options')
-    group_restore.add_argument('--catalog', '-C', help='Folder where is catalog file', dest='catalog', action='store',
-                               required=True)
-    restore_id_or_last = group_restore.add_mutually_exclusive_group(required=True)
-    restore_id_or_last.add_argument('--backup-id', '-i', help='Backup-id of backup', dest='id', action='store')
-    restore_id_or_last.add_argument('--last', '-L', help='Last available backup', dest='last', action='store_true')
-    group_restore.add_argument('--user', '-u', help="Login name used to log into the remote host "
-                                                    "(where you're restoring)", dest='user',
-                               action='store', default=os.getlogin())
-    group_restore.add_argument('--computer', '-c', help='Hostname or ip address to perform restore', dest='hostname',
-                               action='store', required=True)
-    group_restore.add_argument('--type', '-t', help='Type of operating system to perform restore', dest='type',
-                               action='store', choices=['Unix', 'Windows', 'MacOS'])
-    group_restore.add_argument('--timeout', '-T', help='I/O timeout in seconds', dest='timeout', action='store',
-                               type=int)
-    group_restore.add_argument('--mirror', '-m', help='Mirror mode', dest='mirror', action='store_true')
-    group_restore.add_argument('--skip-error', '-e', help='Skip error', dest='skip_err', action='store_true')
-    group_restore.add_argument('--rsync-path', '-R', help='Custom rsync path', dest='rsync', action='store')
-    group_restore.add_argument('--bwlimit', '-b', help='Bandwidth limit in KBPS.', dest='bwlimit', action='store',
-                               type=int)
-    group_restore.add_argument('--ssh-port', '-P', help='Custom ssh port.', dest='port', action='store', type=int)
-    group_restore.add_argument('--rsync-port', '-Y', help='Custom rsync port.', dest='rport', action='store', type=int)
-    group_restore.add_argument('--exclude', '-E', help='Exclude pattern', dest='exclude', action='store', nargs='+')
-    # archive session
-    archive = action.add_parser('archive', help='Archive options', parents=[parent_parser])
-    group_archive = archive.add_argument_group(title='Archive options')
-    group_archive.add_argument('--catalog', '-C', help='Folder where is catalog file', dest='catalog', action='store',
-                               required=True)
-    group_archive.add_argument('--days', '-D', help='Number of days of archive retention', dest='days',
-                               action='store', type=int, default=30)
-    group_archive.add_argument('--destination', '-d', help='Archive destination path', dest='destination',
-                               action='store', required=True)
-    # list session
-    list_action = action.add_parser('list', help='List options', parents=[parent_parser])
-    group_list = list_action.add_argument_group(title='List options')
-    group_list.add_argument('--catalog', '-C', help='Folder where is catalog file', dest='catalog', action='store',
-                            required=True)
-    group_list_mutually = group_list.add_mutually_exclusive_group()
-    group_list_mutually.add_argument('--backup-id', '-i', help='Backup-id of backup', dest='id', action='store')
-    group_list_mutually.add_argument('--archived', '-a', help='List only archived backup', dest='archived',
-                                     action='store_true')
-    group_list_mutually.add_argument('--cleaned', '-c', help='List only cleaned backup', dest='cleaned',
-                                     action='store_true')
-    group_list_mutually.add_argument('--computer', '-H', help='List only match hostname or ip', dest='hostname',
-                                     action='store')
-    group_list_mutually.add_argument('--detail', '-d', help='List detail of file and folder of specific backup-id',
-                                     dest='detail', action='store', metavar='ID')
-    group_list.add_argument('--oneline', '-o', help='One line output', dest='oneline', action='store_true')
-    # export session
-    export_action = action.add_parser('export', help='Export options', parents=[parent_parser])
-    group_export = export_action.add_argument_group(title='Export options')
-    group_export.add_argument('--catalog', '-C', help='Folder where is catalog file', dest='catalog', action='store',
-                              required=True)
-    group_export_id_or_all = group_export.add_mutually_exclusive_group()
-    group_export_id_or_all.add_argument('--backup-id', '-i', help='Backup-id of backup', dest='id', action='store')
-    group_export_id_or_all.add_argument('--all', '-A', help='All backup', dest='all', action='store_true')
-    group_export.add_argument('--destination', '-d', help='Destination path', dest='destination', action='store',
-                              required=True)
-    group_export.add_argument('--mirror', '-m', help='Mirror mode', dest='mirror', action='store_true')
-    group_export.add_argument('--cut', '-c', help='Cut mode. Delete source', dest='cut', action='store_true')
-    group_export_mutually = group_export.add_mutually_exclusive_group()
-    group_export_mutually.add_argument('--include', '-I', help='Include pattern', dest='include', action='store',
-                                       nargs='+')
-    group_export_mutually.add_argument('--exclude', '-E', help='Exclude pattern', dest='exclude', action='store',
-                                       nargs='+')
-    group_export.add_argument('--timeout', '-T', help='I/O timeout in seconds', dest='timeout', action='store',
-                              type=int)
-    group_export.add_argument('--skip-error', '-e', help='Skip error', dest='skip_err', action='store_true')
-    group_export.add_argument('--rsync-path', '-R', help='Custom rsync path', dest='rsync', action='store')
-    group_export.add_argument('--bwlimit', '-b', help='Bandwidth limit in KBPS.', dest='bwlimit', action='store',
-                              type=int)
-    group_export.add_argument('--ssh-port', '-P', help='Custom ssh port.', dest='port', action='store', type=int)
-    group_export.add_argument('--rsync-port', '-Y', help='Custom rsync port.', dest='rport', action='store', type=int)
-    # Return all args
-    
-    return parser_object
 
 def single_action(args,configfile=None):
 
@@ -1388,7 +1408,7 @@ def single_action(args,configfile=None):
     if args.action != 'backup':
         print(utility.PrintColor.RED +
                 "ERROR: Only 'backup' mode works! '{0}' mode has not yet tested".format(args.action) + utility.PrintColor.END)
-        logging.error("ERROR: Only 'backup' mode works! '{0}' mode has not yet tested".format(args.action))
+        logger.error("ERROR: Only 'backup' mode works! '{0}' mode has not yet tested".format(args.action))
         exit(1)
     # Check config session
 
@@ -1434,7 +1454,7 @@ def single_action(args,configfile=None):
             else:
                 print(utility.PrintColor.RED + 'ERROR: The file {0} not exist!'.format(args.list)
                       + utility.PrintColor.END)
-                logging.error('ERROR: The file {0} not exist!'.format(args.list))
+                logger.error('ERROR: The file {0} not exist!'.format(args.list))
         else:
             parser.print_usage()
             # print args
@@ -1453,20 +1473,20 @@ def single_action(args,configfile=None):
             if not utility.check_ssh(hostname_orig, port):
                 print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, hostname)
                       + utility.PrintColor.END)
-                logging.error('ERROR: The port {0} on {1} is closed!'.format(port, hostname))
+                logger.error('ERROR: The port {0} on {1} is closed!'.format(port, hostname))
                 online = False
                 # continue
             if not utility.check_rsync(hostname_orig, rport):
                 print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, hostname)
                       + utility.PrintColor.END)
-                logging.error('ERROR: The port {0} on {1} is closed!'.format(rport, hostname))
+                logger.error('ERROR: The port {0} on {1} is closed!'.format(rport, hostname))
                 online = False
                 # continue
             if not args.verbose:
                 if check_configuration(hostname_orig):
                     print(utility.PrintColor.RED + '''ERROR: For bulk or silently backup, deploy configuration!
                             See bb deploy --help or specify --verbose''' + utility.PrintColor.END)
-                    logging.error('ERROR: For bulk or silently backup, deploy configuration! (Copy the public key to the remote host)')
+                    logger.error('ERROR: For bulk or silently backup, deploy configuration! (Copy the public key to the remote host)')
                     continue
             # Log information's
             backup_id = '{}'.format(utility.new_id())
@@ -1494,7 +1514,7 @@ def single_action(args,configfile=None):
                 if not last_full:
                     is_last_full = True
             print('is_last_full in single_action: ',is_last_full)
-            logging.debug('is_last_full in single_action: {0}'.format(is_last_full))
+            logger.debug('is_last_full in single_action: {0}'.format(is_last_full))
             bck_dst, folderend = compose_destination(hostname, args.destination)
             cmd = compose_command(args, hostname, folderend)
             # Check if start-from is specified
@@ -1507,12 +1527,12 @@ def single_action(args,configfile=None):
                         print(utility.PrintColor.YELLOW +
                               'WARNING: Backup folder {0} not exist!'.format(backup_catalog[args.sfrom]['path'])
                               + utility.PrintColor.END)
-                        logging.warning('WARNING: Backup folder {0} not exist!'.format(backup_catalog[args.sfrom]['path']))
+                        logger.warning('WARNING: Backup folder {0} not exist!'.format(backup_catalog[args.sfrom]['path']))
                 else:
                     print(utility.PrintColor.RED +
                           'ERROR: Backup id {0} not exist in catalog {1}!'.format(args.sfrom, args.destination)
                           + utility.PrintColor.END)
-                    logging.error('ERROR: Backup id {0} not exist in catalog {1}!'.format(args.sfrom, args.destination))
+                    logger.error('ERROR: Backup id {0} not exist in catalog {1}!'.format(args.sfrom, args.destination))
                     exit(1)
             print_verbose(args.verbose, 'Create a folder structure for {0} os'.format(args.type))
             # Write catalog file
@@ -1927,9 +1947,9 @@ if __name__ == '__main__':
         if args.loglevel:
             loglevel = args.loglevel.upper()
         else:
-            loglevel = logging.DEBUG if args.verbose else logging.INFO
+            loglevel = logger.DEBUG if args.verbose else logger.INFO
         print('Loglevel: ',loglevel)
-        #logging.basicConfig(level=loglevel, filename=pylogfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
+        #logger.basicConfig(level=loglevel, filename=pylogfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
         utility.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
         endfolder = utility.time_for_folder(False)
         
@@ -1951,7 +1971,7 @@ if __name__ == '__main__':
                             #print('Aktlogs: ',aktlogs)
                             aktconfig=file.partition('.')[0]
                             print('Aktconfig in main: ',aktconfig)
-                            logging.debug('Aktconfig in main: {0}'.format(aktconfig))
+                            logger.debug('Aktconfig in main: {0}'.format(aktconfig))
                             remotes.append(aktconfig)
         else:
             single_action(args,args.configfile)
@@ -1966,13 +1986,13 @@ if __name__ == '__main__':
             #print('Vege: ',args)
             #exit(0)
             print('is_last_full in main: ',is_last_full)
-            logging.debug('is_last_full in main: {0}'.format(is_last_full))
+            logger.debug('is_last_full in main: {0}'.format(is_last_full))
             run_in_parallel(start_process, cmds, 8)
             if args.delold:
                 #regiek torlese
                 dirnap = endfolder[12]
                 print('Dirnap: ',dirnap)
-                logging.debug('Dirnap: {0}'.format(dirnap))
+                logger.debug('Dirnap: {0}'.format(dirnap))
                 if (dirnap != 'd') and args.delold:
                     if dirnap == 'w':
                         torlonap = 'd'
@@ -1988,14 +2008,14 @@ if __name__ == '__main__':
                         opt.update(args)
                         args = types.SimpleNamespace(**opt)
                         print('Args.configdir: ',args.configdir)
-                        logging.debug('Args.configdir: {0}'.format(args.configdir))
+                        logger.debug('Args.configdir: {0}'.format(args.configdir))
                         if args.configdir:
                             for root, dirs, files in os.walk(args.configdir):
                                 for file in files:
                                     if file.endswith(args.configext):
                                         cfile=root+'/'+file
                                         print('Dirconfig: ',cfile)
-                                        logging.debug('Dirconfig: {0}'.format(cfile))
+                                        logger.debug('Dirconfig: {0}'.format(cfile))
                                         opt = vars(args)
                                         args = yaml.load(open(cfile), Loader=yaml.FullLoader)
                                         opt.update(args)
@@ -2006,10 +2026,10 @@ if __name__ == '__main__':
                                             hostname=args.hostname
                                         mentodir = args.destination + '/' + hostname
                                         print('Mentodir: ',mentodir)
-                                        logging.debug('Mentodir: {0}'.format(mentodir))
+                                        logger.debug('Mentodir: {0}'.format(mentodir))
                                         remote=file.partition('.')[0]
                                         print('Remote: ',remote)
-                                        logging.debug('Remote: {0}'.format(remote))
+                                        logger.debug('Remote: {0}'.format(remote))
                                         second_dir = {}
                                         for root2, dirs2, files2 in os.walk(mentodir):
                                             if root2 == mentodir:
@@ -2017,45 +2037,45 @@ if __name__ == '__main__':
                                                 dirnum = 0
                                                 for dir in dirs2:
                                                     print('Dir: ',dir)
-                                                    logging.debug('Dir: {0}'.format(dir))                                      
+                                                    logger.debug('Dir: {0}'.format(dir))                                      
                                                     if dir.rfind(dirnap) != -1:
                                                         print('Dirkezdo: ',dir)
-                                                        logging.debug('Dirkezdo: {0}'.format(dir))
+                                                        logger.debug('Dirkezdo: {0}'.format(dir))
                                                         dirnum += 1
                                                         if dirnum == 2:
                                                             second_dir[dirnap] = dir
                                                             print('Second dir: ',second_dir[dirnap])
-                                                            logging.debug('Second dir: {0}'.format(second_dir[dirnap]))
+                                                            logger.debug('Second dir: {0}'.format(second_dir[dirnap]))
                                                             dirs2.sort(reverse=False)
                                                             for dir in dirs2:
                                                                 print('Dir2: ',dir)
-                                                                logging.debug('Dir2: {0}'.format(dir))              
+                                                                logger.debug('Dir2: {0}'.format(dir))              
                                                                 if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
                                                                     print('Dirtorlo: ',dir)
-                                                                    logging.debug('Dirtorlo: {0}'.format(dir))
+                                                                    logger.debug('Dirtorlo: {0}'.format(dir))
                                                                     forras1 = mentodir + '/' + dir
                                                                     print('Forras1: ',forras1)
-                                                                    logging.debug('Forras1: {0}'.format(forras1))
+                                                                    logger.debug('Forras1: {0}'.format(forras1))
                                                                     forras = mentodir + '/' + dir
                                                                     print('Forras: ',forras)
-                                                                    logging.debug('Forras: {0}'.format(forras))
+                                                                    logger.debug('Forras: {0}'.format(forras))
                                                                     cel = mentodir + '/' + second_dir[dirnap] + '/'
                                                                     print('Cel: ',cel)
-                                                                    logging.debug('Cel: {0}'.format(cel))
+                                                                    logger.debug('Cel: {0}'.format(cel))
                                                                     p=subprocess.run(['cp','-aurfT',forras,cel])
                                                                     print('cp result: ',p)
-                                                                    logging.debug('cp result: {0}'.format(str(p)))
+                                                                    logger.debug('cp result: {0}'.format(str(p)))
                                                                     #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
                                                                     catalog_path = args.destination + '/' + '.catalog.cfg'
                                                                     delete_backup(catalog_path, forras1)
                                                                     akthost = os.path.basename(os.path.normpath(mentodir))
                                                                     logfile=args.logdirectory+remote+'-'+dir+'.log'
                                                                     print('Logfile: ',logfile)
-                                                                    logging.debug('Logfile: {0}'.format(logfile))
+                                                                    logger.debug('Logfile: {0}'.format(logfile))
                                                                     os.remove(logfile) if os.path.getsize(logfile) == 0 else None
                                                                     errfile=args.logdirectory+remote+'-error-'+dir+'.log'
                                                                     print('Errfile: ',errfile)
-                                                                    logging.debug('Errfile: {0}'.format(errfile))
+                                                                    logger.debug('Errfile: {0}'.format(errfile))
                                                                     os.remove(errfile) if os.path.getsize(errfile) == 0 else None
         utility.send_telegram_message('Backup ' + endfolder[0:11] + ' OK')
     except Exception as e:
@@ -2063,10 +2083,10 @@ if __name__ == '__main__':
         exception_type, exception_object, exception_traceback = sys.exc_info()
         filename = exception_traceback.tb_frame.f_code.co_filename
         lines = traceback.format_exception(exception_type, exception_object, exception_traceback) # nem az exception_traceback, hanem a traceback modul
-        logging.error(f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}")
+        logger.error(f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}")
         error_lines = ""
         for line in lines:
-            logging.error(line)
+            logger.error(line)
             error_lines += line
         error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"
         t_message = f"{error_message} {error_lines}"
