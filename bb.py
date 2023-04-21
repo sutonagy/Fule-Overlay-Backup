@@ -273,7 +273,6 @@ The program will read all the YAML files in the configdir with the extension of 
 
 def logger_init(loggername):
 
-    import logging
     import colorlog
 
     formatter = colorlog.ColoredFormatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}',
@@ -301,13 +300,9 @@ def logger_init(loggername):
         args = types.SimpleNamespace(**opt)
         #print('Mainconfig: ',args)
     pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
-    logger = logging.getLogger(loggername)
+    logger = colorlog.getLogger(loggername)
     # create file handler which logs even debug messages
-    fh = logging.FileHandler(pylogfile)
-    if args.loglevel:
-        logger.setLevel(args.loglevel.upper())
-    else:
-        logger.setLevel(logging.DEBUG) if args.verbose else logger.setLevel(logging.INFO)
+    fh = colorlog.FileHandler(pylogfile)
     # create console handler with a higher log level
     if args.consolelog:
         ch = colorlog.StreamHandler()
@@ -315,14 +310,18 @@ def logger_init(loggername):
         logger.addHandler(ch)
     #ch.setLevel(logging.DEBUG)
     # create formatter and add it to the handlers
-    formatter2 = logging.Formatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
-    fh.setFormatter(formatter2)
+    #formatter2 = logging.Formatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
+    fh.setFormatter(formatter)
     # add the handlers to logger
+    if args.loglevel:
+        logger.setLevel(args.loglevel.upper())
+    else:
+        logger.setLevel(colorlog.DEBUG) if args.verbose else logger.setLevel(colorlog.INFO)
     logger.addHandler(fh)
     #logger.info('loglevel: %s', args.loglevel)
-    return logger, fh, ch, logging
+    return logger, fh, ch, colorlog
 
-logger, fh, ch, logging = logger_init('fule-bb')
+logger, fh, ch, colorlog = logger_init('fule-bb')
 
 # region Global Variables
 VERSION = 'v0.9.01'
@@ -1964,8 +1963,8 @@ if __name__ == '__main__':
     import sys
     import os
     logger.info('Eleje')
-    logger.info('Loglevel: {0}, console loglevel: {1}'.format(logging.getLevelName(fh.level), logging.getLevelName(ch.level)))
-    print('Loglevel: {0}, console loglevel: {1}'.format(logging.getLevelName(fh.level), logging.getLevelName(ch.level)))
+    logger.info('Loglevel: {0}, console loglevel: {1}'.format(colorlog.getLevelName(fh.level), colorlog.getLevelName(ch.level)))
+    print('Loglevel: {0}, console loglevel: {1}'.format(colorlog.getLevelName(fh.level), colorlog.getLevelName(ch.level)))
     global std, datetime_spec
     try:
         parser = parse_arguments()
