@@ -65,6 +65,25 @@ from multiprocessing import Pool
 from utility import print_verbose
 from shutil import rmtree
 import logging
+#logging.basicConfig(level=loglevel, filename=pylogfile, format='{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
+logger = logging.getLogger('server_logger')
+logger.setLevel(logging.DEBUG)
+# create file handler which logs even debug messages
+fh = logging.FileHandler('server.log')
+fh.setLevel(logging.DEBUG)
+# create console handler with a higher log level
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+# create formatter and add it to the handlers
+formatter = logging.Formatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
+ch.setFormatter(formatter)
+fh.setFormatter(formatter)
+# add the handlers to logger
+logger.addHandler(ch)
+logger.addHandler(fh)
+logger.info('Eleje')
+#logger.info('loglevel: %s', loglevel)
+
 
 # region Global Variables
 VERSION = 'v0.9.01'
@@ -1911,11 +1930,6 @@ if __name__ == '__main__':
             loglevel = logging.DEBUG if args.verbose else logging.INFO
         print('Loglevel: ',loglevel)
         #logging.basicConfig(level=loglevel, filename=pylogfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
-        for handler in logging.root.handlers[:]:
-            logging.root.removeHandler(handler)        
-        logging.basicConfig(level=loglevel, filename=pylogfile, format='{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
-        logging.info('Eleje')
-        logging.info('loglevel: %s', loglevel)
         utility.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
         endfolder = utility.time_for_folder(False)
         
