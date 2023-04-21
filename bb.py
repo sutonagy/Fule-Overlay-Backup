@@ -323,7 +323,7 @@ def logger_init(loggername):
     logger.addHandler(ch)
     logger.addHandler(fh)
     #logger.info('loglevel: %s', args.loglevel)
-    return logger
+    return logger, fh, ch
 
 # region Global Variables
 VERSION = 'v0.9.01'
@@ -1964,10 +1964,10 @@ if __name__ == '__main__':
     import traceback
     import sys
     import os
-    logger=logger_init('main')
+    logger, fh, ch=logger_init('main')
     logger.info('Eleje')
-    logger.info('Loglevel: {0}, console loglevel: {1}'.format(logging.getLevelName(fh.level), logging.getLevelName(ch.level)))
-    print('Loglevel: {0}, console loglevel: {1}'.format(logging.getLevelName(fh.level), logging.getLevelName(ch.level)))
+    logger.info('Loglevel: {0}, console loglevel: {1}'.format(logger.getLevelName(fh.level), logger.getLevelName(ch.level)))
+    print('Loglevel: {0}, console loglevel: {1}'.format(logger.getLevelName(fh.level), logger.getLevelName(ch.level)))
     global std, datetime_spec
     try:
         parser = parse_arguments()
