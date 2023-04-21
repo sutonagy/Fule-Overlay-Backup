@@ -1965,8 +1965,8 @@ if __name__ == '__main__':
     import sys
     import os
     logger.info('Eleje')
-    logger.info('Loglevel: {0}, console loglevel: {1}'.format(colorlog.getLevelName(fh.level), colorlog.getLevelName(ch.level)))
-    print('Loglevel: {0}, console loglevel: {1}'.format(colorlog.getLevelName(fh.level), colorlog.getLevelName(ch.level)))
+    logger.info('Loglevel: {0}, console loglevel: {1}'.format(logging.getLevelName(fh.level), logging.getLevelName(ch.level)))
+    print('Loglevel: {0}, console loglevel: {1}'.format(logging.getLevelName(fh.level), logging.getLevelName(ch.level)))
     global std, datetime_spec
     try:
         parser = parse_arguments()
