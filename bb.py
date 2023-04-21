@@ -57,7 +57,7 @@ import argparse
 import configparser
 import os
 import subprocess
-import utility.print_verbose, utility.check_tool, utility.write_log, utility.time_to_sting, utility.string_to_time, utility.touch, utility.cleanup, utility.archive, utility.time_for_log, utility.check_ssh, utility.check_rsync, utility.make_symlink, utility.confirm, utility.pager, utility.find_replace, utility.datetime_spec, utility.time_for_folder, utility.send_telegram_message
+import utility as uty
 import time
 import yaml
 import types
@@ -357,7 +357,7 @@ def print_version(version):
     Print version of Butterfly Backup
     :return: str
     """
-    utility.print_verbose(args.verbose, 'Print version and logo')
+    uty.print_verbose(args.verbose, 'Print version and logo')
     if args.verbose:
         print_logo()
     print(PrintColor.BOLD + 'Version: ' + PrintColor.END + version)
@@ -402,7 +402,7 @@ def check_rsync():
     Check if rsync tool is installed
     :return: string
     """
-    if not utility.check_tool('rsync'):
+    if not uty.check_tool('rsync'):
         print(PrintColor.RED +
               'ERROR: rsync tool is required!' +
               PrintColor.END +
@@ -423,7 +423,7 @@ def dry_run(message):
     :return: boolean
     """
     if args.dry_run:
-        utility.print_verbose(True, message)
+        uty.print_verbose(True, message)
         return True
 
 
@@ -452,15 +452,15 @@ def run_in_parallel(fn, commands, limit):
         jobs.append(proc)
         #print('Start {0} {1}'.format(args.action, plog['hostname']))
         logger.info('Start {0} {1}'.format(args.action, plog['hostname']))
-        utility.print_verbose(args.verbose, "rsync command: {0}".format(command))
+        uty.print_verbose(args.verbose, "rsync command: {0}".format(command))
         logger.info("rsync command: {0}".format(command))
-        utility.write_log(log_args['status'], plog['destination'], 'INFO', 'Start process {0} on {1}'.format(
+        uty.write_log(log_args['status'], plog['destination'], 'INFO', 'Start process {0} on {1}'.format(
             args.action, plog['hostname']
         ))
         logger.info('Start process {0} on {1}'.format(args.action, plog['hostname']))
         if args.action == 'backup':
             # Write catalog file
-            write_catalog(catalog_path, plog['id'], 'start', utility.time_for_log())
+            write_catalog(catalog_path, plog['id'], 'start', uty.time_for_log())
 
     # Wait for jobs to complete before exiting
     while not all([p.ready() for p in jobs]):
@@ -472,14 +472,14 @@ def run_in_parallel(fn, commands, limit):
             #print(PrintColor.RED + 'ERROR: Command {0} exit with code: {1}'.format(command, p.get()) +
                   #PrintColor.END)
             logger.error('ERROR: Command {0} exit with code: {1}'.format(command, p.get()))
-            utility.write_log(log_args['status'], plog['destination'], 'INFO',
+            uty.write_log(log_args['status'], plog['destination'], 'INFO',
                               'ERROR: Command {0} exit with code: {1} on {2}'.format(command, p.get(), plog['hostname']))
-            utility.write_log(log_args['status'], plog['destination'], 'ERROR',
+            uty.write_log(log_args['status'], plog['destination'], 'ERROR',
                               'Finish process {0} on {1} with error:{2}'.format(args.action, plog['hostname'], p.get()))
             logger.error('Finish process {0} on {1} with error:{2}'.format(args.action, plog['hostname'], p.get()))
             if args.action == 'backup':
                 # Write catalog file
-                write_catalog(catalog_path, plog['id'], 'end', utility.time_for_log())
+                write_catalog(catalog_path, plog['id'], 'end', uty.time_for_log())
                 write_catalog(catalog_path, plog['id'], 'status', "{0}".format(p.get()))
                 if args.retention and args.skip_err:
                     # Retention policy
@@ -495,14 +495,14 @@ def run_in_parallel(fn, commands, limit):
         else:
             #print(PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + PrintColor.END)
             logger.info('SUCCESS: Command {0}'.format(command))
-            utility.write_log(log_args['status'], plog['destination'], 'INFO',
+            uty.write_log(log_args['status'], plog['destination'], 'INFO',
                               'SUCCESS: Command {0} on {1}'.format(command, plog['hostname']))
-            utility.write_log(log_args['status'], plog['destination'], 'INFO',
+            uty.write_log(log_args['status'], plog['destination'], 'INFO',
                               'Finish process {0} on {1}'.format(args.action, plog['hostname']))
             logger.info('Finish process {0} on {1}'.format(args.action, plog['hostname']))
             if args.action == 'backup':
                 # Write catalog file
-                write_catalog(catalog_path, plog['id'], 'end', utility.time_for_log())
+                write_catalog(catalog_path, plog['id'], 'end', uty.time_for_log())
                 write_catalog(catalog_path, plog['id'], 'status', "{0}".format(p.get()))
                 if args.retention:
                     # Retention policy
@@ -611,7 +611,7 @@ def compose_command(flags, host, folderend):
     """
     
     is_last_full = False
-    utility.print_verbose(args.verbose, 'Build a rsync command')
+    uty.print_verbose(args.verbose, 'Build a rsync command')
     # Set rsync binary
     if flags.rsync:
         if os.path.exists(flags.rsync):
@@ -695,7 +695,7 @@ def compose_command(flags, host, folderend):
         # Set dry-run mode
         if flags.dry_run:
             command.append('--dry-run')
-            utility.write_log(log_args['status'], log_args['destination'], 'INFO', 'dry-run mode activate')
+            uty.write_log(log_args['status'], log_args['destination'], 'INFO', 'dry-run mode activate')
         # Set excludes
         if flags.exclude:
             for exclude in flags.exclude:
@@ -706,7 +706,7 @@ def compose_command(flags, host, folderend):
             command.append(
                 '--log-file={0}'.format(log_path)
             )
-            utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+            uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                               'rsync log path: {0}'.format(log_path))
     elif flags.action == 'restore':
         command.append('-ahu --no-perms --no-owner --no-group')
@@ -735,7 +735,7 @@ def compose_command(flags, host, folderend):
         # Set dry-run mode
         if flags.dry_run:
             command.append('--dry-run')
-            utility.write_log(log_args['status'], log_args['destination'], 'INFO', 'dry-run mode activate')
+            uty.write_log(log_args['status'], log_args['destination'], 'INFO', 'dry-run mode activate')
         # Set excludes
         if flags.exclude:
             for exclude in flags.exclude:
@@ -745,7 +745,7 @@ def compose_command(flags, host, folderend):
             command.append(
                 '--log-file={0}'.format(log_path)
             )
-            utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+            uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                               'rsync log path: {0}'.format(log_path))
     elif flags.action == 'export':
         command.append('-ahu --no-perms --no-owner --no-group')
@@ -792,15 +792,15 @@ def compose_command(flags, host, folderend):
         # Set dry-run mode
         if flags.dry_run:
             command.append('--dry-run')
-            utility.write_log(log_args['status'], log_args['destination'], 'INFO', 'dry-run mode activate')
+            uty.write_log(log_args['status'], log_args['destination'], 'INFO', 'dry-run mode activate')
         if flags.log:
             log_path = os.path.join(flags.catalog, 'export.log')
             command.append(
                 '--log-file={0}'.format(log_path)
             )
-            utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+            uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                               'rsync log path: {0}'.format(log_path))
-    utility.print_verbose(args.verbose, 'Command flags are: {0}'.format(' '.join(command)))
+    uty.print_verbose(args.verbose, 'Command flags are: {0}'.format(' '.join(command)))
     return command
 
 
@@ -838,9 +838,9 @@ def compose_source(action, os_name, sources):
             # This is custom data
             for custom_data in sources:
                 src_list.append(':{0}'.format("'" + custom_data.replace("'", "'\\''") + "'"))
-        utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+        uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                           'OS {0}; backup folder {1}'.format(os_name, ' '.join(src_list)))
-        utility.print_verbose(args.verbose, 'Include this criteria: {0}'.format(' '.join(src_list)))
+        uty.print_verbose(args.verbose, 'Include this criteria: {0}'.format(' '.join(src_list)))
         return src_list
 
 
@@ -899,15 +899,15 @@ def compose_destination(computer_name, folder, folderend=None):
         second_layer = os.path.join(first_layer, 'mirror_backup')
     if not os.path.exists(first_layer):
         os.mkdir(first_layer)
-        utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+        uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                           'Create folder {0}'.format(first_layer))
     if not os.path.exists(second_layer):
         os.mkdir(second_layer)
-        utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+        uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                           'Create folder {0}'.format(second_layer))
     # Write catalog file
     write_catalog(catalog_path, backup_id, 'path', second_layer)
-    utility.print_verbose(args.verbose, 'Destination is {0}'.format(second_layer))
+    uty.print_verbose(args.verbose, 'Destination is {0}'.format(second_layer))
     return second_layer, folderend
 
 
@@ -926,7 +926,7 @@ def get_last_full(catalog):
                         and config.get(bid, 'name') == hostname \
                         and (not config.has_option(bid, 'cleaned') or not config.has_option(bid, 'archived')):
                     try:
-                        dates.append(utility.string_to_time(config.get(bid, 'timestamp')))
+                        dates.append(uty.string_to_time(config.get(bid, 'timestamp')))
                     except configparser.NoOptionError:
                         #print(PrintColor.RED +
                             #"ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + PrintColor.END)
@@ -935,9 +935,9 @@ def get_last_full(catalog):
             else:
                 return False
         if dates:
-            last_full = utility.time_to_string(max(dates))
+            last_full = uty.time_to_string(max(dates))
             if last_full:
-                utility.print_verbose(args.verbose, 'Last full is {0}'.format(last_full))
+                uty.print_verbose(args.verbose, 'Last full is {0}'.format(last_full))
                 for bid in config.sections():
                     if config.get(bid, 'type') == 'Full' and \
                             config.get(bid, 'name') == hostname and \
@@ -961,7 +961,7 @@ def get_last_backup(catalog):
                 if config.get(bid, 'name') == hostname \
                         and (not config.has_option(bid, 'cleaned') or not config.has_option(bid, 'archived')):
                     try:
-                        dates.append(utility.string_to_time(config.get(bid, 'timestamp')))
+                        dates.append(uty.string_to_time(config.get(bid, 'timestamp')))
                     except configparser.NoOptionError:
                         print(PrintColor.RED +
                             "ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + PrintColor.END)
@@ -971,7 +971,7 @@ def get_last_backup(catalog):
                 return False
         if dates:
             dates.sort()
-            last = utility.time_to_string(dates[-1])
+            last = uty.time_to_string(dates[-1])
             if last:
                 for bid in config.sections():
                     if config.get(bid, 'name') == hostname and config.get(bid, 'timestamp') == last:
@@ -1023,9 +1023,9 @@ def read_catalog(catalog):
     if file:
         return config
     else:
-        utility.print_verbose(args.verbose, 'Catalog not found! Create a new one.')
+        uty.print_verbose(args.verbose, 'Catalog not found! Create a new one.')
         if os.path.exists(os.path.dirname(catalog)):
-            utility.touch(catalog)
+            uty.touch(catalog)
             config.read(catalog)
             return config
         else:
@@ -1085,26 +1085,26 @@ def retention_policy(host, catalog, logpath):
                 date = config.get(bid, 'timestamp')
                 if (type_backup == 'Full' or type_backup == 'Incremental') and (full_count <= 1):
                     continue
-                utility.print_verbose(args.verbose, "Check cleanup this backup {0}. Folder {1}".format(bid, path))
+                uty.print_verbose(args.verbose, "Check cleanup this backup {0}. Folder {1}".format(bid, path))
                 if not dry_run("Cleanup {0} backup folder".format(path)):
-                    cleanup = utility.cleanup(path, date, args.retention[0])
+                    cleanup = uty.cleanup(path, date, args.retention[0])
                 if not os.path.exists(path):
-                    utility.print_verbose(args.verbose, "This folder {0} does not exist. "
+                    uty.print_verbose(args.verbose, "This folder {0} does not exist. "
                                                         "The backup has already been cleaned.".format(path))
                     cleanup = 0
                 if cleanup == 0:
                     write_catalog(catalog, bid, 'cleaned', 'True')
                     print(PrintColor.GREEN + 'SUCCESS: Cleanup {0} successfully.'.format(path) +
                           PrintColor.END)
-                    utility.write_log(log_args['status'], logpath, 'INFO',
+                    uty.write_log(log_args['status'], logpath, 'INFO',
                                       'Cleanup {0} successfully.'.format(path))
                 elif cleanup == 1:
                     print(PrintColor.RED + 'ERROR: Cleanup {0} failed.'.format(path) +
                           PrintColor.END)
-                    utility.write_log(log_args['status'], logpath, 'ERROR',
+                    uty.write_log(log_args['status'], logpath, 'ERROR',
                                       'Cleanup {0} failed.'.format(path))
                 else:
-                    utility.print_verbose(args.verbose, "No cleanup backup {0}. Folder {1}".format(bid, path))
+                    uty.print_verbose(args.verbose, "No cleanup backup {0}. Folder {1}".format(bid, path))
 
 
 def archive_policy(catalog, destination):
@@ -1123,24 +1123,24 @@ def archive_policy(catalog, destination):
             path = config.get(bid, 'path')
             date = config.get(bid, 'timestamp')
             logpath = os.path.join(os.path.dirname(path), 'general.log')
-            utility.print_verbose(args.verbose, "Check archive this backup {0}. Folder {1}".format(bid, path))
+            uty.print_verbose(args.verbose, "Check archive this backup {0}. Folder {1}".format(bid, path))
             if (type_backup == 'Full') and (full_count <= 1):
                 continue
             if not dry_run("Archive {0} backup folder".format(path)):
-                archive = utility.archive(path, date, args.days, destination)
+                archive = uty.archive(path, date, args.days, destination)
             if archive == 0:
                 write_catalog(catalog, bid, 'archived', 'True')
                 print(PrintColor.GREEN + 'SUCCESS: Archive {0} successfully.'.format(path) +
                       PrintColor.END)
-                utility.write_log(log_args['status'], logpath, 'INFO',
+                uty.write_log(log_args['status'], logpath, 'INFO',
                                   'Archive {0} successfully.'.format(path))
             elif archive == 1:
                 print(PrintColor.RED + 'ERROR: Archive {0} failed.'.format(path) +
                       PrintColor.END)
-                utility.write_log(log_args['status'], logpath, 'ERROR',
+                uty.write_log(log_args['status'], logpath, 'ERROR',
                                   'Archive {0} failed.'.format(path))
             else:
-                utility.print_verbose(args.verbose, "No archive backup {0}. Folder {1}".format(bid, path))
+                uty.print_verbose(args.verbose, "No archive backup {0}. Folder {1}".format(bid, path))
 
 
 def deploy_configuration(computer, user):
@@ -1154,14 +1154,14 @@ def deploy_configuration(computer, user):
     ssh_folder = os.path.join(home, '.ssh')
     # Remove private key file
     id_rsa_pub_file = os.path.join(ssh_folder, 'id_rsa.pub')
-    utility.print_verbose(args.verbose, 'Public id_rsa is {0}'.format(id_rsa_pub_file))
+    uty.print_verbose(args.verbose, 'Public id_rsa is {0}'.format(id_rsa_pub_file))
     if not dry_run('Copying configuration to {0}'.format(computer)):
         if os.path.exists(id_rsa_pub_file):
             print('Copying configuration to' + PrintColor.BOLD + ' {0}'.format(computer) +
                   PrintColor.END + '; write the password:')
             return_code = subprocess.call('ssh-copy-id -i {0} {1}@{2}'.format(id_rsa_pub_file, user, computer),
                                           shell=True)
-            utility.print_verbose(args.verbose, 'Return code of ssh-copy-id: {0}'.format(return_code))
+            uty.print_verbose(args.verbose, 'Return code of ssh-copy-id: {0}'.format(return_code))
             if return_code == 0:
                 print(PrintColor.GREEN + "SUCCESS: Configuration copied successfully on {0}!".format(computer) +
                       PrintColor.END)
@@ -1183,10 +1183,10 @@ def remove_configuration():
     home = os.path.expanduser('~')
     ssh_folder = os.path.join(home, '.ssh')
     if not dry_run('Remove private id_rsa'):
-        if utility.confirm('Are you sure to remove existing rsa keys?'):
+        if uty.confirm('Are you sure to remove existing rsa keys?'):
             # Remove private key file
             id_rsa_file = os.path.join(ssh_folder, 'id_rsa')
-            utility.print_verbose(args.verbose, 'Remove private id_rsa {0}'.format(id_rsa_file))
+            uty.print_verbose(args.verbose, 'Remove private id_rsa {0}'.format(id_rsa_file))
             if os.path.exists(id_rsa_file):
                 os.remove(id_rsa_file)
             else:
@@ -1196,7 +1196,7 @@ def remove_configuration():
                 exit(2)
             # Remove public key file
             id_rsa_pub_file = os.path.join(ssh_folder, 'id_rsa.pub')
-            utility.print_verbose(args.verbose, 'Remove public id_rsa {0}'.format(id_rsa_pub_file))
+            uty.print_verbose(args.verbose, 'Remove public id_rsa {0}'.format(id_rsa_pub_file))
             if os.path.exists(id_rsa_pub_file):
                 os.remove(id_rsa_pub_file)
             else:
@@ -1217,15 +1217,15 @@ def new_configuration():
 
     if not dry_run('Generate private/public key pair'):
         # Generate private/public key pair
-        utility.print_verbose(args.verbose, 'Generate private/public key pair')
+        uty.print_verbose(args.verbose, 'Generate private/public key pair')
         private_key = rsa.generate_private_key(backend=default_backend(), public_exponent=65537,
                                                key_size=2048)
         # Get public key in OpenSSH format
-        utility.print_verbose(args.verbose, 'Get public key in OpenSSH format')
+        uty.print_verbose(args.verbose, 'Get public key in OpenSSH format')
         public_key = private_key.public_key().public_bytes(serialization.Encoding.OpenSSH,
                                                            serialization.PublicFormat.OpenSSH)
         # Get private key in PEM container format
-        utility.print_verbose(args.verbose, 'Get private key in PEM container format')
+        uty.print_verbose(args.verbose, 'Get private key in PEM container format')
         pem = private_key.private_bytes(encoding=serialization.Encoding.PEM,
                                         format=serialization.PrivateFormat.TraditionalOpenSSL,
                                         encryption_algorithm=serialization.NoEncryption())
@@ -1236,12 +1236,12 @@ def new_configuration():
         home = os.path.expanduser('~')
         # Create folder .ssh
         ssh_folder = os.path.join(home, '.ssh')
-        utility.print_verbose(args.verbose, 'Create folder {0}'.format(ssh_folder))
+        uty.print_verbose(args.verbose, 'Create folder {0}'.format(ssh_folder))
         if not os.path.exists(ssh_folder):
             os.mkdir(ssh_folder, mode=0o755)
         # Create private key file
         id_rsa_file = os.path.join(ssh_folder, 'id_rsa')
-        utility.print_verbose(args.verbose, 'Create private key file {0}'.format(id_rsa_file))
+        uty.print_verbose(args.verbose, 'Create private key file {0}'.format(id_rsa_file))
         if not os.path.exists(id_rsa_file):
             with open(id_rsa_file, 'w') as id_rsa:
                 os.chmod(id_rsa_file, mode=0o600)
@@ -1255,7 +1255,7 @@ def new_configuration():
             exit(2)
         # Create private key file
         id_rsa_pub_file = os.path.join(ssh_folder, 'id_rsa.pub')
-        utility.print_verbose(args.verbose, 'Create public key file {0}'.format(id_rsa_pub_file))
+        uty.print_verbose(args.verbose, 'Create public key file {0}'.format(id_rsa_pub_file))
         if not os.path.exists(id_rsa_pub_file):
             with open(id_rsa_pub_file, 'w') as id_rsa_pub:
                 os.chmod(id_rsa_pub_file, mode=0o644)
@@ -1293,7 +1293,7 @@ def init_catalog(catalog):
     config = read_catalog(catalog)
     for cid in config.sections():
         if not os.path.exists(config[cid]['path']):
-            utility.print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
+            uty.print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
             config.remove_section(cid)
     # Write file
     with open(catalog, 'w') as catalogfile:
@@ -1311,16 +1311,16 @@ def delete_host(catalog, host):
     for cid in config.sections():
         if config.get(cid, "name") == host:
             if not os.path.exists(config[cid]['path']):
-                utility.print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
+                uty.print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
                 config.remove_section(cid)
             else:
                 path = config.get(cid, 'path')
                 date = config.get(cid, 'timestamp')
-                cleanup = utility.cleanup(path, date, 0)
+                cleanup = uty.cleanup(path, date, 0)
                 if cleanup == 0:
                     print(PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
                           PrintColor.END)
-                    utility.print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
+                    uty.print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
                     config.remove_section(cid)
                 elif cleanup == 1:
                     print(PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
@@ -1354,7 +1354,7 @@ def delete_backup(catalog, path):
             else:
                 path = config.get(cid, 'path')
                 date = config.get(cid, 'timestamp')
-                #cleanup = utility.cleanup(path, date, 0)
+                #cleanup = uty.cleanup(path, date, 0)
                 #if cleanup == 0:
                 #print(PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
                         #PrintColor.END)
@@ -1377,9 +1377,9 @@ def clean_catalog(catalog):
     :param catalog: catalog file
     """
     config = read_catalog(catalog)
-    utility.print_verbose(args.verbose, "Start check catalog file: {0}!".format(catalog))
+    uty.print_verbose(args.verbose, "Start check catalog file: {0}!".format(catalog))
     for cid in config.sections():
-        utility.print_verbose(args.verbose, "Check backup-id: {0}!".format(cid))
+        uty.print_verbose(args.verbose, "Check backup-id: {0}!".format(cid))
         mod = False
         if not config.get(cid, 'type', fallback=''):
             config.set(cid, 'type', 'Incremental')
@@ -1394,13 +1394,13 @@ def clean_catalog(catalog):
             config.set(cid, 'os', 'Unix')
             mod = True
         if not config.get(cid, 'timestamp', fallback=''):
-            config.set(cid, 'timestamp', utility.time_for_log())
+            config.set(cid, 'timestamp', uty.time_for_log())
             mod = True
         if not config.get(cid, 'start', fallback=''):
-            config.set(cid, 'start', utility.time_for_log())
+            config.set(cid, 'start', uty.time_for_log())
             mod = True
         if not config.get(cid, 'end', fallback=''):
-            config.set(cid, 'end', utility.time_for_log())
+            config.set(cid, 'end', uty.time_for_log())
             mod = True
         if not config.get(cid, 'status', fallback=''):
             config.set(cid, 'status', '0')
@@ -1505,13 +1505,13 @@ def single_action(args,configfile=None):
             else:
                 hostname_orig=hostname
             online = True
-            if not utility.check_ssh(hostname_orig, port):
+            if not uty.check_ssh(hostname_orig, port):
                 #print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, hostname)
                       #+ PrintColor.END)
                 logger.error('ERROR: The port {0} on {1} is closed!'.format(port, hostname))
                 online = False
                 # continue
-            if not utility.check_rsync(hostname_orig, rport):
+            if not uty.check_rsync(hostname_orig, rport):
                 #print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, hostname)
                       #+ PrintColor.END)
                 logger.error('ERROR: The port {0} on {1} is closed!'.format(rport, hostname))
@@ -1524,7 +1524,7 @@ def single_action(args,configfile=None):
                     logger.error('ERROR: For bulk or silently backup, deploy configuration! (Copy the public key to the remote host)')
                     continue
             # Log information's
-            backup_id = '{}'.format(utility.new_id())
+            backup_id = '{}'.format(uty.new_id())
             log_args = {
                 'id': backup_id,
                 'hostname': hostname,
@@ -1569,7 +1569,7 @@ def single_action(args,configfile=None):
                           #+ PrintColor.END)
                     logger.error('ERROR: Backup id {0} not exist in catalog {1}!'.format(args.sfrom, args.destination))
                     exit(1)
-            utility.print_verbose(args.verbose, 'Create a folder structure for {0} os'.format(args.type))
+            uty.print_verbose(args.verbose, 'Create a folder structure for {0} os'.format(args.type))
             # Write catalog file
             write_catalog(catalog_path, backup_id, 'name', hostname)
             # Compose source
@@ -1589,16 +1589,16 @@ def single_action(args,configfile=None):
                 # Compose source <user>@<hostname> format
                 cmd.append('{0}@{1}'.format(args.user, hostname_orig).__add__(" ".join(source_list)))
             # Compose destination
-            utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+            uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                               'Backup on folder {0}'.format(bck_dst))
             cmd.append(bck_dst)
             # Compose pull commands
             #cmds.append(' '.join(cmd))
             #print (cmds)
             # Write catalog file
-            write_catalog(catalog_path, backup_id, 'timestamp', utility.time_for_log())
+            write_catalog(catalog_path, backup_id, 'timestamp', uty.time_for_log())
             # Create a symlink for last backup
-            utility.make_symlink(bck_dst, os.path.join(args.destination, hostname, 'last_backup'))
+            uty.make_symlink(bck_dst, os.path.join(args.destination, hostname, 'last_backup'))
         # Start backup
         # run_in_parallel(start_process, cmds, args.parallel)
         # print('Single_action cmd: ',cmd)
@@ -1659,11 +1659,11 @@ def single_action(args,configfile=None):
                       + PrintColor.END)
                 exit(1)
         # Test connection
-        if not utility.check_ssh(rhost, port):
+        if not uty.check_ssh(rhost, port):
             print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, rhost)
                     + PrintColor.END)
             exit(1)
-        if not utility.check_rsync(rhost, rport):
+        if not uty.check_rsync(rhost, rport):
             print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, rhost)
                     + PrintColor.END)
             exit(1)
@@ -1677,7 +1677,7 @@ def single_action(args,configfile=None):
             'status': args.log,
             'destination': os.path.join(os.path.dirname(rpath), 'general.log')
         }
-        utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+        uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                           'Restore on {0}'.format(rhost))
         for rf in rfolders:
             # Append logs
@@ -1701,7 +1701,7 @@ def single_action(args,configfile=None):
                     # Compose destination <user>@<hostname> format
                     cmd.append('{0}@{1}:'.format(args.user, rhost).__add__(dst))
                 # Add command
-                if utility.confirm("Want to do restore path {0}?".format(os.path.join(rpath, src))):
+                if uty.confirm("Want to do restore path {0}?".format(os.path.join(rpath, src))):
                     cmds.append(' '.join(cmd))
         # Start restore
         run_in_parallel(start_process, cmds, 1)
@@ -1730,7 +1730,7 @@ def single_action(args,configfile=None):
         # Check specified argument backup-id
         if args.id:
             if not args.oneline:
-                utility.print_verbose(args.verbose, "Select backup-id: {0}".format(args.id))
+                uty.print_verbose(args.verbose, "Select backup-id: {0}".format(args.id))
                 if not list_catalog.has_section(args.id):
                     print(PrintColor.RED +
                           'ERROR: Backup-id {0} not exist!'.format(args.id)
@@ -1799,13 +1799,13 @@ def single_action(args,configfile=None):
         elif args.detail:
             log_args['hostname'] = list_catalog[args.detail]['name']
             logs = [log_args]
-            utility.print_verbose(args.verbose, "List detail of backup-id: {0}".format(args.detail))
+            uty.print_verbose(args.verbose, "List detail of backup-id: {0}".format(args.detail))
             print('Detail of backup folder: ' + PrintColor.DARKCYAN
                   + list_catalog[args.detail]['path'] + PrintColor.END)
             print('List: ' + PrintColor.DARKCYAN + '\n'.join(os.listdir(list_catalog[args.detail]['path']))
                   + PrintColor.END)
             if log_args['status']:
-                utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                   'BUTTERFLY BACKUP DETAIL (BACKUP-ID: {0} PATH: {1})'.format(
                                       args.detail, list_catalog[args.detail]['path'])
                                   )
@@ -1815,17 +1815,17 @@ def single_action(args,configfile=None):
                 cmd = 'rsync --list-only -r {0}'.format(list_catalog[args.detail]['path'])
             start_process(cmd)
         elif args.archived:
-            utility.print_verbose(args.verbose, "List all archived backup in catalog")
+            uty.print_verbose(args.verbose, "List all archived backup in catalog")
             text = 'BUTTERFLY BACKUP CATALOG (ARCHIVED)\n\n'
-            utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+            uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                               'BUTTERFLY BACKUP CATALOG (ARCHIVED)')
             for lid in list_catalog.sections():
                 if 'archived' in list_catalog[lid]:
-                    utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                    uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                       'Backup id: {0}'.format(lid))
-                    utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                    uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                       'Hostname or ip: {0}'.format(list_catalog[lid]['name']))
-                    utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                    uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                       'Timestamp: {0}'.format(list_catalog[lid]['timestamp']))
                     text += 'Backup id: {0}'.format(lid)
                     text += '\n'
@@ -1833,19 +1833,19 @@ def single_action(args,configfile=None):
                     text += '\n'
                     text += 'Timestamp: {0}'.format(list_catalog[lid]['timestamp'])
                     text += '\n\n'
-            utility.pager(text)
+            uty.pager(text)
         elif args.cleaned:
-            utility.print_verbose(args.verbose, "List all cleaned backup in catalog")
+            uty.print_verbose(args.verbose, "List all cleaned backup in catalog")
             text = 'BUTTERFLY BACKUP CATALOG (CLEANED)\n\n'
-            utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+            uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                               'BUTTERFLY BACKUP CATALOG (CLEANED)')
             for lid in list_catalog.sections():
                 if 'cleaned' in list_catalog[lid]:
-                    utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                    uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                       'Backup id: {0}'.format(lid))
-                    utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                    uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                       'Hostname or ip: {0}'.format(list_catalog[lid]['name']))
-                    utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                    uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                       'Timestamp: {0}'.format(list_catalog[lid]['timestamp']))
                     text += 'Backup id: {0}'.format(lid)
                     text += '\n'
@@ -1853,20 +1853,20 @@ def single_action(args,configfile=None):
                     text += '\n'
                     text += 'Timestamp: {0}'.format(list_catalog[lid]['timestamp'])
                     text += '\n\n'
-            utility.pager(text)
+            uty.pager(text)
         else:
-            utility.print_verbose(args.verbose, "List all backup in catalog")
+            uty.print_verbose(args.verbose, "List all backup in catalog")
             text = 'BUTTERFLY BACKUP CATALOG\n\n'
-            utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+            uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                               'BUTTERFLY BACKUP CATALOG')
             if args.hostname:
                 for lid in list_catalog.sections():
                     if list_catalog[lid]['name'] == args.hostname:
-                        utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                        uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                           'Backup id: {0}'.format(lid))
-                        utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                        uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                           'Hostname or ip: {0}'.format(list_catalog[lid]['name']))
-                        utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                        uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                           'Timestamp: {0}'.format(list_catalog[lid]['timestamp']))
                         text += 'Backup id: {0}'.format(lid)
                         text += '\n'
@@ -1876,11 +1876,11 @@ def single_action(args,configfile=None):
                         text += '\n\n'
             else:
                 for lid in list_catalog.sections():
-                    utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                    uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                       'Backup id: {0}'.format(lid))
-                    utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                    uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                       'Hostname or ip: {0}'.format(list_catalog[lid]['name']))
-                    utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                    uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                       'Timestamp: {0}'.format(list_catalog[lid]['timestamp']))
                     text += 'Backup id: {0}'.format(lid)
                     text += '\n'
@@ -1888,7 +1888,7 @@ def single_action(args,configfile=None):
                     text += '\n'
                     text += 'Timestamp: {0}'.format(list_catalog[lid]['timestamp'])
                     text += '\n\n'
-            utility.pager(text)
+            uty.pager(text)
 
     # Check export session
     if args.action == 'export':
@@ -1908,7 +1908,7 @@ def single_action(args,configfile=None):
                 logs = list()
                 logs.append(log_args)
                 # Compose command
-                utility.print_verbose(args.verbose, 'Build a rsync command')
+                uty.print_verbose(args.verbose, 'Build a rsync command')
                 cmd = compose_command(args, None)
                 # Add source
                 cmd.append('{}'.format(os.path.join(args.catalog, '')))
@@ -1930,19 +1930,19 @@ def single_action(args,configfile=None):
                 logs = list()
                 logs.append(log_args)
                 # Compose command
-                utility.print_verbose(args.verbose, 'Build a rsync command')
+                uty.print_verbose(args.verbose, 'Build a rsync command')
                 cmd = compose_command(args, None)
                 # Export
-                utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                   'Export {0}. Folder {1} to {2}'.format(args.id, export_catalog[args.id]['Path'],
                                                                          args.destination))
-                utility.print_verbose(args.verbose, 'Export backup with id {0}'.format(args.id))
+                uty.print_verbose(args.verbose, 'Export backup with id {0}'.format(args.id))
                 if os.path.exists(export_catalog[args.id]['Path']):
                     # Add source
                     cmd.append('{}'.format(export_catalog[args.id]['Path']))
                     # Add destination
                     cmd.append('{}'.format(os.path.join(args.destination, export_catalog[args.id]['Name'])))
-                    utility.write_log(log_args['status'], log_args['destination'], 'INFO',
+                    uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                                       'Export command {0}.'.format(" ".join(cmd)))
                     # Check cut option
                     if args.cut:
@@ -1952,7 +1952,7 @@ def single_action(args,configfile=None):
             run_in_parallel(start_process, cmds, 1)
             if os.path.exists(os.path.join(args.destination, '.catalog.cfg')):
                 # Migrate catalog to new file system
-                utility.find_replace(os.path.join(args.destination, '.catalog.cfg'), args.catalog.rstrip('/'),
+                uty.find_replace(os.path.join(args.destination, '.catalog.cfg'), args.catalog.rstrip('/'),
                                      args.destination.rstrip('/'))
         else:
             print(PrintColor.RED +
@@ -1985,8 +1985,8 @@ if __name__ == '__main__':
             loglevel = logger.DEBUG if args.verbose else logger.INFO
         #print('Loglevel: ',loglevel)
         #logger.basicConfig(level=loglevel, filename=pylogfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
-        utility.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
-        endfolder = utility.time_for_folder(False)
+        uty.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
+        endfolder = uty.time_for_folder(False)
         
         if args.configdir:
             cmds = []
@@ -2112,7 +2112,7 @@ if __name__ == '__main__':
                                                                     #print('Errfile: ',errfile)
                                                                     logger.debug('Errfile: {0}'.format(errfile))
                                                                     os.remove(errfile) if os.path.getsize(errfile) == 0 else None
-        utility.send_telegram_message('Backup ' + endfolder[0:11] + ' OK')
+        uty.send_telegram_message('Backup ' + endfolder[0:11] + ' OK')
     except Exception as e:
         exception_message = str(e)
         exception_type, exception_object, exception_traceback = sys.exc_info()
@@ -2125,5 +2125,5 @@ if __name__ == '__main__':
             error_lines += line
         error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"
         t_message = f"{error_message} {error_lines}"
-        utility.send_telegram_message(t_message)
+        uty.send_telegram_message(t_message)
                                                                              
