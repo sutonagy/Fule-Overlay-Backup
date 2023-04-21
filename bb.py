@@ -275,7 +275,7 @@ The program will read all the YAML files in the configdir with the extension of 
 
 def logger_init(loggername):
 
-    formatter = colorlog.ColoredFormatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}',
+    formatter = colorlog.ColoredFormatter('{log_color} {asctime} {filename} {funcName} {lineno} {levelname}: {message}',
                                 datefmt=None,
                                 reset=True,
                                 log_colors={
