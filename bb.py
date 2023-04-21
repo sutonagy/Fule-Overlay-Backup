@@ -268,15 +268,16 @@ if args.mainconfig:
 pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
 logger = logging.getLogger('server_logger')
 #logger.setLevel(logging.DEBUG)
+# create file handler which logs even debug messages
+fh = logging.FileHandler(pylogfile)
 if args.loglevel:
-    logger.setLevel(args.loglevel.upper())
+    fh.setLevel(args.loglevel.upper())
     #loglevel = args.loglevel.upper()
 else:
     #loglevel = logger.DEBUG if args.verbose else logger.INFO
-    logger.setLevel(logging.DEBUG) if args.verbose else logger.setLevel(logging.INFO)
-# create file handler which logs even debug messages
-fh = logging.FileHandler('server.log')
-fh.setLevel(logging.DEBUG)
+    fh.setLevel(logging.DEBUG) if args.verbose else logger.setLevel(logging.INFO)
+
+#fh.setLevel(logging.DEBUG)
 # create console handler with a higher log level
 ch = logging.StreamHandler()
 ch.setLevel(logging.INFO)
@@ -288,7 +289,7 @@ fh.setFormatter(formatter)
 logger.addHandler(ch)
 logger.addHandler(fh)
 logger.info('Eleje')
-#logger.info('loglevel: %s', loglevel)
+logger.info('loglevel: %s', args.loglevel)
 
 
 # region Global Variables
@@ -408,14 +409,14 @@ def run_in_parallel(fn, commands, limit):
     folderend=endfolder if not is_last_full else endfolder[0:12] + 'f'
     #print('Parallel commands: ',commands)
     #print('Parallel aktlogs: ',aktlogs)
-    print('Parallel remotes: ',remotes)
+    #print('Parallel remotes: ',remotes)
     logger.debug('Parallel remotes: {0}'.format(remotes))
     for command, plog, remote in zip(commands, aktlogs, remotes):
         # Run the function
         # print('Parallel command: ',command)
         proc = pool.apply_async(func=fn, args=(command,folderend,remote))
         jobs.append(proc)
-        print('Start {0} {1}'.format(args.action, plog['hostname']))
+        #print('Start {0} {1}'.format(args.action, plog['hostname']))
         logger.info('Start {0} {1}'.format(args.action, plog['hostname']))
         print_verbose(args.verbose, "rsync command: {0}".format(command))
         logger.info("rsync command: {0}".format(command))
@@ -434,8 +435,8 @@ def run_in_parallel(fn, commands, limit):
     # Check exit code of command
     for p, command, plog, remote in zip(jobs, commands, aktlogs, remotes):
         if p.get() != 0:
-            print(utility.PrintColor.RED + 'ERROR: Command {0} exit with code: {1}'.format(command, p.get()) +
-                  utility.PrintColor.END)
+            #print(utility.PrintColor.RED + 'ERROR: Command {0} exit with code: {1}'.format(command, p.get()) +
+                  #utility.PrintColor.END)
             logger.error('ERROR: Command {0} exit with code: {1}'.format(command, p.get()))
             utility.write_log(log_args['status'], plog['destination'], 'INFO',
                               'ERROR: Command {0} exit with code: {1} on {2}'.format(command, p.get(), plog['hostname']))
@@ -451,14 +452,14 @@ def run_in_parallel(fn, commands, limit):
                     retention_policy(plog['hostname'], catalog_path, plog['destination'])
             errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
             emessage = p.get()
-            print('emessage in paralell : ',emessage)
+            #print('emessage in paralell : ',emessage)
             logger.debug('emessage in paralell : {0}'.format(emessage))
             if os.path.getsize(errfile) != 0:
                 emessage = emessage + Path(errfile).read_text()
             raise RsyncRunError(emessage)
 
         else:
-            print(utility.PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + utility.PrintColor.END)
+            #print(utility.PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + utility.PrintColor.END)
             logger.info('SUCCESS: Command {0}'.format(command))
             utility.write_log(log_args['status'], plog['destination'], 'INFO',
                               'SUCCESS: Command {0} on {1}'.format(command, plog['hostname']))
@@ -495,12 +496,12 @@ def start_process(command,folderend,remote=''):
     else:
         p = subprocess.call(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     """
-    print('Remote in start_process: ',remote)
+    #print('Remote in start_process: ',remote)
     logger.debug('Remote in start_process: {0}'.format(remote))
     logfile=args.logdirectory+remote+'-'+folderend+'.log'
-    print('Logfile in start_process: ',logfile)
+    #print('Logfile in start_process: ',logfile)
     logger.debug('Logfile in start_process: {0}'.format(logfile))
-    print('Folderend in start_process: ',folderend)
+    #print('Folderend in start_process: ',folderend)
     logger.debug('Folderend in start_process: {0}'.format(folderend))
     errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
     fo = open(logfile,'w')
@@ -582,9 +583,9 @@ def compose_command(flags, host, folderend):
         if os.path.exists(flags.rsync):
             command = [flags.rsync]
         else:
-            print(utility.PrintColor.YELLOW +
-                  'WARNING: rsync binary {0} not exist! Set default.'.format(args.rsync)
-                  + utility.PrintColor.END)
+            #print(utility.PrintColor.YELLOW +
+                  #'WARNING: rsync binary {0} not exist! Set default.'.format(args.rsync)
+                  #+ utility.PrintColor.END)
             logger.warning('WARNING: rsync binary {0} not exist! Set default.'.format(args.rsync))
             command = ['rsync']
     else:
@@ -893,8 +894,8 @@ def get_last_full(catalog):
                     try:
                         dates.append(utility.string_to_time(config.get(bid, 'timestamp')))
                     except configparser.NoOptionError:
-                        print(utility.PrintColor.RED +
-                            "ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + utility.PrintColor.END)
+                        #print(utility.PrintColor.RED +
+                            #"ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + utility.PrintColor.END)
                         logger.error("ERROR: Corrupted catalog! No found timestamp in {0}".format(bid))
                         exit(2)
             else:
@@ -994,8 +995,8 @@ def read_catalog(catalog):
             config.read(catalog)
             return config
         else:
-            print(utility.PrintColor.RED +
-                  'ERROR: Folder {0} not exist!'.format(os.path.dirname(catalog)) + utility.PrintColor.END)
+            #print(utility.PrintColor.RED +
+                  #'ERROR: Folder {0} not exist!'.format(os.path.dirname(catalog)) + utility.PrintColor.END)
             logger.error('ERROR: Folder {0} not exist!'.format(os.path.dirname(catalog)))
             exit(1)
 
@@ -1032,9 +1033,9 @@ def retention_policy(host, catalog, logpath):
     config = read_catalog(catalog)
     full_count = count_full(config, host)
     if len(args.retention) >= 3:
-        print(utility.PrintColor.RED + 'ERROR: The "--retention or -r" parameter must have two integers. '
-                                       'Three or more arguments specified: {}'.format(args.retention) +
-              utility.PrintColor.END)
+        #print(utility.PrintColor.RED + 'ERROR: The "--retention or -r" parameter must have two integers. '
+                                       #'Three or more arguments specified: {}'.format(args.retention) +
+              #utility.PrintColor.END)
         logger.error('ERROR: The "--retention or -r" parameter must have two integers. ')
         return
     if args.retention[1]:
@@ -1212,9 +1213,9 @@ def new_configuration():
                 os.chmod(id_rsa_file, mode=0o600)
                 id_rsa.write(private_key_str)
         else:
-            print(utility.PrintColor.YELLOW + "WARNING: Private key ~/.ssh/id_rsa exists" + utility.PrintColor.END)
+            #print(utility.PrintColor.YELLOW + "WARNING: Private key ~/.ssh/id_rsa exists" + utility.PrintColor.END)
             logger.warning('Private key ~/.ssh/id_rsa exists')
-            print('If you want to use the existing key, run "bb config --deploy name_of_machine", '
+            #print('If you want to use the existing key, run "bb config --deploy name_of_machine", '
                   'otherwise to remove it, '
                   'run "bb config --remove"')
             exit(2)
@@ -1226,13 +1227,13 @@ def new_configuration():
                 os.chmod(id_rsa_pub_file, mode=0o644)
                 id_rsa_pub.write(public_key_str)
         else:
-            print(utility.PrintColor.YELLOW + "WARNING: Public key ~/.ssh/id_rsa.pub exists" + utility.PrintColor.END)
+            #print(utility.PrintColor.YELLOW + "WARNING: Public key ~/.ssh/id_rsa.pub exists" + utility.PrintColor.END)
             logger.warning('Public key ~/.ssh/id_rsa.pub exists')
-            print('If you want to use the existing key, run "bb config --deploy name_of_machine", '
+            #print('If you want to use the existing key, run "bb config --deploy name_of_machine", '
                   'otherwise to remove it, '
                   'run "bb config --remove"')
             exit(2)
-        print(utility.PrintColor.GREEN + "SUCCESS: New configuration successfully created!" + utility.PrintColor.END)
+        #print(utility.PrintColor.GREEN + "SUCCESS: New configuration successfully created!" + utility.PrintColor.END)
         logger.info('New configuration successfully created!')
 
 
@@ -1304,16 +1305,16 @@ def delete_backup(catalog, path):
     config = read_catalog(catalog)
     #root = os.path.join(os.path.dirname(catalog), host)
     root = path
-    print('path: {0}'.format(path))
+    #print('path: {0}'.format(path))
     logger.debug('path: {0}'.format(path))
     for cid in config.sections():
-        print('cid path: {0}'.format(config.get(cid, "path")))
+        #print('cid path: {0}'.format(config.get(cid, "path")))
         logger.debug('cid path: {0}'.format(config.get(cid, "path")))
         if config.get(cid, "path") == path:
-            print('cid path in if: {0}'.format(config.get(cid, "path")))
+            #print('cid path in if: {0}'.format(config.get(cid, "path")))
             if not os.path.exists(config[cid]['path']):
                 #print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
-                print("Backup-id {0} has been removed to catalog!".format(cid))
+                #print("Backup-id {0} has been removed to catalog!".format(cid))
                 config.remove_section(cid)
                 logger.info("Backup-id {0} has been removed to catalog!".format(cid))
             else:
@@ -1321,11 +1322,11 @@ def delete_backup(catalog, path):
                 date = config.get(cid, 'timestamp')
                 #cleanup = utility.cleanup(path, date, 0)
                 #if cleanup == 0:
-                print(utility.PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
-                        utility.PrintColor.END)
+                #print(utility.PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
+                        #utility.PrintColor.END)
                 #print_verbose(args.verbose, "Backup-id {0} has been removed to catalog!".format(cid))
                 config.remove_section(cid)
-                print("Backup-id {0} has been removed to catalog!".format(cid))
+                #print("Backup-id {0} has been removed to catalog!".format(cid))
                 logger.info('Delete {0} successfully.'.format(path))
                 #elif cleanup == 1:
                     #print(utility.PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
@@ -1371,9 +1372,9 @@ def clean_catalog(catalog):
             config.set(cid, 'status', '0')
             mod = True
         if mod:
-            print(utility.PrintColor.YELLOW +
-                  'WARNING: The backup-id {0} has been set to default value, because he was corrupt. '
-                  'Check it!'.format(cid) + utility.PrintColor.END)
+            #print(utility.PrintColor.YELLOW +
+                  #'WARNING: The backup-id {0} has been set to default value, because he was corrupt. '
+                  #'Check it!'.format(cid) + utility.PrintColor.END)
             logger.warning('The backup-id {0} has been set to default value, because he was corrupt. '
                             'Check it!'.format(cid))
     # Write file
@@ -1406,8 +1407,8 @@ def single_action(args,configfile=None):
         parser.print_help()
     
     if args.action != 'backup':
-        print(utility.PrintColor.RED +
-                "ERROR: Only 'backup' mode works! '{0}' mode has not yet tested".format(args.action) + utility.PrintColor.END)
+        #print(utility.PrintColor.RED +
+                #"ERROR: Only 'backup' mode works! '{0}' mode has not yet tested".format(args.action) + utility.PrintColor.END)
         logger.error("ERROR: Only 'backup' mode works! '{0}' mode has not yet tested".format(args.action))
         exit(1)
     # Check config session
@@ -1452,8 +1453,8 @@ def single_action(args,configfile=None):
                     # Computer list
                     hostnames.append(line)
             else:
-                print(utility.PrintColor.RED + 'ERROR: The file {0} not exist!'.format(args.list)
-                      + utility.PrintColor.END)
+                #print(utility.PrintColor.RED + 'ERROR: The file {0} not exist!'.format(args.list)
+                      #+ utility.PrintColor.END)
                 logger.error('ERROR: The file {0} not exist!'.format(args.list))
         else:
             parser.print_usage()
@@ -1471,21 +1472,21 @@ def single_action(args,configfile=None):
                 hostname_orig=hostname
             online = True
             if not utility.check_ssh(hostname_orig, port):
-                print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, hostname)
-                      + utility.PrintColor.END)
+                #print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, hostname)
+                      #+ utility.PrintColor.END)
                 logger.error('ERROR: The port {0} on {1} is closed!'.format(port, hostname))
                 online = False
                 # continue
             if not utility.check_rsync(hostname_orig, rport):
-                print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, hostname)
-                      + utility.PrintColor.END)
+                #print(utility.PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, hostname)
+                      #+ utility.PrintColor.END)
                 logger.error('ERROR: The port {0} on {1} is closed!'.format(rport, hostname))
                 online = False
                 # continue
             if not args.verbose:
                 if check_configuration(hostname_orig):
-                    print(utility.PrintColor.RED + '''ERROR: For bulk or silently backup, deploy configuration!
-                            See bb deploy --help or specify --verbose''' + utility.PrintColor.END)
+                    #print(utility.PrintColor.RED + '''ERROR: For bulk or silently backup, deploy configuration!
+                            #See bb deploy --help or specify --verbose''' + utility.PrintColor.END)
                     logger.error('ERROR: For bulk or silently backup, deploy configuration! (Copy the public key to the remote host)')
                     continue
             # Log information's
@@ -1513,7 +1514,7 @@ def single_action(args,configfile=None):
                 last_full = get_last_full(backup_catalog)
                 if not last_full:
                     is_last_full = True
-            print('is_last_full in single_action: ',is_last_full)
+            #print('is_last_full in single_action: ',is_last_full)
             logger.debug('is_last_full in single_action: {0}'.format(is_last_full))
             bck_dst, folderend = compose_destination(hostname, args.destination)
             cmd = compose_command(args, hostname, folderend)
@@ -1524,14 +1525,14 @@ def single_action(args,configfile=None):
                     if os.path.exists(backup_catalog[args.sfrom]['path']):
                         cmd.append('--copy-dest={0}'.format(backup_catalog[args.sfrom]['path']))
                     else:
-                        print(utility.PrintColor.YELLOW +
-                              'WARNING: Backup folder {0} not exist!'.format(backup_catalog[args.sfrom]['path'])
-                              + utility.PrintColor.END)
+                        #print(utility.PrintColor.YELLOW +
+                              #'WARNING: Backup folder {0} not exist!'.format(backup_catalog[args.sfrom]['path'])
+                              #+ utility.PrintColor.END)
                         logger.warning('WARNING: Backup folder {0} not exist!'.format(backup_catalog[args.sfrom]['path']))
                 else:
-                    print(utility.PrintColor.RED +
-                          'ERROR: Backup id {0} not exist in catalog {1}!'.format(args.sfrom, args.destination)
-                          + utility.PrintColor.END)
+                    #print(utility.PrintColor.RED +
+                          #'ERROR: Backup id {0} not exist in catalog {1}!'.format(args.sfrom, args.destination)
+                          #+ utility.PrintColor.END)
                     logger.error('ERROR: Backup id {0} not exist in catalog {1}!'.format(args.sfrom, args.destination))
                     exit(1)
             print_verbose(args.verbose, 'Create a folder structure for {0} os'.format(args.type))
@@ -1948,7 +1949,7 @@ if __name__ == '__main__':
             loglevel = args.loglevel.upper()
         else:
             loglevel = logger.DEBUG if args.verbose else logger.INFO
-        print('Loglevel: ',loglevel)
+        #print('Loglevel: ',loglevel)
         #logger.basicConfig(level=loglevel, filename=pylogfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
         utility.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
         endfolder = utility.time_for_folder(False)
@@ -1970,7 +1971,7 @@ if __name__ == '__main__':
                             aktlogs.append(aktlog)
                             #print('Aktlogs: ',aktlogs)
                             aktconfig=file.partition('.')[0]
-                            print('Aktconfig in main: ',aktconfig)
+                            #print('Aktconfig in main: ',aktconfig)
                             logger.debug('Aktconfig in main: {0}'.format(aktconfig))
                             remotes.append(aktconfig)
         else:
@@ -1985,13 +1986,13 @@ if __name__ == '__main__':
             #print('Vege remotes: ',remotes)
             #print('Vege: ',args)
             #exit(0)
-            print('is_last_full in main: ',is_last_full)
+            #print('is_last_full in main: ',is_last_full)
             logger.debug('is_last_full in main: {0}'.format(is_last_full))
             run_in_parallel(start_process, cmds, 8)
             if args.delold:
                 #regiek torlese
                 dirnap = endfolder[12]
-                print('Dirnap: ',dirnap)
+                #print('Dirnap: ',dirnap)
                 logger.debug('Dirnap: {0}'.format(dirnap))
                 if (dirnap != 'd') and args.delold:
                     if dirnap == 'w':
@@ -2007,14 +2008,14 @@ if __name__ == '__main__':
                         args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
                         opt.update(args)
                         args = types.SimpleNamespace(**opt)
-                        print('Args.configdir: ',args.configdir)
+                        #print('Args.configdir: ',args.configdir)
                         logger.debug('Args.configdir: {0}'.format(args.configdir))
                         if args.configdir:
                             for root, dirs, files in os.walk(args.configdir):
                                 for file in files:
                                     if file.endswith(args.configext):
                                         cfile=root+'/'+file
-                                        print('Dirconfig: ',cfile)
+                                        #print('Dirconfig: ',cfile)
                                         logger.debug('Dirconfig: {0}'.format(cfile))
                                         opt = vars(args)
                                         args = yaml.load(open(cfile), Loader=yaml.FullLoader)
@@ -2025,10 +2026,10 @@ if __name__ == '__main__':
                                         else:
                                             hostname=args.hostname
                                         mentodir = args.destination + '/' + hostname
-                                        print('Mentodir: ',mentodir)
+                                        #print('Mentodir: ',mentodir)
                                         logger.debug('Mentodir: {0}'.format(mentodir))
                                         remote=file.partition('.')[0]
-                                        print('Remote: ',remote)
+                                        #print('Remote: ',remote)
                                         logger.debug('Remote: {0}'.format(remote))
                                         second_dir = {}
                                         for root2, dirs2, files2 in os.walk(mentodir):
@@ -2036,45 +2037,45 @@ if __name__ == '__main__':
                                                 dirs2.sort(reverse=True)
                                                 dirnum = 0
                                                 for dir in dirs2:
-                                                    print('Dir: ',dir)
+                                                    #print('Dir: ',dir)
                                                     logger.debug('Dir: {0}'.format(dir))                                      
                                                     if dir.rfind(dirnap) != -1:
-                                                        print('Dirkezdo: ',dir)
+                                                        #print('Dirkezdo: ',dir)
                                                         logger.debug('Dirkezdo: {0}'.format(dir))
                                                         dirnum += 1
                                                         if dirnum == 2:
                                                             second_dir[dirnap] = dir
-                                                            print('Second dir: ',second_dir[dirnap])
+                                                            #print('Second dir: ',second_dir[dirnap])
                                                             logger.debug('Second dir: {0}'.format(second_dir[dirnap]))
                                                             dirs2.sort(reverse=False)
                                                             for dir in dirs2:
-                                                                print('Dir2: ',dir)
+                                                                #print('Dir2: ',dir)
                                                                 logger.debug('Dir2: {0}'.format(dir))              
                                                                 if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
-                                                                    print('Dirtorlo: ',dir)
+                                                                    #print('Dirtorlo: ',dir)
                                                                     logger.debug('Dirtorlo: {0}'.format(dir))
                                                                     forras1 = mentodir + '/' + dir
-                                                                    print('Forras1: ',forras1)
+                                                                    #print('Forras1: ',forras1)
                                                                     logger.debug('Forras1: {0}'.format(forras1))
                                                                     forras = mentodir + '/' + dir
-                                                                    print('Forras: ',forras)
+                                                                    #print('Forras: ',forras)
                                                                     logger.debug('Forras: {0}'.format(forras))
                                                                     cel = mentodir + '/' + second_dir[dirnap] + '/'
-                                                                    print('Cel: ',cel)
+                                                                    #print('Cel: ',cel)
                                                                     logger.debug('Cel: {0}'.format(cel))
                                                                     p=subprocess.run(['cp','-aurfT',forras,cel])
-                                                                    print('cp result: ',p)
+                                                                    #print('cp result: ',p)
                                                                     logger.debug('cp result: {0}'.format(str(p)))
                                                                     #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
                                                                     catalog_path = args.destination + '/' + '.catalog.cfg'
                                                                     delete_backup(catalog_path, forras1)
                                                                     akthost = os.path.basename(os.path.normpath(mentodir))
                                                                     logfile=args.logdirectory+remote+'-'+dir+'.log'
-                                                                    print('Logfile: ',logfile)
+                                                                    #print('Logfile: ',logfile)
                                                                     logger.debug('Logfile: {0}'.format(logfile))
                                                                     os.remove(logfile) if os.path.getsize(logfile) == 0 else None
                                                                     errfile=args.logdirectory+remote+'-error-'+dir+'.log'
-                                                                    print('Errfile: ',errfile)
+                                                                    #print('Errfile: ',errfile)
                                                                     logger.debug('Errfile: {0}'.format(errfile))
                                                                     os.remove(errfile) if os.path.getsize(errfile) == 0 else None
         utility.send_telegram_message('Backup ' + endfolder[0:11] + ' OK')
