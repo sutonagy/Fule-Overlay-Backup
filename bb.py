@@ -61,6 +61,8 @@ import utility as uty
 import time
 import yaml
 import types
+import colorlog
+import logging
 from multiprocessing import Pool
 #from utility import print_verbose
 from shutil import rmtree
@@ -272,9 +274,6 @@ The program will read all the YAML files in the configdir with the extension of 
 
 
 def logger_init(loggername):
-
-    import colorlog
-    import logging
 
     formatter = colorlog.ColoredFormatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}',
                                 datefmt=None,
