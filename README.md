@@ -65,7 +65,7 @@ This means that all commands must be executed by the backup server. Of course, n
 If you want to try or test Butterfly Backup before installing it, run the test:
 ```console
 $ git clone https://github.com/sutonagy/Fule-Butterfly-Backup.git
-$ cd Butterfly-Backup
+$ cd Fule-Butterfly-Backup
 $ bash test_bb.py
 ...
 [92512a6e-506e-11eb-b747-2ba55b805ea5]
