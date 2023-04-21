@@ -301,6 +301,8 @@ def logger_init(loggername):
         args = types.SimpleNamespace(**opt)
         #print('Mainconfig: ',args)
     pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
     logger = logging.getLogger(loggername)
     # create file handler which logs even debug messages
     fh = logging.FileHandler(pylogfile)
