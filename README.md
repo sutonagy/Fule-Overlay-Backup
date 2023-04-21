@@ -83,6 +83,7 @@ status = 0
 Install Butterfly Backup is very simple; run this:
 ```bash
 pip install requests
+pip install colorlog
 git clone https://github.com/sutonagy/Fule-Butterfly-Backup.git
 cd Butterfly-Backup
 sudo python3 setup.py
