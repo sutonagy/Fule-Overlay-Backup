@@ -22,7 +22,7 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-from bb import logger
+import bb
 
 global datetime_spec
 
@@ -41,7 +41,7 @@ def send_telegram_message(message,token=None, chat_id=None):
     url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + message
     #print('telegram url: ', url)
     urlvalasz = requests.get(url)
-    logger.debug('Token: %s, Chat_id: %s, url: %s, requests: %s' % (token, chat_id, url, urlvalasz))
+    bb.logger.debug('Token: %s, Chat_id: %s, url: %s, requests: %s' % (token, chat_id, url, urlvalasz))
 
 def get_today_datetime():
     """
@@ -49,7 +49,7 @@ def get_today_datetime():
     :return: datetime object
     """
     #print('datetime_spec: ', datetime_spec)
-    logger.debug('datetime_spec: %s' % datetime_spec)
+    bb.logger.debug('datetime_spec: %s' % datetime_spec)
     import datetime
     if datetime_spec:
         return datetime_spec
@@ -312,14 +312,14 @@ def check_ssh(ip, port=22):
     try:
         #print(PrintColor.YELLOW + 'Waiting for port {0} on host {1} ...'.format(port, ip)
                 #+ PrintColor.END)
-        logger.debug('Waiting for port {0} on host {1} ...'.format(port, ip))
+        bb.logger.debug('Waiting for port {0} on host {1} ...'.format(port, ip))
         s.settimeout(60)
         s.connect((ip, port))
         s.settimeout(None)
         s.shutdown(2)
         #print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
                 #+ PrintColor.END)
-        logger.debug('The port {0} on {1} is open!'.format(port, ip))
+        bb.logger.debug('The port {0} on {1} is open!'.format(port, ip))
         return True
     except socket.error:
         return False
@@ -336,14 +336,14 @@ def check_rsync(ip, port=873):
     try:
         #print(PrintColor.YELLOW + 'Waiting for port {0} on host {1} ...'.format(port, ip)
                 #+ PrintColor.END)
-        logger.debug('Waiting for port {0} on host {1} ...'.format(port, ip))
+        bb.logger.debug('Waiting for port {0} on host {1} ...'.format(port, ip))
         s.settimeout(60)
         s.connect((ip, port))
         s.settimeout(None)
         s.shutdown(2)
         #print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
                 #+ PrintColor.END)
-        logger.debug('The port {0} on {1} is open!'.format(port, ip))
+        bb.logger.debug('The port {0} on {1} is open!'.format(port, ip))
         return True
     except socket.error:
         return False
