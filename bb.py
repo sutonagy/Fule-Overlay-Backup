@@ -282,7 +282,7 @@ def logger_init(loggername):
                                     'DEBUG':    'cyan',
                                     'INFO':     'light_green',
                                     'WARNING':  'yellow',
-                                    'ERROR':    'red',
+                                    'ERROR':    'bold,red',
                                     'CRITICAL': 'bold,red,bg_white',
                                 },
                                 secondary_log_colors={},
@@ -1963,7 +1963,7 @@ if __name__ == '__main__':
     import traceback
     import sys
     import os
-    logger.critical('Eleje')
+    logger.error('Eleje')
     logger.info('Loglevel: {0}'.format(loglevel))
     print('Loglevel: {0}'.format(loglevel))
     global std, datetime_spec
