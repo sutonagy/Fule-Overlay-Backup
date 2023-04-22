@@ -282,8 +282,8 @@ def logger_init(loggername):
                                     'DEBUG':    'cyan',
                                     'INFO':     'light_green',
                                     'WARNING':  'yellow',
-                                    'ERROR':    'bold,red',
-                                    'CRITICAL': 'bold,red,bg_white',
+                                    'ERROR':    'bold_red',
+                                    'CRITICAL': 'bold_red,bg_white',
                                 },
                                 secondary_log_colors={},
                                 style='{'
