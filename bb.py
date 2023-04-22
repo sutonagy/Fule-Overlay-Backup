@@ -1963,7 +1963,7 @@ if __name__ == '__main__':
     import traceback
     import sys
     import os
-    logger.info('Eleje')
+    logger.error('Eleje')
     logger.info('Loglevel: {0}'.format(logging.getLevelName(loglevel)))
     #print('Loglevel: {0}'.format(loglevel))
     global std, datetime_spec
