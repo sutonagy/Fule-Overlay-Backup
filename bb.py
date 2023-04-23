@@ -305,16 +305,16 @@ def logger_init(loggername):
     if args.consolelog:
         ch = colorlog.StreamHandler()
         ch.setFormatter(formatter)
-        logger.addHandler(ch)
     #ch.setLevel(logging.DEBUG)
     # create formatter and add it to the handlers
-    '''
     pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
     fh = logging.FileHandler(pylogfile)
     formatter2 = logging.Formatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
     fh.setFormatter(formatter2)
-    logger.addHandler(fh)
-    '''
+    if not logger.handlers:
+        logger.addHandler(fh)
+        if args.consolelog:
+            logger.addHandler(ch)
     #logger.addHandler(fh)
     # add the handlers to logger
     if args.loglevel:
