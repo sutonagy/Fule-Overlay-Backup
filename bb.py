@@ -312,7 +312,7 @@ def logger_init(loggername):
     # create formatter and add it to the handlers
     formatter2 = logging.Formatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
     fh.setFormatter(formatter2)
-    logger.addHandler(fh)
+    #logger.addHandler(fh)
     # add the handlers to logger
     if args.loglevel:
         logger.setLevel(args.loglevel.upper())
@@ -1963,7 +1963,7 @@ if __name__ == '__main__':
     import traceback
     import sys
     import os
-    logger.error('Eleje')
+    logger.info('Eleje')
     logger.info('Loglevel: {0}'.format(logging.getLevelName(loglevel)))
     #print('Loglevel: {0}'.format(loglevel))
     global std, datetime_spec
