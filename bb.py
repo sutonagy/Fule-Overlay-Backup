@@ -299,10 +299,8 @@ def logger_init(loggername):
         opt.update(args)
         args = types.SimpleNamespace(**opt)
         #print('Mainconfig: ',args)
-    pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
     logger = colorlog.getLogger(loggername)
     # create file handler which logs even debug messages
-    fh = logging.FileHandler(pylogfile)
     # create console handler with a higher log level
     if args.consolelog:
         ch = colorlog.StreamHandler()
@@ -310,15 +308,19 @@ def logger_init(loggername):
         logger.addHandler(ch)
     #ch.setLevel(logging.DEBUG)
     # create formatter and add it to the handlers
+    '''
+    pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
+    fh = logging.FileHandler(pylogfile)
     formatter2 = logging.Formatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
     fh.setFormatter(formatter2)
+    logger.addHandler(fh)
+    '''
     #logger.addHandler(fh)
     # add the handlers to logger
     if args.loglevel:
         logger.setLevel(args.loglevel.upper())
     else:
         logger.setLevel(colorlog.DEBUG) if args.verbose else logger.setLevel(colorlog.INFO)
-    logger.addHandler(fh)
     #logger.info('loglevel: %s', args.loglevel)
     return logger, logger.level
 
