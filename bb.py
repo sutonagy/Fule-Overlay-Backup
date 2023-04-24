@@ -1281,7 +1281,10 @@ def check_configuration(ip):
         out = check_output(["ssh-keyscan", "{0}".format(ip)], stderr=STDOUT, shell=True).decode()
         if not out:
             return False
-    except subprocess.CalledProcessError:
+    # except subprocess.CalledProcessError:
+    except Exception as e:
+        print(e.output.decode()) # print out the stdout messages up to the exception
+        print(e) # To print out the exception message
         return False
 
 
