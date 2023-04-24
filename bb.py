@@ -311,7 +311,7 @@ def logger_init(loggername):
     fh = logging.FileHandler(pylogfile)
     formatter2 = logging.Formatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
     fh.setFormatter(formatter2)
-    if not logger.handlers:
+    if not logger.handlers: # To avoid duplicate handler and lines in log file. (It's called from utility too)
         logger.addHandler(fh)
         if args.consolelog:
             logger.addHandler(ch)
@@ -673,6 +673,8 @@ def compose_command(flags, host, folderend):
         if flags.verbose:
 #            command.append('-vP')
             command.append('-v')
+        else:
+            command.append('--blocking-io')
         # Set quite mode
         if flags.skip_err:
             command.append('--quiet')
