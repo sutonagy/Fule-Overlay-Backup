@@ -1528,7 +1528,7 @@ def single_action(args,configfile=None):
                 if not check_configuration(hostname_orig):
                     #print(PrintColor.RED + '''ERROR: For bulk or silently backup, deploy configuration!
                             #See bb deploy --help or specify --verbose''' + PrintColor.END)
-                    logger.error('ERROR: For bulk or silently backup, deploy configuration! (Copy the public key to the remote host)')
+                    logger.error('For bulk or silently backup, deploy configuration! (Copy the public key to the remote host)')
                     continue
             # Log information's
             backup_id = '{}'.format(uty.new_id())
