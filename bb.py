@@ -1523,14 +1523,14 @@ def single_action(args,configfile=None):
                       #+ PrintColor.END)
                 logger.error('ERROR: The port {0} on {1} is closed!'.format(port, hostname))
                 online = False
-                # continue
+                continue
             logger.debug('DEBUG: After ssh port check: The port {0} on {1} is open!'.format(port, hostname_orig))
             if not uty.check_rsync(hostname_orig, rport):
                 #print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, hostname)
                       #+ PrintColor.END)
                 logger.error('ERROR: The port {0} on {1} is closed!'.format(rport, hostname))
                 online = False
-                # continue
+                continue
             logger.debug('DEBUG: After rsync port check: The port {0} on {1} is open!'.format(rport, hostname_orig))
             if not args.verbose:
                 if not check_configuration(hostname_orig):
