@@ -673,8 +673,6 @@ def compose_command(flags, host, folderend):
         if flags.verbose:
 #            command.append('-vP')
             command.append('-v')
-        else:
-            command.append('--blocking-io')
         # Set quite mode
         if flags.skip_err:
             command.append('--quiet')
@@ -686,7 +684,9 @@ def compose_command(flags, host, folderend):
             command.append('--bwlimit={0}'.format(flags.bwlimit))
         # Set ssh custom port
         if flags.port:
-            command.append('--rsh "ssh -p {0}"'.format(flags.port))
+            command.append('--rsh "ssh -q -p {0}"'.format(flags.port))
+        else:
+            command.append('--rsh "ssh -q -p 22"')
         # Set rsync custom port
         if flags.rport:
             command.append('--port={0}'.format(flags.rport))
