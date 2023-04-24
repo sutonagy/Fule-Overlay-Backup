@@ -1276,9 +1276,9 @@ def check_configuration(ip):
     :param ip: hostname of pc or ip address
     :return: output of command
     """
-    from subprocess import check_output
+    from subprocess import check_output, STDOUT
     try:
-        out = check_output(["ssh-keyscan", "{0}".format(ip)])
+        out = check_output(["ssh-keyscan", "{0}".format(ip)], stderr=STDOUT, shell=True).decode()
         if not out:
             return False
     except subprocess.CalledProcessError:
