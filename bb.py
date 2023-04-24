@@ -1281,11 +1281,13 @@ def check_configuration(ip):
         out = check_output(["ssh-keyscan", "{0}".format(ip)], stderr=STDOUT, shell=True).decode()
         if not out:
             return False
+        else:
+            return True
     # except subprocess.CalledProcessError:
     except Exception as e:
-        logger.error('ERROR: {0}'.format(e.output.decode())) # print out the stdout messages up to the exception
-        logger.error('ERROR: {0}'.format(e)) # To print out the exception message
-        logger.error('ERROR: SSH key configuration error.') # To print out the exception message
+        logger.error('{0}'.format(e.output.decode())) # print out the stdout messages up to the exception
+        logger.error('{0}'.format(e)) # To print out the exception message
+        logger.error('SSH key configuration error.') # To print out the exception message
         return False
 
 
