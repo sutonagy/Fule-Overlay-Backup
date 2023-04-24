@@ -1277,8 +1277,10 @@ def check_configuration(ip):
     :return: output of command
     """
     from subprocess import check_output, STDOUT
+    cmd = "ssh-keyscan {0}".format(ip)
     try:
-        output = check_output(["ssh-keyscan", "{0}".format(ip)], stderr=STDOUT, shell=True).decode()
+        #output = check_output(["ssh-keyscan", "{0}".format(ip)], stderr=STDOUT, shell=True).decode()
+        output = check_output(cmd, stderr=STDOUT, shell=True).decode()
         logger.debug('Output of ssh-keyscan: {0}'.format(output))
         #if not out:
         #    return False
