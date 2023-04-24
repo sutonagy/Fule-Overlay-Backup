@@ -1278,7 +1278,8 @@ def check_configuration(ip):
     """
     from subprocess import check_output, STDOUT
     try:
-        out = check_output(["ssh-keyscan", "{0}".format(ip)], stderr=STDOUT, shell=True).decode()
+        output = check_output(["ssh-keyscan", "{0}".format(ip)], stderr=STDOUT, shell=True).decode()
+        logger.debug('Output of ssh-keyscan: {0}'.format(output))
         #if not out:
         #    return False
         #else:
