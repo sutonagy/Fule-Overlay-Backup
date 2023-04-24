@@ -1280,7 +1280,7 @@ def check_configuration(ip):
     cmd = "ssh-keyscan {0}".format(ip)
     try:
         #output = check_output(["ssh-keyscan", "{0}".format(ip)], stderr=STDOUT, shell=True).decode()
-        output = check_output(cmd, stderr=STDOUT, shell=True).decode()
+        output = check_output(cmd, stderr=STDOUT, shell=True).decode().partition('\n')[0]
         logger.debug('Output of ssh-keyscan: {0}'.format(output))
         #if not out:
         #    return False
