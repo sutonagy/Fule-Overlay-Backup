@@ -444,6 +444,8 @@ def run_in_parallel(fn, commands, limit):
     #print('Parallel aktlogs: ',aktlogs)
     #print('Parallel remotes: ',remotes)
     logger.debug('Parallel remotes: {0}'.format(remotes))
+    logger.debug('Folderend in parallel: {0}'.format(folderend))
+    logger.debug('is_last_full in parallel: {0}'.format(is_last_full))
     for command, plog, remote in zip(commands, aktlogs, remotes):
         # Run the function
         # print('Parallel command: ',command)
@@ -669,6 +671,7 @@ def compose_command(flags, host, folderend):
             command.append('--delete')
             # Write catalog file
             write_catalog(catalog_path, backup_id, 'type', 'Mirror')
+        logger.debug('is_last_full in compose command: {0}'.format(is_last_full))
         # Set verbosity
         if flags.verbose:
 #            command.append('-vP')
@@ -905,6 +908,8 @@ def compose_destination(computer_name, folder, folderend=None):
         uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                           'Create folder {0}'.format(second_layer))
     # Write catalog file
+    logger.debug('Folderend in compose destination: {0}'.format(folderend))
+    logger.debug('is_last_full in compose destination: {0}'.format(is_last_full))
     write_catalog(catalog_path, backup_id, 'path', second_layer)
     uty.print_verbose(args.verbose, 'Destination is {0}'.format(second_layer))
     return second_layer, folderend
