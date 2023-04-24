@@ -315,13 +315,14 @@ def check_ssh(ip, port=22):
                 #+ PrintColor.END)
         bbmain.logger.debug('Waiting for port {0} on host {1} ...'.format(port, ip))
         s.settimeout(60)
-        s.connect((ip, port))
+        #s.connect((ip, port))
+        result=s.connect_ex((ip, port))
         s.settimeout(None)
         s.shutdown(2)
         #print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
                 #+ PrintColor.END)
         bbmain.logger.debug('The port {0} on {1} is open!'.format(port, ip))
-        return True
+        return True if result == 0 else False
     except socket.error:
         return False
 
@@ -339,13 +340,14 @@ def check_rsync(ip, port=873):
                 #+ PrintColor.END)
         bbmain.logger.debug('Waiting for port {0} on host {1} ...'.format(port, ip))
         s.settimeout(60)
-        s.connect((ip, port))
+        #s.connect((ip, port))
+        result=s.connect_ex((ip, port))
         s.settimeout(None)
         s.shutdown(2)
         #print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
                 #+ PrintColor.END)
         bbmain.logger.debug('The port {0} on {1} is open!'.format(port, ip))
-        return True
+        return True if result == 0 else False
     except socket.error:
         return False
 
