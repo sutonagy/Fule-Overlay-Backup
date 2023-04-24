@@ -1525,7 +1525,7 @@ def single_action(args,configfile=None):
                 # continue
             logger.debug('DEBUG: After rsync port check: The port {0} on {1} is open!'.format(rport, hostname_orig))
             if not args.verbose:
-                if check_configuration(hostname_orig):
+                if not check_configuration(hostname_orig):
                     #print(PrintColor.RED + '''ERROR: For bulk or silently backup, deploy configuration!
                             #See bb deploy --help or specify --verbose''' + PrintColor.END)
                     logger.error('ERROR: For bulk or silently backup, deploy configuration! (Copy the public key to the remote host)')
