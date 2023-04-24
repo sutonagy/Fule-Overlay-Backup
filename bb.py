@@ -468,6 +468,7 @@ def run_in_parallel(fn, commands, limit):
         time.sleep(5)
 
     # Check exit code of command
+    rmessages=[]
     for p, command, plog, remote in zip(jobs, commands, aktlogs, remotes):
         if p.get() != 0:
             #print(PrintColor.RED + 'ERROR: Command {0} exit with code: {1}'.format(command, p.get()) +
@@ -491,7 +492,7 @@ def run_in_parallel(fn, commands, limit):
             logger.debug('emessage in paralell : {0}'.format(emessage))
             if os.path.getsize(errfile) != 0:
                 rmessage = '{0}'.format(emessage) + Path(errfile).read_text()
-            raise RsyncRunError(rmessage)
+                rmessages.append(rmessage)
 
         else:
             #print(PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + PrintColor.END)
@@ -508,6 +509,9 @@ def run_in_parallel(fn, commands, limit):
                 if args.retention:
                     # Retention policy
                     retention_policy(plog['hostname'], catalog_path, plog['destination'])
+    if rmessages:
+        raise RsyncRunError(rmessages)
+
 
     # Safely terminate the pool
     pool.close()
