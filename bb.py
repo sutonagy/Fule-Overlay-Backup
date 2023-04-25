@@ -1517,7 +1517,7 @@ def single_action(args,configfile=None):
         # most csak egy hostra jo
         for hostname in hostnames:
             log_args = {}
-            cmd.append('')
+            cmd =''
             if args.hostpart:
                 hostname_orig=hostname
                 hostname=hostname+'-'+args.hostpart
