@@ -1624,7 +1624,7 @@ def single_action(args,configfile=None):
                 if not args.sshkey and not args.port:
                     cmd.append('{0}@{1}'.format(args.user, hostname_orig).__add__(" ".join(source_list)))
                 else:
-                    cmd.append('{1}'.format(hostname_orig).__add__(" ".join(source_list)))
+                    cmd.append('{0}'.format(hostname_orig).__add__(" ".join(source_list)))
             # Compose destination
             uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                               'Backup on folder {0}'.format(bck_dst))
