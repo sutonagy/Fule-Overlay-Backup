@@ -2019,6 +2019,7 @@ if __name__ == '__main__':
             cmds = []
             aktlogs = []
             remotes = []
+            allonline = True
             for root, dirs, files in os.walk(args.configdir):
                 for file in files:
                     if file.endswith(args.configext):
@@ -2035,6 +2036,8 @@ if __name__ == '__main__':
                             #print('Aktconfig in main: ',aktconfig)
                             logger.debug('Aktconfig in main: {0}'.format(aktconfig))
                             remotes.append(aktconfig)
+                        else:
+                            allonline = False
         else:
             single_action(args,args.configfile)
         #print('Vege cmds: ',cmds)
@@ -2139,7 +2142,8 @@ if __name__ == '__main__':
                                                                     #print('Errfile: ',errfile)
                                                                     logger.debug('Errfile: {0}'.format(errfile))
                                                                     os.remove(errfile) if os.path.getsize(errfile) == 0 else None
-        uty.send_telegram_message('Backup ' + endfolder[0:11] + ' OK')
+        tmessage = 'Backup ' + endfolder[0:11] + ' OK' if allonline else 'Backup ' + endfolder[0:11] + ': Volt offline eszkoz'                                                                    
+        uty.send_telegram_message(tmessage)
     except Exception as e:
         exception_message = str(e)
         exception_type, exception_object, exception_traceback = sys.exc_info()
