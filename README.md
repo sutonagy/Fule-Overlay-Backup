@@ -95,7 +95,11 @@ man bb
 You shoud generate a keypair without passphrase with PuTTYgen or ssh-keygen. Do not use RSA (expect of if you use old openssh version), generate elliptic keys (ECDSA or EdDSA).
 In this program you need the keys in OpenSSH format.
 Put the private key file in a secret place and set the file name and path in the "sshkey:" field in YAML config.
-Copy the public key into the remote machine ~/authorized_keys file.
+Create remote ssh user in the remote machine and copy the public key into the remote machine ~/.ssh/authorized_keys file.
+Don't forget that ".ssh" directory and "authorized_keys" file must be owned by the remote ssh user and must have 700 and 600 mask.
+Set the remote SSH user name in the "user:" field in YAML config.
+As well as you should give the necessary sudo rights to remote ssh user in the remote machine to run rsync as necessry user (as configured in the rsyncd.conf) like this:
+"rbackup    ALL=(ALL)       NOPASSWD: /usr/bin/rsync"
 
 
 

@@ -195,6 +195,8 @@ The program will read all the YAML files in the configdir with the extension of 
                               action='store_true')
     group_backup.add_argument('--ssh-key', '-U', help='SSH key private file for remote SSH connection. Default is ~/.ssh/id_rsa',
                               dest='sshkey', action='store')
+    group_backup.add_argument('--remote-rsync-command', '-J', help='Remote rsync command (i.e. sudo rsync).',
+                              dest='remotersync', action='store')
     
     # restore session
     restore = action.add_parser('restore', help='Restore options', parents=[parent_parser])
@@ -704,6 +706,8 @@ def compose_command(flags, host, folderend):
         # Set rsync custom port
         if flags.rport:
             command.append('--port={0}'.format(flags.rport))
+        if flags.remotersync:
+            command.append('--rsync-path="{0}"'.format(flags.remotersync))
         # Set I/O timeout
         if flags.timeout:
             command.append('--timeout={0}'.format(flags.timeout))
