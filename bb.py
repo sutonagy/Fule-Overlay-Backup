@@ -474,7 +474,7 @@ def run_in_parallel(fn, commands, limit):
         if p.get() != 0:
             #print(PrintColor.RED + 'ERROR: Command {0} exit with code: {1}'.format(command, p.get()) +
                   #PrintColor.END)
-            logger.error('ERROR: Command {0} exit with code: {1}'.format(command, p.get()))
+            logger.error('Command {0} exit with code: {1}'.format(command, p.get()))
             uty.write_log(log_args['status'], plog['destination'], 'INFO',
                               'ERROR: Command {0} exit with code: {1} on {2}'.format(command, p.get(), plog['hostname']))
             uty.write_log(log_args['status'], plog['destination'], 'ERROR',
@@ -488,13 +488,13 @@ def run_in_parallel(fn, commands, limit):
                     # Retention policy
                     retention_policy(plog['hostname'], catalog_path, plog['destination'])
             errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
-            emessage = p.get()
+            #emessage = p.get()
             #print('emessage in paralell : ',emessage)
-            logger.debug('emessage in paralell : {0}'.format(emessage))
+            #logger.debug('emessage in paralell : {0}'.format(emessage))
             if os.path.getsize(errfile) != 0:
-                rmessage = '{0}'.format(emessage) + Path(errfile).read_text()
+                rmessage = 'Command {0} exit with code: {1}'.format(command, p.get()) + Path(errfile).read_text()
                 rmessages.append(rmessage)
-                rsyncerror = True
+                rsyncerror = True                
 
         else:
             #print(PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + PrintColor.END)
