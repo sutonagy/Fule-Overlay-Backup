@@ -695,12 +695,12 @@ def compose_command(flags, host, folderend):
         # Set ssh custom port
         if flags.port:
             if flags.sshkey:
-                command.append('-e "ssh -p {0} -i {1}"'.format(flags.port, flags.sshkey))
+                command.append('-e "ssh -p {0} -i {1} -l {2}"'.format(flags.port, flags.sshkey,flags.user))
             else:
-                command.append('-e "ssh -p {0}"'.format(flags.port))
+                command.append('-e "ssh -p {0} -l {1}"'.format(flags.port,flags.user))
         else:
             if flags.sshkey:
-                command.append('-e "ssh -i {0}"'.format(flags.sshkey))
+                command.append('-e "ssh -i {0} -l {1}"'.format(flags.sshkey,flags.user))
         # Set rsync custom port
         if flags.rport:
             command.append('--port={0}'.format(flags.rport))
@@ -1621,7 +1621,10 @@ def single_action(args,configfile=None):
                cmd.append(" ".join(source_list)[1:])
             else:
                 # Compose source <user>@<hostname> format
-                cmd.append('{0}@{1}'.format(args.user, hostname_orig).__add__(" ".join(source_list)))
+                if not args.sshkey and not args.port:
+                    cmd.append('{0}@{1}'.format(args.user, hostname_orig).__add__(" ".join(source_list)))
+                else:
+                    cmd.append('{1}'.format(hostname_orig).__add__(" ".join(source_list)))
             # Compose destination
             uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                               'Backup on folder {0}'.format(bck_dst))
