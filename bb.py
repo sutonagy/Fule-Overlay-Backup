@@ -169,7 +169,7 @@ The program will read all the YAML files in the configdir with the extension of 
                                 choices=['User', 'Config', 'Application', 'System', 'Log'], nargs='+')
     data_or_custom.add_argument('--custom-data', '-C', help='Custom path of which you want to backup',
                                 dest='customdata', action='store', nargs='+')
-    group_backup.add_argument('--user', '-u', help='Login name used to log into the remote host (being backed up)',
+    group_backup.add_argument('--user', '-u', help='Login name used to log into the remote host (being backed up). Default is the current user.',
                               dest='user', action='store', default=os.getlogin())
     group_backup.add_argument('--type', '-t', help='Type of operating system to backup', dest='type', action='store',
                               choices=['Unix', 'Windows', 'MacOS'], required=True)
@@ -193,6 +193,9 @@ The program will read all the YAML files in the configdir with the extension of 
                               action='store', metavar='ID')
     group_backup.add_argument('--delete-old-differential', '-O', help='Delete older Differential backup folders. See bb.yaml.sample!', dest='delold',
                               action='store_true')
+    group_backup.add_argument('--ssh-key', '-U', help='SSH key private file for remote SSH connection. Default is ~/.ssh/id_rsa',
+                              dest='sshkey', action='store')
+    
     # restore session
     restore = action.add_parser('restore', help='Restore options', parents=[parent_parser])
     group_restore = restore.add_argument_group(title='Restore options')
@@ -691,7 +694,13 @@ def compose_command(flags, host, folderend):
             command.append('--bwlimit={0}'.format(flags.bwlimit))
         # Set ssh custom port
         if flags.port:
-            command.append('--rsh "ssh -p {0}"'.format(flags.port))
+            if flags.sshkey:
+                command.append('-e "ssh -p {0} -i {1}"'.format(flags.port, flags.sshkey))
+            else:
+                command.append('-e "ssh -p {0}"'.format(flags.port))
+        else:
+            if flags.sshkey:
+                command.append('-e "ssh -i {0}"'.format(flags.sshkey))
         # Set rsync custom port
         if flags.rport:
             command.append('--port={0}'.format(flags.rport))
