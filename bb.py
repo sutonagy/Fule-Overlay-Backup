@@ -691,9 +691,9 @@ def compose_command(flags, host, folderend):
         # Set compress mode
         if flags.compressmode:
             if flags.compresslevel:
-                command.append('--zc={0} --zl={1}'.format(flags.compressmode,flags.compresslevel))
+                command.append('--zc="{0}" --zl={1}'.format(flags.compressmode,flags.compresslevel))
             else:
-                command.append('--zc={0}'.format(flags.compressmode))                
+                command.append('--zc="{0}"'.format(flags.compressmode))                
         # Set bandwidth limit
         if flags.bwlimit:
             command.append('--bwlimit={0}'.format(flags.bwlimit))
