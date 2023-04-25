@@ -91,6 +91,14 @@ bb --help
 man bb
 ```
 
+## Setup ssh connection
+You shoud generate a keypair without passphrase with PuTTYgen or ssh-keygen. Do not use RSA (expect of if you use old openssh version), generate elliptic keys (ECDSA or EdDSA).
+In this program you need the keys in OpenSSH format.
+Put the private key file in a secret place and set the file name and path in the "sshkey:" field in YAML config.
+Copy the public key into the remote machine ~/authorized_keys file.
+
+
+
 ### Backup machine
 Backup a single PC or server is a everyday task.
 But most of the data may not change in the various backups made;

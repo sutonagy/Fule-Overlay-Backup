@@ -695,12 +695,12 @@ def compose_command(flags, host, folderend):
         # Set ssh custom port
         if flags.port:
             if flags.sshkey:
-                command.append('-e "ssh -p {0} -i {1} -l {2}"'.format(flags.port, flags.sshkey,flags.user))
+                command.append('-e "ssh -p {0} -o StrictHostKeyChecking=no -i {1} -l {2}"'.format(flags.port, flags.sshkey,flags.user))
             else:
-                command.append('-e "ssh -p {0} -l {1}"'.format(flags.port,flags.user))
+                command.append('-e "ssh -p {0} -o StrictHostKeyChecking=no -l {1}"'.format(flags.port,flags.user))
         else:
             if flags.sshkey:
-                command.append('-e "ssh -i {0} -l {1}"'.format(flags.sshkey,flags.user))
+                command.append('-e "ssh -i {0} -o StrictHostKeyChecking=no -l {1}"'.format(flags.sshkey,flags.user))
         # Set rsync custom port
         if flags.rport:
             command.append('--port={0}'.format(flags.rport))
@@ -1537,7 +1537,7 @@ def single_action(args,configfile=None):
             if not uty.check_ssh(hostname_orig, port):
                 #print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, hostname)
                       #+ PrintColor.END)
-                logger.error('The port {0} on {1} is closed!'.format(port, hostname))
+                logger.error('The port {0} on {1} is closed or blocked!'.format(port, hostname))
                 online = False
                 eport = port
                 continue
@@ -1545,7 +1545,7 @@ def single_action(args,configfile=None):
             if not uty.check_rsync(hostname_orig, rport):
                 #print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, hostname)
                       #+ PrintColor.END)
-                logger.error('The port {0} on {1} is closed!'.format(rport, hostname))
+                logger.error('The port {0} on {1} is closed or blocked!'.format(rport, hostname))
                 online = False
                 eport = rport
                 continue
@@ -1697,11 +1697,11 @@ def single_action(args,configfile=None):
                 exit(1)
         # Test connection
         if not uty.check_ssh(rhost, port):
-            print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, rhost)
+            print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed or blocked!'.format(port, rhost)
                     + PrintColor.END)
             exit(1)
         if not uty.check_rsync(rhost, rport):
-            print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, rhost)
+            print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed or blocked!'.format(rport, rhost)
                     + PrintColor.END)
             exit(1)
         if not args.verbose:
@@ -2053,7 +2053,7 @@ if __name__ == '__main__':
                             logger.debug('Aktconfig in main: {0}'.format(aktconfig))
                             remotes.append(aktconfig)
                         else:
-                            portmessages.append('The port {0} on {1} is closed!'.format(eport, args.hostname))
+                            portmessages.append('The port {0} on {1} is closed or blocked!'.format(eport, args.hostname))
                             allonline = False
         else:
             single_action(args,args.configfile)

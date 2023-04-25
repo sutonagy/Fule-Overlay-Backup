@@ -2,7 +2,7 @@
 destination: /backup
 mode: Differential #First make a full rsync backup and later hardlink to this full backup the unchanged files.
 customdata: [/etc, /home, /root, /usr, /var, /boot, /fejleszt, /opt, /pki, /*adat]
-user: root #user for ssh connection
+user: rbackup #user for ssh connection
 type: Unix #operation system type
 exclude: ['*/*tmp/', '*/*temp/', '*/*cache/', '*/*lock/', '*/log/', '/home/vscode/.vscode-server', '/root/.vscode-server', '/var/lib/mysql/*/', '/var/lib/pgsql/*/data/*/', '*/*backup*/', '*/*rsync*/', '/var/newmail/*/', '/var/oldmail/*/']
 action: backup
