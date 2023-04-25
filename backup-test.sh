@@ -13,5 +13,6 @@ start=`date +%s`
 #python3 bb.py -M /etc/bb/bb.yaml -K 2304161313
 python3 bb.py -M /etc/bb/bb.yaml
 end=`date +%s`
-runtime=$( echo "$end - $start" | bc -l )
+runtime=$((end-start))
+echo "Total runtime: $runtime seconds"
 #python3 -m pdb bb.py -M /etc/bb/bb.yaml
