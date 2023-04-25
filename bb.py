@@ -341,7 +341,7 @@ class Error(Exception):
     pass
 
 
-class RsyncRunError(Error):
+class RunError(Error):
     """Error if rsync run exits with error.
     """
 
@@ -469,6 +469,7 @@ def run_in_parallel(fn, commands, limit):
 
     # Check exit code of command
     rmessages=[]
+    rsyncerror = False
     for p, command, plog, remote in zip(jobs, commands, aktlogs, remotes):
         if p.get() != 0:
             #print(PrintColor.RED + 'ERROR: Command {0} exit with code: {1}'.format(command, p.get()) +
@@ -493,6 +494,7 @@ def run_in_parallel(fn, commands, limit):
             if os.path.getsize(errfile) != 0:
                 rmessage = '{0}'.format(emessage) + Path(errfile).read_text()
                 rmessages.append(rmessage)
+                rsyncerror = True
 
         else:
             #print(PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + PrintColor.END)
@@ -509,13 +511,12 @@ def run_in_parallel(fn, commands, limit):
                 if args.retention:
                     # Retention policy
                     retention_policy(plog['hostname'], catalog_path, plog['destination'])
-    if rmessages:
-        raise RsyncRunError(rmessages)
-
 
     # Safely terminate the pool
     pool.close()
     pool.join()
+    return rsyncerror, rmessages
+    
 
 
 def start_process(command,folderend,remote=''):
@@ -1524,18 +1525,21 @@ def single_action(args,configfile=None):
             else:
                 hostname_orig=hostname
             online = True
+            eport = None
             if not uty.check_ssh(hostname_orig, port):
                 #print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(port, hostname)
                       #+ PrintColor.END)
-                logger.error('ERROR: The port {0} on {1} is closed!'.format(port, hostname))
+                logger.error('The port {0} on {1} is closed!'.format(port, hostname))
                 online = False
+                eport = port
                 continue
             logger.debug('DEBUG: After ssh port check: The port {0} on {1} is open!'.format(port, hostname_orig))
             if not uty.check_rsync(hostname_orig, rport):
                 #print(PrintColor.RED + 'ERROR: The port {0} on {1} is closed!'.format(rport, hostname)
                       #+ PrintColor.END)
-                logger.error('ERROR: The port {0} on {1} is closed!'.format(rport, hostname))
+                logger.error('The port {0} on {1} is closed!'.format(rport, hostname))
                 online = False
+                eport = rport
                 continue
             logger.debug('DEBUG: After rsync port check: The port {0} on {1} is open!'.format(rport, hostname_orig))
             if not args.verbose:
@@ -1625,7 +1629,7 @@ def single_action(args,configfile=None):
         # run_in_parallel(start_process, cmds, args.parallel)
         # print('Single_action cmd: ',cmd)
         #print('Single_action log: ',log_args)
-        return cmd, log_args, online
+        return cmd, log_args, online, eport
     # Check restore session
     if args.action == 'restore':
         # Check custom ssh port
@@ -2020,12 +2024,13 @@ if __name__ == '__main__':
             aktlogs = []
             remotes = []
             allonline = True
+            portmessages = []
             for root, dirs, files in os.walk(args.configdir):
                 for file in files:
                     if file.endswith(args.configext):
                         cfile=root+'/'+file
                         #print('Config: ',file)
-                        aktcmd, aktlog, online = single_action(args,cfile)
+                        aktcmd, aktlog, online, eport = single_action(args,cfile)
                         #print('Cmd: ',aktcmd)
                         #print('Log: ',aktlog)
                         if online:
@@ -2037,6 +2042,7 @@ if __name__ == '__main__':
                             logger.debug('Aktconfig in main: {0}'.format(aktconfig))
                             remotes.append(aktconfig)
                         else:
+                            portmessages.append('The port {0} on {1} is closed!'.format(eport, args.hostname))
                             allonline = False
         else:
             single_action(args,args.configfile)
@@ -2052,8 +2058,8 @@ if __name__ == '__main__':
             #exit(0)
             #print('is_last_full in main: ',is_last_full)
             logger.debug('is_last_full in main: {0}'.format(is_last_full))
-            run_in_parallel(start_process, cmds, 8)
-            if args.delold:
+            rserror, rsmessages = run_in_parallel(start_process, cmds, 8)
+            if args.delold and allonline and not rserror:
                 #regiek torlese
                 dirnap = endfolder[12]
                 #print('Dirnap: ',dirnap)
@@ -2142,7 +2148,12 @@ if __name__ == '__main__':
                                                                     #print('Errfile: ',errfile)
                                                                     logger.debug('Errfile: {0}'.format(errfile))
                                                                     os.remove(errfile) if os.path.getsize(errfile) == 0 else None
-        tmessage = 'Backup ' + endfolder[0:11] + ' OK' if allonline else 'Backup ' + endfolder[0:11] + ': Volt offline eszkoz'                                                                    
+        if rserror or not allonline:
+            from functools import reduce
+            runmessages=portmessages+rsmessages
+            runmessage = str(reduce(lambda x,y: x+"\n"+y, runmessages))
+            raise RunError(runmessage)                                                                    
+        tmessage = 'Backup ' + endfolder[0:11] + ' OK'                                                                    
         uty.send_telegram_message(tmessage)
     except Exception as e:
         exception_message = str(e)
