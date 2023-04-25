@@ -1465,6 +1465,10 @@ def single_action(args,configfile=None):
     
     if configfile:
         opt = vars(args)
+        args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
+        opt.update(args)
+        args = types.SimpleNamespace(**opt)        
+        opt = vars(args)
         args = yaml.load(open(configfile), Loader=yaml.FullLoader)
         opt.update(args)
         args = types.SimpleNamespace(**opt)
@@ -2105,6 +2109,10 @@ if __name__ == '__main__':
                                         cfile=root+'/'+file
                                         #print('Dirconfig: ',cfile)
                                         logger.debug('Dirconfig: {0}'.format(cfile))
+                                        opt = vars(args)
+                                        args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
+                                        opt.update(args)
+                                        args = types.SimpleNamespace(**opt)                                        
                                         opt = vars(args)
                                         args = yaml.load(open(cfile), Loader=yaml.FullLoader)
                                         opt.update(args)
