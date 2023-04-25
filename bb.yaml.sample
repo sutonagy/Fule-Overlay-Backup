@@ -31,6 +31,8 @@ logfile: null # default is fule-butterfly-backup.log in destination directory
 consolelog: True # Print the log to console true
 sshkey: null # Default is ~/.ssh/id_rsa it the remote user exists in the backup computer.
 remotersync: null # i.e. sudo rsync
+compressmode: null #Set compression method. Possible values: zstd lz4 zlibx zlib. Check with "rsync --version" command.
+compresslevel: null #See "man rsync" for the defaults and possible values.
 delold: True #Delete old differential backup states
 # In case of Differential backup delete older backup folders
 # From day backups (on weekdays) the older ones than the second newest week backup

@@ -173,8 +173,8 @@ The program will read all the YAML files in the configdir with the extension of 
                               dest='user', action='store', default=os.getlogin())
     group_backup.add_argument('--type', '-t', help='Type of operating system to backup', dest='type', action='store',
                               choices=['Unix', 'Windows', 'MacOS'], required=True)
-    group_backup.add_argument('--compress', '-z', help='Compress data', dest='compress',
-                              action='store_true')
+    group_backup.add_argument('--compress-mode', '-zc', help='Compress data', dest='compressmode', action='store')
+    group_backup.add_argument('--compress-level', '-zl', help='Compress data', dest='compresslevel', action='store', type=int)
     group_backup.add_argument('--retention', '-r', help='First argument are days of backup retention. '
                                                         'Second argument is minimum number of backup retention',
                               dest='retention', action='store', nargs='*', metavar=('DAYS', 'NUMBER'), type=int)
@@ -689,8 +689,11 @@ def compose_command(flags, host, folderend):
         if flags.skip_err:
             command.append('--quiet')
         # Set compress mode
-        if flags.compress:
-            command.append('-z')
+        if flags.compressmode:
+            if flags.compresslevel:
+                command.append('--zc={0} --zl={1}'.format(flags.compressmode,flags.compresslevel))
+            else:
+                command.append('--zc={0}'.format(flags.compressmode))                
         # Set bandwidth limit
         if flags.bwlimit:
             command.append('--bwlimit={0}'.format(flags.bwlimit))
