@@ -492,10 +492,9 @@ def run_in_parallel(fn, commands, limit):
             #print('emessage in paralell : ',emessage)
             #logger.debug('emessage in paralell : {0}'.format(emessage))
             if os.path.getsize(errfile) != 0:
-                rmessage = 'Command {0} exit with code: {1}'.format(command, p.get()) + Path(errfile).read_text()
+                rmessage = 'Command {0} exit with code: {1}'.format(command, p.get()) + '\n' + Path(errfile).read_text()
                 rmessages.append(rmessage)
                 rsyncerror = True                
-
         else:
             #print(PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + PrintColor.END)
             logger.info('SUCCESS: Command {0}'.format(command))
