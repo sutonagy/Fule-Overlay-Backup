@@ -2081,7 +2081,7 @@ if __name__ == '__main__':
             #print('Vege: ',args)
             #exit(0)
             #print('is_last_full in main: ',is_last_full)
-            rserror, rsmessages = run_in_parallel(start_process, cmds, 8, endfolder[0:10])
+            rserror, rsmessages = run_in_parallel(start_process, cmds, 8, endfolder[0:11])
             #ogger.debug('is_last_full in main: {0}'.format(is_last_full))
             if args.delold and allonline and not rserror:
                 #regiek torlese
