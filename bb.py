@@ -338,7 +338,7 @@ VERSION = 'v0.9.01'
 # endregion
 
 endfolder = ''
-is_last_full = False
+#is_last_full = False
 
 
 class Error(Exception):
@@ -431,7 +431,7 @@ def dry_run(message):
         return True
 
 
-def run_in_parallel(fn, commands, limit):
+def run_in_parallel(fn, commands, limit, aktdate=''):
     """
     Run in parallel with limit
     :param fn: function in parallelism
@@ -444,17 +444,17 @@ def run_in_parallel(fn, commands, limit):
     # Start a Pool with "limit" processes
     pool = Pool(processes=limit)
     jobs = []
-    folderend=endfolder if not is_last_full else endfolder[0:12] + 'f'
+    #folderend=endfolder if not is_last_full else endfolder[0:12] + 'f'
     #print('Parallel commands: ',commands)
     #print('Parallel aktlogs: ',aktlogs)
     #print('Parallel remotes: ',remotes)
     logger.debug('Parallel remotes: {0}'.format(remotes))
-    logger.debug('Folderend in parallel: {0}'.format(folderend))
-    logger.debug('is_last_full in parallel: {0}'.format(is_last_full))
+    #logger.debug('Folderend in parallel: {0}'.format(folderend))
+    logger.debug('aktdate in parallel: {0}'.format(aktdate))
     for command, plog, remote in zip(commands, aktlogs, remotes):
         # Run the function
         # print('Parallel command: ',command)
-        proc = pool.apply_async(func=fn, args=(command,folderend,remote))
+        proc = pool.apply_async(func=fn, args=(command,aktdate,remote))
         jobs.append(proc)
         #print('Start {0} {1}'.format(args.action, plog['hostname']))
         logger.info('Start {0} {1}'.format(args.action, plog['hostname']))
@@ -492,7 +492,7 @@ def run_in_parallel(fn, commands, limit):
                 if args.retention and args.skip_err:
                     # Retention policy
                     retention_policy(plog['hostname'], catalog_path, plog['destination'])
-            errfile=args.logdirectory+remote+'-error-'+folderend+'.log'
+            errfile=args.logdirectory+remote+'-error-'+aktdate+'.log'
             #emessage = p.get()
             #print('emessage in paralell : ',emessage)
             #logger.debug('emessage in paralell : {0}'.format(emessage))
@@ -723,7 +723,7 @@ def compose_command(flags, host, folderend):
             for exclude in flags.exclude:
                 command.append('--exclude={0}'.format(exclude))
         if flags.log:
-            second_layer, folderend = compose_destination(host, flags.destination,folderend)
+            second_layer, folderend = compose_destination(host, flags.destination, is_last_full, folderend)
             log_path = os.path.join(second_layer, 'backup.log')
             command.append(
                 '--log-file={0}'.format(log_path)
@@ -866,7 +866,7 @@ def compose_source(action, os_name, sources):
         return src_list
 
 
-def compose_restore_src_dst(backup_os, restore_os, restore_path):
+def compose_restore_src_dst(backup_os, restore_os, restore_path, is_last_full):
     """
     Compare dictionary of folder backup and restore
     :param backup_os: backup structure folders
@@ -900,7 +900,7 @@ def get_restore_os():
     return config.get(args.id, 'os')
 
 
-def compose_destination(computer_name, folder, folderend=None):
+def compose_destination(computer_name, folder, is_last_full, folderend=None):
     """
     Compose folder destination of backup
     :param computer_name: name of source computer
@@ -908,6 +908,7 @@ def compose_destination(computer_name, folder, folderend=None):
     :return: string
     """
     # Create root folder of backup
+    logger.debug('is_last_full in compose destination call: {0}'.format(is_last_full))
     first_layer = os.path.join(folder, computer_name)
     # Check if backup is a Mirror or not
     if args.mode != 'Mirror':
@@ -1596,7 +1597,7 @@ def single_action(args,configfile=None):
                     is_last_full = True
             #print('is_last_full in single_action: ',is_last_full)
             logger.debug('is_last_full in single_action: {0}'.format(is_last_full))
-            bck_dst, folderend = compose_destination(hostname, args.destination)
+            bck_dst, folderend = compose_destination(hostname, args.destination, is_last_full)
             cmd = compose_command(args, hostname, folderend)
             # Check if start-from is specified
             if args.sfrom:
@@ -1737,7 +1738,7 @@ def single_action(args,configfile=None):
             if ros == 'Windows':
                 cmd.append('--chmod=ugo=rwX')
             # Compose source and destination
-            src_dst = compose_restore_src_dst(bos, ros, os.path.basename(rf))
+            src_dst = compose_restore_src_dst(bos, ros, os.path.basename(rf), is_last_full)
             if src_dst:
                 src = src_dst[0]
                 # Compose source
@@ -2080,8 +2081,8 @@ if __name__ == '__main__':
             #print('Vege: ',args)
             #exit(0)
             #print('is_last_full in main: ',is_last_full)
-            logger.debug('is_last_full in main: {0}'.format(is_last_full))
-            rserror, rsmessages = run_in_parallel(start_process, cmds, 8)
+            rserror, rsmessages = run_in_parallel(start_process, cmds, 8, endfolder[0:10])
+            #ogger.debug('is_last_full in main: {0}'.format(is_last_full))
             if args.delold and allonline and not rserror:
                 #regiek torlese
                 dirnap = endfolder[12]
