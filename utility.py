@@ -3,6 +3,7 @@
 # vim: se ts=4 et syn=python:
 
 # created by: matteo.guadrini
+# modified by: Laszlo Suto Nagy
 # utility.py -- Butterfly-Backup
 #
 #     Copyright (C) 2018 Matteo Guadrini <matteo.guadrini@hotmail.it>
@@ -21,14 +22,35 @@
 #     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import bb as bbmain
+#logger, fh, ch, logging = bbmain.logger_init('utility')
+
 global datetime_spec
+
+def send_telegram_message(message,token=None, chat_id=None):
+    """
+    Send a message to a chat_id
+    :param token: token of bot
+    :param chat_id: chat_id of bot
+    :param message: message to send
+    """
+    import requests # pip install requests is necessary
+    token = '6081081821:AAHL0EkjfRyTYR6H67PssyqxvHeceJ759F0' if not token else token
+    chat_id = '-1001934954219' if not chat_id else chat_id # you should insert '-100' before the chat_id of the channel
+    #print('telegram token: ', token)
+    #print('telegram chat_id: ', chat_id)
+    url = "https://api.telegram.org/bot" + token + "/sendMessage?chat_id=" + chat_id + "&text=" + message
+    #print('telegram url: ', url)
+    urlvalasz = requests.get(url)
+    bbmain.logger.debug('Token: %s, Chat_id: %s, url: %s, requests: %s' % (token, chat_id, url, urlvalasz))
 
 def get_today_datetime():
     """
     Get today date and time
     :return: datetime object
     """
-    print('datetime_spec: ', datetime_spec)
+    #print('datetime_spec: ', datetime_spec)
+    bbmain.logger.debug('datetime_spec: {0}'.format(datetime_spec))
     import datetime
     if datetime_spec:
         return datetime_spec
@@ -82,6 +104,7 @@ def find_replace(filename, text_to_search, replacement_text):
 
 
 def write_log(status, log, level, message):
+    return
     """
     Write custom log in a custom path
     :param status: if True, log to file
@@ -89,6 +112,7 @@ def write_log(status, log, level, message):
     :param level: level of log message
     :param message: message of log
     """
+    '''
     # Check if status is True
     if status:
 
@@ -115,6 +139,7 @@ def write_log(status, log, level, message):
 
         # Remove handler
         logger.removeHandler(handler)
+    '''
 
 
 def make_dir(directory):
@@ -286,15 +311,18 @@ def check_ssh(ip, port=22):
     import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        print(PrintColor.YELLOW + 'Waiting for port {0} on host {1} ...'.format(port, ip)
-                + PrintColor.END)
+        #print(PrintColor.YELLOW + 'Waiting for port {0} on host {1} ...'.format(port, ip)
+                #+ PrintColor.END)
+        bbmain.logger.debug('Waiting for port {0} on host {1} ...'.format(port, ip))
         s.settimeout(60)
-        s.connect((ip, port))
+        #s.connect((ip, port))
+        result=s.connect_ex((ip, port))
         s.settimeout(None)
         s.shutdown(2)
-        print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
-                + PrintColor.END)
-        return True
+        #print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
+                #+ PrintColor.END)
+        bbmain.logger.debug('The port {0} on {1} is open!'.format(port, ip))
+        return True if result == 0 else False
     except socket.error:
         return False
 
@@ -308,15 +336,18 @@ def check_rsync(ip, port=873):
     import socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        print(PrintColor.YELLOW + 'Waiting for port {0} on host {1} ...'.format(port, ip)
-                + PrintColor.END)
+        #print(PrintColor.YELLOW + 'Waiting for port {0} on host {1} ...'.format(port, ip)
+                #+ PrintColor.END)
+        bbmain.logger.debug('Waiting for port {0} on host {1} ...'.format(port, ip))
         s.settimeout(60)
-        s.connect((ip, port))
+        #s.connect((ip, port))
+        result=s.connect_ex((ip, port))
         s.settimeout(None)
         s.shutdown(2)
-        print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
-                + PrintColor.END)
-        return True
+        #print(PrintColor.GREEN + 'The port {0} on {1} is open!'.format(port, ip)
+                #+ PrintColor.END)
+        bbmain.logger.debug('The port {0} on {1} is open!'.format(port, ip))
+        return True if result == 0 else False
     except socket.error:
         return False
 

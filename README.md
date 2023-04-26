@@ -64,8 +64,8 @@ This means that all commands must be executed by the backup server. Of course, n
 ## Test
 If you want to try or test Butterfly Backup before installing it, run the test:
 ```console
-$ git clone https://github.com/MatteoGuadrini/Butterfly-Backup.git
-$ cd Butterfly-Backup
+$ git clone https://github.com/sutonagy/Fule-Butterfly-Backup.git
+$ cd Fule-Butterfly-Backup
 $ bash test_bb.py
 ...
 [92512a6e-506e-11eb-b747-2ba55b805ea5]
@@ -82,12 +82,26 @@ status = 0
 ## Installation
 Install Butterfly Backup is very simple; run this:
 ```bash
-git clone https://github.com/MatteoGuadrini/Butterfly-Backup.git
+pip install requests
+pip install colorlog
+git clone https://github.com/sutonagy/Fule-Butterfly-Backup.git
 cd Butterfly-Backup
 sudo python3 setup.py
 bb --help
 man bb
 ```
+
+## Setup ssh connection
+You shoud generate a keypair without passphrase with PuTTYgen or ssh-keygen. Do not use RSA (expect of if you use old openssh version), generate elliptic keys (ECDSA or EdDSA).
+In this program you need the keys in OpenSSH format.
+Put the private key file in a secret place and set the file name and path in the "sshkey:" field in YAML config.
+Create remote ssh user in the remote machine and copy the public key into the remote machine ~/.ssh/authorized_keys file.
+Don't forget that ".ssh" directory and "authorized_keys" file must be owned by the remote ssh user and must have 700 and 600 mask.
+Set the remote SSH user name in the "user:" field in YAML config.
+As well as you should give the necessary sudo rights to remote ssh user in the remote machine to run rsync as necessry user (as configured in the rsyncd.conf) like this:
+"rbackup    ALL=(ALL)       NOPASSWD: /usr/bin/rsync"
+
+
 
 ### Backup machine
 Backup a single PC or server is a everyday task.

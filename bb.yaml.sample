@@ -1,0 +1,42 @@
+# Don't delete any line from this!
+destination: /backup
+mode: Differential #First make a full rsync backup and later hardlink to this full backup the unchanged files.
+customdata: [/etc, /home, /root, /usr, /var, /boot, /fejleszt, /opt, /pki, /*adat]
+user: rbackup #user for ssh connection
+type: Unix #operation system type
+exclude: ['*/*tmp/', '*/*temp/', '*/*cache/', '*/*lock/', '*/log/', '/home/vscode/.vscode-server', '/root/.vscode-server', '/var/lib/mysql/*/', '/var/lib/pgsql/*/data/*/', '*/*backup*/', '*/*rsync*/', '/var/newmail/*/', '/var/oldmail/*/']
+action: backup
+verbose: False
+log: True
+dry_run: False
+version: False
+list: null
+data: null
+compress: False
+retention: null
+parallel: 8
+timeout: null
+skip_err: False
+rsync: null
+bwlimit: null
+port: null #ssh port, default=22
+rport: null #rsync port, default=873
+sfrom: null
+logdirectory: /backup/log/
+configfile: null
+configdir: /etc/bb/hosts
+configext: .bck
+loglevel: null # default is INFO
+logfile: null # default is fule-butterfly-backup.log in destination directory
+consolelog: True # Print the log to console true
+sshkey: null # Default is ~/.ssh/id_rsa it the remote user exists in the backup computer.
+remotersync: null # i.e. sudo rsync
+compressmode: null #Set compression method. Possible values: zstd lz4 zlibx zlib. Check with "rsync --version" command.
+compresslevel: null #See "man rsync" for the defaults and possible values.
+delold: True #Delete old differential backup states
+# In case of Differential backup delete older backup folders
+# From day backups (on weekdays) the older ones than the second newest week backup
+# From week backups (on Sunday) the older ones than the second newest month backup
+# From month backups (on the first Sunday of each month) the older ones than the second newest year backup (on the first Sunday of each July)
+# It never deletes any year backup.
+# Before deleting, the program copy the backups to the second newest higher level (week,month or year) backup in ascending chronological order

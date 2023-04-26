@@ -33,6 +33,11 @@
 # CMake
 cmake-build-*/
 
+# bb localconfig
+*.bck
+*.old
+*.full
+
 # Mongo Explorer plugin
 .idea/**/mongoSettings.xml
 

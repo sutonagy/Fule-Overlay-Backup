@@ -1,0 +1,4 @@
+hostname: host1.example.com
+customdata: [/etc, /home]
+user: rbackup
+sshkey: /etc/bb/sshkeys/rbackup.oss

@@ -117,14 +117,15 @@ Butterfly Backup has, in its core, six main operations:
    usage: bb [-h] [--verbose] [--log] [--dry-run] [--version]
              {config,backup,restore,archive,list,export} ...
 
-   Butterfly Backup
+   Fule Butterfly Backup
 
    optional arguments:
-     -h, --help            show this help message and exit
-     --verbose, -v         Enable verbosity
-     --log, -l             Create a log
-     --dry-run, -N         Dry run mode
-     --version, -V         Print version
+     -h, --help              show this help message and exit
+     --verbose, -v           Enable verbosity
+     --log, -l               Create a log
+     --dry-run, -N           Dry run mode
+     --version, -V           Print version
+     --main-config-file, -M  Main config file in configdir for defaults     
 
    action:
      Valid action
