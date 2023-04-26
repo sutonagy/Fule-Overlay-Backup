@@ -914,6 +914,7 @@ def compose_destination(computer_name, folder, folderend=None):
         #print('Is_last_full: {0}'.format(is_last_full))
         #print('Computer_name: {0}'.format(computer_name))
         #print('Folder: {0}'.format(folder))
+        logger.debug('Folderend in compose destination call: {0}'.format(folderend))
         if not folderend:
             folderend=endfolder if not is_last_full else endfolder[0:12] + 'f'
         second_layer = os.path.join(first_layer, folderend)
@@ -928,7 +929,7 @@ def compose_destination(computer_name, folder, folderend=None):
         uty.write_log(log_args['status'], log_args['destination'], 'INFO',
                           'Create folder {0}'.format(second_layer))
     # Write catalog file
-    logger.debug('Folderend in compose destination: {0}'.format(folderend))
+    logger.debug('Folderend in compose destination return: {0}'.format(folderend))
     logger.debug('is_last_full in compose destination: {0}'.format(is_last_full))
     write_catalog(catalog_path, backup_id, 'path', second_layer)
     uty.print_verbose(args.verbose, 'Destination is {0}'.format(second_layer))
