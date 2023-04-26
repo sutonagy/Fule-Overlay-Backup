@@ -2172,7 +2172,7 @@ if __name__ == '__main__':
                                                                     #print('Logfile: ',logfile)
                                                                     logger.debug('Logfile: {0}'.format(logfile))
                                                                     os.remove(logfile) if os.path.getsize(logfile) == 0 else None
-                                                                    errfile=args.logdirectory+remote+'-error-'+dir+'.log'
+                                                                    errfile=args.logdirectory+remote+'-error-'+dir[:-2]+'.log'
                                                                     #print('Errfile: ',errfile)
                                                                     logger.debug('Errfile: {0}'.format(errfile))
                                                                     os.remove(errfile) if os.path.getsize(errfile) == 0 else None
