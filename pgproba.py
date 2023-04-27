@@ -3,5 +3,5 @@
 import gzip
 from plumbum.cmd import pg_dump
 with gzip.open('backup.gz', 'wb') as f:
-   (pg_dump["-h", "localhost", "-d", "postgres", "-U", "postgres"] > f)
+   (pg_dump["-h", "localhost", "-U", "postgres", "postgres"] > f)
 ()
