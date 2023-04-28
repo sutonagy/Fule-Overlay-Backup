@@ -11,7 +11,7 @@ async def run_client():
 async def run_command():    
     try:
         conn = await run_client()        
-        await conn.run('systemctl status sshd.service', stdout='/tmp/stdout', stderr='/home/alma/backup.err')
+        await conn.run('systemctl status sshd.service', stdout='backup.sql', stderr='backup.err')
         #result = await conn.run('systemctl status sshd.service', stdout=sys.stdout, stderr=sys.stderr)
 
         #if result.exit_status == 0:
