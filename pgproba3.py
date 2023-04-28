@@ -15,7 +15,7 @@ async def run_command():
 
         if result.exit_status == 0:
             rout = result.stdout
-            with open('backup.sql', 'w') as f:
+            with open('/home/alma/backup.sql', 'w') as f:
                 f.write(rout)
                 f.close          
             print(rout, end='')                        
