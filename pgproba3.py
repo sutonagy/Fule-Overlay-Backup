@@ -13,7 +13,10 @@ async def run_command():
         conn = await run_client()        
         result = await conn.run('systemctl status sshd.service')
 
-        if result.exit_status == 0:            
+        if result.exit_status == 0:
+            with open('backup.sql', 'w') as f:
+                f.write(result.stdout)
+                f.close          
             print(result.stdout, end='')                        
         else:
             print(result.stderr, end='', file=sys.stderr)
