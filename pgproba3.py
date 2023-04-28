@@ -14,10 +14,11 @@ async def run_command():
         result = await conn.run('systemctl status sshd.service')
 
         if result.exit_status == 0:
+            rout = result.stdout
             with open('backup.sql', 'w') as f:
-                f.write(result.stdout)
+                f.write(rout)
                 f.close          
-            print(result.stdout, end='')                        
+            print(rout, end='')                        
         else:
             print(result.stderr, end='', file=sys.stderr)
             print('Program exited with status %d' % result.exit_status,
