@@ -11,7 +11,7 @@ async def run_client():
 async def run_command():    
     try:
         conn = await run_client()        
-        result = await conn.run('ls')
+        result = await conn.run('systemctl status sshd.service')
 
         if result.exit_status == 0:            
             print(result.stdout, end='')                        
