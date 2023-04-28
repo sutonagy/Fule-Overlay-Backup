@@ -15,10 +15,10 @@ async def run_command():
 
         if result.exit_status == 0:
             #rout = result.stdout
-            with open('/home/alma/backup.sql', 'w') as f:
-                f.write('eleje')
+            #with open('/home/alma/backup.sql', 'w') as f:
+                #f.write('eleje')
                 #f.write(rout)
-                f.close          
+                #f.close          
             print(result.stdout, end='')                        
         else:
             print(result.stderr, end='', file=sys.stderr)
