@@ -12,7 +12,8 @@ async def run_command():
     try:
         conn = await run_client()        
         p1 = await conn.create_process('pg_dump -h 192.168.11.77 -p 45432 -U postgres menudb')
-        await conn.run('gzip -c', stdin=p1.stdout, stdout='backup.sql.gz', stderr='backup.err')
+        p2 = await conn.run('gzip -c', stdin=p1.stdout)
+        print(p2.stdout, end='')
         #result = await conn.run('systemctl status sshd.service', stdout=sys.stdout, stderr=sys.stderr)
 
         #if result.exit_status == 0:
