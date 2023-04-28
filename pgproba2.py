@@ -6,7 +6,7 @@ port = 22
 username = "rbackup"
 # password = "password"
 keyfile = "/etc/bb/sshkeys/rbackup.oss"
-command = "ls"
+command = "systemctl status sshd.service"
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 ssh.connect(host, port=port, username=username, key_filename=keyfile)
