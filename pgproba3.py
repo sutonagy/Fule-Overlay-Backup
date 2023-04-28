@@ -14,12 +14,12 @@ async def run_command():
         result = await conn.run('systemctl status sshd.service')
 
         if result.exit_status == 0:
-            rout = result.stdout
+            #rout = result.stdout
             with open('/home/alma/backup.sql', 'w') as f:
                 f.write('eleje')
-                f.write(rout)
+                #f.write(rout)
                 f.close          
-            print(rout, end='')                        
+            print(result.stdout, end='')                        
         else:
             print(result.stderr, end='', file=sys.stderr)
             print('Program exited with status %d' % result.exit_status,
