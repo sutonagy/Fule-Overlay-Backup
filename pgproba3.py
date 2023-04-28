@@ -3,7 +3,7 @@
 import asyncio, asyncssh, sys
 
 async def run_client():
-    conn = await asyncio.wait_for(asyncssh.connect('mail2022.platinum.co.hu', username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
+    conn = await asyncio.wait_for(asyncssh.connect('sasfacan.crocus.hu.hu', username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
                                                     keepalive_interval=600, keepalive_count_max=10000),10,)
 
     return conn
