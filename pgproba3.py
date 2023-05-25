@@ -14,13 +14,13 @@ async def run_command():
         await conn.run('pg_dump -h 192.168.11.77 -p 45432 -U postgres menudb', stdout='backup.sql', stderr='backup.err')
         #result = await conn.run('systemctl status sshd.service', stdout=sys.stdout, stderr=sys.stderr)
 
-        #if result.exit_status == 0:
-            #pass
-            #print(result.stdout, end='')                        
-        #else:
-            #print(result.stderr, end='', file=sys.stderr)
-            #print('Program exited with status %d' % result.exit_status,
-                #file=sys.stderr)
+        if result.exit_status == 0:
+            pass
+            print(result.stdout, end='')                        
+        else:
+            print(result.stderr, end='', file=sys.stderr)
+            print('Program exited with status %d' % result.exit_status,
+                file=sys.stderr)
     except Exception as ex:
         print(ex)      
 
