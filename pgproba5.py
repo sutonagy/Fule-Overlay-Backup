@@ -60,8 +60,8 @@ if __name__ == '__main__':
     eredmenyek = manager.list(len(hosts) * [None])
     processzek = []
     databases = []
-    databases[0] = ['menudb','menu4']
-    databases[1] = ['proba1','proba2']
+    databases.insert(0, ['menudb','menu4'])
+    databases.insert(1, ['proba1','proba2'])
     for i, host in enumerate(hosts):
         processz = multiprocessing.Process(target=pgproba_async, args=(host,'192.168.11.77','45432',databases[i],eredmenyek,i))
         processzek.append(processz)
