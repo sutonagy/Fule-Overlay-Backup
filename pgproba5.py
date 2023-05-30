@@ -20,7 +20,7 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
 
         return conn
 
-    async def run_command(host,server,port,database,eredmenyek,i):    
+    async def run_command(host,server,port,database):    
         try:
             conn = await run_client(host)
             result = await conn.run('pg_dump -h %s -p %s -U postgres %s' % (server, port, database), stdout='data/%s.sql' % database, stderr='data/%s.err' % database)
@@ -29,7 +29,7 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
 
             if result.exit_status == 0:
                 pass
-                print(result.stdout, end='')                        
+                #print(result.stdout, end='')                        
             else:
                 print(result.stderr, end='', file=sys.stderr)
                 print('Program exited with status %d' % result.exit_status,
@@ -39,7 +39,7 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
 
     async def program(host,server,port,databases,eredmenyek,i):
         # Run both print method and wait for them to complete (passing in asyncState)    
-        tasks = [run_command(host,server,port,database,eredmenyek,i) for database in databases]
+        tasks = [run_command(host,server,port,database) for database in databases]
         await asyncio.gather(*tasks)
         eredmenyek[i] = host
 
@@ -66,6 +66,7 @@ if __name__ == '__main__':
     ports = ['45432', '5432']
     for i, host in enumerate(hosts):
         processz = multiprocessing.Process(target=pgproba_async, args=(host,servers[i],ports[i],databases[i],eredmenyek,i))
+        print(host,servers[i],ports[i],databases[i],i)
         processzek.append(processz)
         processz.start()
     for processz in processzek:
