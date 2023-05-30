@@ -56,6 +56,7 @@ def pgproba_async(host):
 
 
 if __name__ == '__main__':
+    """
     előtte = time.perf_counter()
     hosts = [
         'sasfacan.crocus.hu',
@@ -72,4 +73,5 @@ if __name__ == '__main__':
         processz.join()
     print(eredmények)
     print(f'{time.perf_counter() - előtte:.3f}')
-    
+    """
+    pgproba_async('sasfacan.crocus.hu')
