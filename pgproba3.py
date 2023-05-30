@@ -36,8 +36,8 @@ async def run_command():
 
 async def program():
     # Run both print method and wait for them to complete (passing in asyncState)    
-    # await asyncio.gather(run_command())
-    await gather_with_concurrency(10, *my_coroutines)
+    await asyncio.gather(run_command())
+    # await gather_with_concurrency(10, *my_coroutines)
 
 # Run our program until it is complete
 loop = asyncio.get_event_loop()
