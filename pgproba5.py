@@ -9,7 +9,7 @@ def weboldal_méret(url, eredmények, n):
     print(f'{url} letöltése kész')
     eredmények[n] = len(tartalom)
 
-def pgproba_async(host):
+def pgproba_async(host,server,port):
     import asyncio, asyncssh, sys
 
     hosts = ['sasfacan.crocus.hu','mail2022.platinum.co.hu']
@@ -20,10 +20,10 @@ def pgproba_async(host):
 
         return conn
 
-    async def run_command(host):    
+    async def run_command(host,server,port):    
         try:
             conn = await run_client(host)        
-            result = await conn.run('pg_dump -h 192.168.11.77 -p 45432 -U postgres menudb', stdout='backup.sql', stderr='backup.err')
+            result = await conn.run('pg_dump -h %s -p %s -U postgres menudb' % (server, port), stdout='backup.sql', stderr='backup.err')
             #result = await conn.run('systemctl status sshd.service', stdout=sys.stdout, stderr=sys.stderr)
 
             if result.exit_status == 0:
@@ -36,13 +36,13 @@ def pgproba_async(host):
         except Exception as ex:
             print(ex)      
 
-    async def program(host):
+    async def program(host,server,port):
         # Run both print method and wait for them to complete (passing in asyncState)    
-        await asyncio.gather(run_command(host))
+        await asyncio.gather(run_command(host,server,port))
 
     # Run our program until it is complete
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(program(host))
+    loop.run_until_complete(program(host, server, port))
     loop.close()
 
 
@@ -65,4 +65,4 @@ if __name__ == '__main__':
     print(eredmények)
     print(f'{time.perf_counter() - előtte:.3f}')
     """
-    pgproba_async('sasfacan.crocus.hu')
+    pgproba_async('sasfacan.crocus.hu','192.168.11.77','45432')
