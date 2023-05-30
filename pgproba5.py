@@ -25,7 +25,6 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
             conn = await run_client(host)
             result = await conn.run('pg_dump -h %s -p %s -U postgres %s' % (server, port, database), stdout='%s.sql' % database, stderr='%s.err' % database)
             #print(result)
-            eredmenyek[i] = host
             #result = await conn.run('systemctl status sshd.service', stdout=sys.stdout, stderr=sys.stderr)
 
             if result.exit_status == 0:
@@ -42,6 +41,7 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
         # Run both print method and wait for them to complete (passing in asyncState)    
         tasks = [run_command(host,server,port,database,eredmenyek,i) for database in databases]
         await asyncio.gather(*tasks)
+        eredmenyek[i] = host
 
     # Run our program until it is complete
     loop = asyncio.get_event_loop()
@@ -54,14 +54,16 @@ if __name__ == '__main__':
     előtte = time.perf_counter()
     hosts = [
         'sasfacan.crocus.hu',
-        #'mail2022.platinum.co.hu',
+        'mail2022.platinum.co.hu',
     ]
     manager = multiprocessing.Manager()
     eredmenyek = manager.list(len(hosts) * [None])
     processzek = []
-    databases = ['menudb','menu4']
+    databases = []
+    databases[0] = ['menudb','menu4']
+    databases[1] = ['proba1','proba2']
     for i, host in enumerate(hosts):
-        processz = multiprocessing.Process(target=pgproba_async, args=(host,'192.168.11.77','45432',databases,eredmenyek,i))
+        processz = multiprocessing.Process(target=pgproba_async, args=(host,'192.168.11.77','45432',databases[i],eredmenyek,i))
         processzek.append(processz)
         processz.start()
     for processz in processzek:
