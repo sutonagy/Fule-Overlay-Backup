@@ -25,7 +25,7 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
             print(host,server,port,database,i)  
             conn = await run_client(host)
             result = await conn.run('pg_dump -h %s -p %s -U postgres %s' % (server, port, database), stdout='data/%s.sql' % database, stderr='data/%s.err' % database)
-            #print(result)
+            print(database, result)
             #result = await conn.run('systemctl status sshd.service', stdout=sys.stdout, stderr=sys.stderr)
 
             if result.exit_status == 0:
