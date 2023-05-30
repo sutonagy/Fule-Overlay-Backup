@@ -14,14 +14,6 @@ def pgproba_async(host):
 
     hosts = ['sasfacan.crocus.hu','mail2022.platinum.co.hu']
 
-    async def gather_with_concurrency(n, *coros, groups=None):
-        semaphore = asyncio.Semaphore(n)
-
-        async def sem_coro(coro):
-            async with semaphore:
-                return await coro
-        return await asyncio.gather(*(sem_coro(c) for c in coros))
-
     async def run_client(host):
         conn = await asyncio.wait_for(asyncssh.connect(host, username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
                                                         keepalive_interval=600, keepalive_count_max=10000),10,)
@@ -44,14 +36,13 @@ def pgproba_async(host):
         except Exception as ex:
             print(ex)      
 
-    async def program():
+    async def program(host):
         # Run both print method and wait for them to complete (passing in asyncState)    
         await asyncio.gather(run_command(host))
-        # await gather_with_concurrency(10, *my_coroutines)
 
     # Run our program until it is complete
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(program())
+    loop.run_until_complete(program(host))
     loop.close()
 
 
