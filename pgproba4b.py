@@ -27,7 +27,7 @@ async def main():
         eredmények.append(await feladat)
     print(eredmények)
  
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+#asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 előtte = time.perf_counter()
 asyncio.run(main())
 print(f'{time.perf_counter() - előtte:.3f}')
