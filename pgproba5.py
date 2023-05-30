@@ -58,16 +58,13 @@ def pgproba_async(host):
 if __name__ == '__main__':
     előtte = time.perf_counter()
     hosts = [
-        'http://faragocsaba.hu/python',
-        'https://www.python.org/',
-        'https://www.w3schools.com/python/',
-        'https://www.tutorialspoint.com/python/',
-        'https://www.pythontutorial.net/',
+        'sasfacan.crocus.hu',
+        'mail2022.platinum.co.hu',
     ]
     manager = multiprocessing.Manager()
     eredmények = manager.list(len(hosts) * [None])
     processzek = []
-    for i, host in enumerate(hosts):
+    for host in hosts:
         processz = multiprocessing.Process(target=pgproba_async, args=(host))
         processzek.append(processz)
         processz.start()
