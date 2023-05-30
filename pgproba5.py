@@ -9,7 +9,7 @@ def weboldal_méret(url, eredmények, n):
     print(f'{url} letöltése kész')
     eredmények[n] = len(tartalom)
 
-def pgproba_async(host,server,port):
+def pgproba_async(host,server,port,eredmenyek,i):
     import asyncio, asyncssh, sys
 
     hosts = ['sasfacan.crocus.hu','mail2022.platinum.co.hu']
@@ -20,10 +20,11 @@ def pgproba_async(host,server,port):
 
         return conn
 
-    async def run_command(host,server,port):    
+    async def run_command(host,server,port,eredmenyek,i):    
         try:
             conn = await run_client(host)        
             result = await conn.run('pg_dump -h %s -p %s -U postgres menudb' % (server, port), stdout='backup.sql', stderr='backup.err')
+            eredmenyek[i] = result
             #result = await conn.run('systemctl status sshd.service', stdout=sys.stdout, stderr=sys.stderr)
 
             if result.exit_status == 0:
@@ -36,13 +37,13 @@ def pgproba_async(host,server,port):
         except Exception as ex:
             print(ex)      
 
-    async def program(host,server,port):
+    async def program(host,server,port,eredmenyeki):
         # Run both print method and wait for them to complete (passing in asyncState)    
-        await asyncio.gather(run_command(host,server,port))
+        await asyncio.gather(run_command(host,server,port,eredmenyek,i))
 
     # Run our program until it is complete
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(program(host, server, port))
+    loop.run_until_complete(program(host, server, port,eredmenyek,i))
     loop.close()
 
 
@@ -56,8 +57,8 @@ if __name__ == '__main__':
     manager = multiprocessing.Manager()
     eredmények = manager.list(len(hosts) * [None])
     processzek = []
-    for host in hosts:
-        processz = multiprocessing.Process(target=pgproba_async, args=(host,'192.168.11.77','45432'))
+    for i, host in enumerate(hosts):
+        processz = multiprocessing.Process(target=pgproba_async, args=(host,'192.168.11.77','45432',eredmenyek,i))
         processzek.append(processz)
         processz.start()
     for processz in processzek:
