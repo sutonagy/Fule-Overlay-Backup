@@ -20,10 +20,9 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
 
         return conn
 
-    async def run_command(host,server,port,database):    
+    async def run_command(host,server,port,database,conn):    
         try:
             print(host,server,port,database,i)  
-            conn = await run_client(host)
             result = await conn.run('pg_dump -h %s -p %s -U postgres %s' % (server, port, database), stdout='data/%s.sql' % database, stderr='data/%s.err' % database)
             print(database, result)
             #result = await conn.run('systemctl status sshd.service', stdout=sys.stdout, stderr=sys.stderr)
@@ -38,20 +37,21 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
         except Exception as ex:
             print(ex)      
 
-    async def program(host,server,port,databases,eredmenyek,i):
+    async def program(host,server,port,databases,eredmenyek,i,conn):
         # Run both print method and wait for them to complete (passing in asyncState)
-        tasks = [run_command(host,server,port,database) for database in databases]
+        tasks = [run_command(host,server,port,database,conn) for database in databases]
         await asyncio.gather(*tasks)
         eredmenyek[i] = host
 
     # Run our program until it is complete
-    try:
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(program(host, server, port,databases,eredmenyek,i))
-    except (OSError, asyncssh.Error) as exc:
-        sys.exit('SSH connection failed: ' + str(exc))
-    else:
-        loop.close()
+        try:
+            conn = await run_client(host)
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(program(host, server, port,databases,eredmenyek,i,conn))
+        except (OSError, asyncssh.Error) as exc:
+            sys.exit('SSH connection failed: ' + str(exc))
+        else:
+            loop.close()
 
 
 if __name__ == '__main__':
