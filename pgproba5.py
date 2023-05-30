@@ -22,15 +22,15 @@ def pgproba_async(host):
                 return await coro
         return await asyncio.gather(*(sem_coro(c) for c in coros))
 
-    async def run_client():
-        conn = await asyncio.wait_for(asyncssh.connect('sasfacan.crocus.hu', username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
+    async def run_client(host):
+        conn = await asyncio.wait_for(asyncssh.connect(host, username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
                                                         keepalive_interval=600, keepalive_count_max=10000),10,)
 
         return conn
 
     async def run_command(host):    
         try:
-            conn = await run_client()        
+            conn = await run_client(host)        
             result = await conn.run('pg_dump -h %s -p 45432 -U postgres menudb' % host, stdout='backup.sql', stderr='backup.err')
             #result = await conn.run('systemctl status sshd.service', stdout=sys.stdout, stderr=sys.stderr)
 
