@@ -63,7 +63,7 @@ if __name__ == '__main__':
         processz.start()
     for processz in processzek:
         processz.join()
-    print(eredmények)
+    print(eredmenyek)
     print(f'{time.perf_counter() - előtte:.3f}')
     
     #pgproba_async('sasfacan.crocus.hu','192.168.11.77','45432')
