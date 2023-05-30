@@ -35,17 +35,17 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
         except Exception as ex:
             print(ex)      
 
-    async def program(host,server,port,databases,eredmenyek,i,conn):
+    async def program(host,server,port,databases,eredmenyek,i):
         # Run both print method and wait for them to complete (passing in asyncState)
+        conn = await run_client(host)
         tasks = [run_command(host,server,port,database,conn) for database in databases]
         await asyncio.gather(*tasks)
         eredmenyek[i] = host
 
     # Run our program until it is complete
     try:
-        conn = run_client(host)
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(program(host, server, port,databases,eredmenyek,i,conn))
+        loop.run_until_complete(program(host, server, port,databases,eredmenyek,i))
     except (OSError, asyncssh.Error) as exc:
         sys.exit('SSH connection failed: ' + str(exc))
     else:
