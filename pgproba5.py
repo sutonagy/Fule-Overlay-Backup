@@ -22,6 +22,7 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
 
     async def run_command(host,server,port,database):    
         try:
+            print(host,server,port,databases,i)  
             conn = await run_client(host)
             result = await conn.run('pg_dump -h %s -p %s -U postgres %s' % (server, port, database), stdout='data/%s.sql' % database, stderr='data/%s.err' % database)
             #print(result)
@@ -39,7 +40,6 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
 
     async def program(host,server,port,databases,eredmenyek,i):
         # Run both print method and wait for them to complete (passing in asyncState)
-        print(host,server,port,databases,i)  
         tasks = [run_command(host,server,port,database) for database in databases]
         await asyncio.gather(*tasks)
         eredmenyek[i] = host
