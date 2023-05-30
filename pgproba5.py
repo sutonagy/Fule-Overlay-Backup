@@ -62,8 +62,10 @@ if __name__ == '__main__':
     databases = []
     databases.insert(0, ['menudb','menu4'])
     databases.insert(1, ['proba1','proba2'])
+    servers = ['192.168.11.77', 'localhost']
+    ports = ['45432', '5432']
     for i, host in enumerate(hosts):
-        processz = multiprocessing.Process(target=pgproba_async, args=(host,'192.168.11.77','45432',databases[i],eredmenyek,i))
+        processz = multiprocessing.Process(target=pgproba_async, args=(host,servers[i],ports[i],databases[i],eredmenyek,i))
         processzek.append(processz)
         processz.start()
     for processz in processzek:
