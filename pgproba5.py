@@ -38,7 +38,8 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
             print(ex)      
 
     async def program(host,server,port,databases,eredmenyek,i):
-        # Run both print method and wait for them to complete (passing in asyncState)    
+        # Run both print method and wait for them to complete (passing in asyncState)
+        print(host,server,port,databases,i)  
         tasks = [run_command(host,server,port,database) for database in databases]
         await asyncio.gather(*tasks)
         eredmenyek[i] = host
@@ -66,7 +67,6 @@ if __name__ == '__main__':
     ports = ['45432', '5432']
     for i, host in enumerate(hosts):
         processz = multiprocessing.Process(target=pgproba_async, args=(host,servers[i],ports[i],databases[i],eredmenyek,i))
-        print(host,servers[i],ports[i],databases[i],i)
         processzek.append(processz)
         processz.start()
     for processz in processzek:
