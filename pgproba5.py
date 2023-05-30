@@ -12,8 +12,6 @@ def weboldal_méret(url, eredmények, n):
 def pgproba_async(host,server,port,databases,eredmenyek,i):
     import asyncio, asyncssh, sys
 
-    hosts = ['sasfacan.crocus.hu','mail2022.platinum.co.hu']
-
     async def run_client(host):
         conn = await asyncio.wait_for(asyncssh.connect(host, username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
                                                         keepalive_interval=600, keepalive_count_max=10000),10,)
@@ -44,14 +42,14 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
         eredmenyek[i] = host
 
     # Run our program until it is complete
-        try:
-            conn = await run_client(host)
-            loop = asyncio.get_event_loop()
-            loop.run_until_complete(program(host, server, port,databases,eredmenyek,i,conn))
-        except (OSError, asyncssh.Error) as exc:
-            sys.exit('SSH connection failed: ' + str(exc))
-        else:
-            loop.close()
+    try:
+        conn = run_client(host)
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(program(host, server, port,databases,eredmenyek,i,conn))
+    except (OSError, asyncssh.Error) as exc:
+        sys.exit('SSH connection failed: ' + str(exc))
+    else:
+        loop.close()
 
 
 if __name__ == '__main__':
