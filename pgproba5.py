@@ -9,7 +9,7 @@ def weboldal_méret(url, eredmények, n):
     print(f'{url} letöltése kész')
     eredmények[n] = len(tartalom)
 
-def pgproba_async(host,server,port,eredmenyek,i):
+def pgproba_async(host,server,port,databases,eredmenyek,i):
     import asyncio, asyncssh, sys
 
     hosts = ['sasfacan.crocus.hu','mail2022.platinum.co.hu']
@@ -39,13 +39,13 @@ def pgproba_async(host,server,port,eredmenyek,i):
         except Exception as ex:
             print(ex)      
 
-    async def program(host,server,port,eredmenyek,i):
+    async def program(host,server,port,databases,eredmenyek,i):
         # Run both print method and wait for them to complete (passing in asyncState)    
         await asyncio.gather(run_command(host,server,port,databases,eredmenyek,i))
 
     # Run our program until it is complete
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(program(host, server, port,eredmenyek,i))
+    loop.run_until_complete(program(host, server, port,databases,eredmenyek,i))
     loop.close()
 
 
