@@ -2,6 +2,16 @@
 
 import asyncio, asyncssh, sys
 
+hosts = ['sasfacan.crocus.hu','mail2022.platinum.co.hu']
+
+async def gather_with_concurrency(n, *coros, groups=None):
+    semaphore = asyncio.Semaphore(n)
+
+    async def sem_coro(coro):
+        async with semaphore:
+            return await coro
+    return await asyncio.gather(*(sem_coro(c) for c in coros))
+
 async def run_client():
     conn = await asyncio.wait_for(asyncssh.connect('sasfacan.crocus.hu', username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
                                                     keepalive_interval=600, keepalive_count_max=10000),10,)
@@ -26,7 +36,8 @@ async def run_command():
 
 async def program():
     # Run both print method and wait for them to complete (passing in asyncState)    
-    await asyncio.gather(run_command())
+    # await asyncio.gather(run_command())
+    await gather_with_concurrency(10, *my_coroutines)
 
 # Run our program until it is complete
 loop = asyncio.get_event_loop()
