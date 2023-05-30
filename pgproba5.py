@@ -55,7 +55,7 @@ if __name__ == '__main__':
         #'mail2022.platinum.co.hu',
     ]
     manager = multiprocessing.Manager()
-    eredmények = manager.list(len(hosts) * [None])
+    eredmenyek = manager.list(len(hosts) * [None])
     processzek = []
     for i, host in enumerate(hosts):
         processz = multiprocessing.Process(target=pgproba_async, args=(host,'192.168.11.77','45432',eredmenyek,i))
