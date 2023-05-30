@@ -24,6 +24,7 @@ def pgproba_async(host,server,port,eredmenyek,i):
         try:
             conn = await run_client(host)        
             result = await conn.run('pg_dump -h %s -p %s -U postgres menudb' % (server, port), stdout='backup.sql', stderr='backup.err')
+            print(result)
             eredmenyek[i] = result
             #result = await conn.run('systemctl status sshd.service', stdout=sys.stdout, stderr=sys.stderr)
 
