@@ -38,6 +38,7 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
     async def program(host,server,port,databases,eredmenyek,i):
         # Run both print method and wait for them to complete (passing in asyncState)
         conn = await run_client(host)
+        print(conn)
         tasks = [run_command(host,server,port,database,conn) for database in databases]
         await asyncio.gather(*tasks)
         eredmenyek[i] = host
