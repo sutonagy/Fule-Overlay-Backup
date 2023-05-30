@@ -37,7 +37,7 @@ def pgproba_async(host,server,port,eredmenyek,i):
         except Exception as ex:
             print(ex)      
 
-    async def program(host,server,port,eredmenyeki):
+    async def program(host,server,port,eredmenyek,i):
         # Run both print method and wait for them to complete (passing in asyncState)    
         await asyncio.gather(run_command(host,server,port,eredmenyek,i))
 
