@@ -47,22 +47,22 @@ def pgproba_async(host,server,port):
 
 
 if __name__ == '__main__':
-    """
+    
     előtte = time.perf_counter()
     hosts = [
         'sasfacan.crocus.hu',
-        'mail2022.platinum.co.hu',
+        #'mail2022.platinum.co.hu',
     ]
     manager = multiprocessing.Manager()
     eredmények = manager.list(len(hosts) * [None])
     processzek = []
     for host in hosts:
-        processz = multiprocessing.Process(target=pgproba_async, args=(host))
+        processz = multiprocessing.Process(target=pgproba_async, args=(host,'192.168.11.77','45432'))
         processzek.append(processz)
         processz.start()
     for processz in processzek:
         processz.join()
     print(eredmények)
     print(f'{time.perf_counter() - előtte:.3f}')
-    """
-    pgproba_async('sasfacan.crocus.hu','192.168.11.77','45432')
+    
+    #pgproba_async('sasfacan.crocus.hu','192.168.11.77','45432')
