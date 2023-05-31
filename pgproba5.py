@@ -9,7 +9,7 @@ def weboldal_méret(url, eredmények, n):
     print(f'{url} letöltése kész')
     eredmények[n] = len(tartalom)
 
-def pgproba_async(host,server,port,databases,eredmenyek,i):
+def pgproba_async(host,password,server,port,databases,eredmenyek,i):
     import asyncio, asyncssh, sys
 
     async def run_client(host):
@@ -20,10 +20,10 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
             sys.exit('SSH connection failed: ' + str(exc))
         return conn
 
-    async def run_command(host,server,port,database,conn):    
+    async def run_command(host,password,server,port,database,conn):    
         try:
             print(host,server,port,database,i)  
-            result = await asyncio.wait_for(conn.run('pg_dump -h %s -p %s -U postgres %s' % (server, port, database), stdout='data/%s.sql' % database, stderr='data/%s.err' % database, check=True), timeout=60)
+            result = await asyncio.wait_for(conn.run('PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s' % (password, server, port, database), stdout='data/%s.sql' % database, stderr='data/%s.err' % database, check=True), timeout=60)
             print(database, result)
             #result = await conn.run('systemctl status sshd.service', stdout=sys.stdout, stderr=sys.stderr)
 
@@ -37,18 +37,18 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
         except Exception as ex:
             print(ex)      
 
-    async def program(host,server,port,databases,eredmenyek,i):
+    async def program(host,password,server,port,databases,eredmenyek,i):
         # Run both print method and wait for them to complete (passing in asyncState)
         conn = await run_client(host)
         #print(conn)
-        tasks = [run_command(host,server,port,database,conn) for database in databases]
+        tasks = [run_command(host,password,server,port,database,conn) for database in databases]
         await asyncio.gather(*tasks)
         eredmenyek[i] = host
 
     # Run our program until it is complete
     try:
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(program(host, server, port,databases,eredmenyek,i))
+        loop.run_until_complete(program(host, password, server, port,databases,eredmenyek,i))
     except (OSError, asyncssh.Error) as exc:
         sys.exit('SSH connection failed: ' + str(exc))
     else:
@@ -68,10 +68,11 @@ if __name__ == '__main__':
     databases = []
     databases.insert(0, ['menudb','menu4'])
     databases.insert(1, ['proba1','proba2'])
+    passwords = ['','Arpad48-50']
     servers = ['192.168.11.77', 'localhost']
     ports = ['45432', '5432']
     for i, host in enumerate(hosts):
-        processz = multiprocessing.Process(target=pgproba_async, args=(host,servers[i],ports[i],databases[i],eredmenyek,i))
+        processz = multiprocessing.Process(target=pgproba_async, args=(host,passwords[i],servers[i],ports[i],databases[i],eredmenyek,i))
         processzek.append(processz)
         processz.start()
     for processz in processzek:
