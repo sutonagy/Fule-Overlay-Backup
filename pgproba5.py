@@ -23,7 +23,7 @@ def pgproba_async(host,password,server,port,databases,eredmenyek,i):
     async def run_command(host,password,server,port,database,conn):    
         try:
             print(host,server,port,database,i)  
-            result = await asyncio.wait_for(conn.run('PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s' % (password, server, port, database), stdout='data/%s.sql' % database, stderr='data/%s.err' % database, check=True), timeout=10)
+            result = await asyncio.wait_for(conn.run('PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s' % (password, server, port, database), stdout='data/%s/%s/%s.sql' % (host,server,database), stderr='data/%s-%s-%s.err' % (host,server,database), check=True), timeout=10)
             print(database, result)
             #result = await conn.run('systemctl status sshd.service', stdout=sys.stdout, stderr=sys.stderr)
 
