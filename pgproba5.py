@@ -23,7 +23,7 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
     async def run_command(host,server,port,database,conn):    
         try:
             print(host,server,port,database,i)  
-            result = await asyncio.wait_for(conn.run('pg_dump -h %s -p %s -U postgres %s' % (server, port, database), stdout='data/%s.sql' % database, stderr='data/%s.err' % database, check=True), timeout=10)
+            result = await asyncio.wait_for(conn.run('pg_dump -h %s -p %s -U postgres %s' % (server, port, database), stdout='data/%s.sql' % database, stderr='data/%s.err' % database, check=True), timeout=60)
             print(database, result)
             #result = await conn.run('systemctl status sshd.service', stdout=sys.stdout, stderr=sys.stderr)
 
@@ -40,7 +40,7 @@ def pgproba_async(host,server,port,databases,eredmenyek,i):
     async def program(host,server,port,databases,eredmenyek,i):
         # Run both print method and wait for them to complete (passing in asyncState)
         conn = await run_client(host)
-        print(conn)
+        #print(conn)
         tasks = [run_command(host,server,port,database,conn) for database in databases]
         await asyncio.gather(*tasks)
         eredmenyek[i] = host
