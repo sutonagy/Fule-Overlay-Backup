@@ -16,7 +16,7 @@ def pgproba_async(host,password,server,port,databases,eredmenyek,i):
     async def run_client(host):
         try:
             conn = await asyncio.wait_for(asyncssh.connect(host, username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
-                                                        keepalive_interval=600, keepalive_count_max=10000),10,)
+                                                        keepalive_interval=600, keepalive_count_max=10000),20,)
         except (OSError, asyncssh.Error) as exc:
             sys.exit('SSH connection failed: ' + str(exc))
         return conn
@@ -26,7 +26,7 @@ def pgproba_async(host,password,server,port,databases,eredmenyek,i):
             print(host,server,port,database,i)
             sqlpath='/backup/data/%s/%s' % (host,server)
             if not os.path.exists(sqlpath): os.makedirs(sqlpath)
-            result = await asyncio.wait_for(conn.run('PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s' % (password, server, port, database), stdout='%s/%s.sql' % (sqlpath,database), stderr='/backup/data/%s-%s-%s.err' % (host,server,database), check=True), timeout=10)
+            result = await conn.run('PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s' % (password, server, port, database), stdout='%s/%s.sql' % (sqlpath,database), stderr='/backup/data/%s-%s-%s.err' % (host,server,database), check=True)
             print(database, result)
             #result = await conn.run('systemctl status sshd.service', stdout=sys.stdout, stderr=sys.stderr)
 
