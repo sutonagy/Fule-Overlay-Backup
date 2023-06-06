@@ -99,11 +99,15 @@ def parse_arguments():
     parent_parser.add_argument('--version', '-V', help='Print version', dest='version', action='store_true')
     parent_parser.add_argument('--config-file', '-F', help='Yaml config file. Do not use together with --config-dir-... and --main-config-... options', dest='configfile', action='store')
     parent_parser.add_argument('--config-dir-extension', '-X', help='Extension  for config files in configdir (.ext)', dest='configext', action='store')
+    parent_parser.add_argument('--dump-config-dir-extension', '-f', help='Extension  for database dump config files in dconfigdir (.ext)', dest='dconfigext', action='store')
     parent_parser.add_argument('--config-dir', '-G', help='Config dir for yaml config files with extension defined in --config-dir-extension', dest='configdir', action='store')
+    parent_parser.add_argument('--dump-config-dir', '-g', help='Config dir for dtabase dump yaml config files with extension defined in --dump-config-dir-extension', dest='dconfigdir', action='store')
     parent_parser.add_argument('--main-config-file', '-M', help='Main yaml config file for defaults', dest='mainconfig', action='store')
+    parent_parser.add_argument('--dbase-config-file', '-B', help='Database dump yaml config file for defaults', dest='dbaseconfig', action='store')
     parent_parser.add_argument('--date-time', '-K', help='Set backup date and time instead of now (For testing the program only). Format: yymmddHHMM', dest='datetime', action='store')
     parent_parser.add_argument('--logfile', '-Q', help='Set python logfile', dest='logfile', action='store')
-    parent_parser.add_argument('--loglevel', '-Z', help='Set python loglevel (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET)', dest='loglevel', action='store')
+    parent_parser.add_argument('--loglevel', '-Z', help='Set python loglevel (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET)', dest='loglevel', action='store' choices=['CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'NOTSET'], default='INFO')
+    parent_parser.add_argument('--backuptype', '-k', help='Set which parts of backup processes will run (Dump, Rsync, Both)', dest='backuptype', action='store' choices=['Dump', 'Rsync', 'Both'], default='Both')
     parent_parser.add_argument('--console-loglevel', '-W', help='Print the log messages to the console too', dest='consolelog', action='store')
     # Create principal parser
     parser_object = argparse.ArgumentParser(prog='bb', description=PrintColor.BOLD + 'Fule Butterfly Backup'
