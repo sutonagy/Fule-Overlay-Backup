@@ -4,7 +4,7 @@ import yaml
 import types
  
 
-def pgdump_async(host,password,server,port,databases,args,configfile=None):
+def pgdump_async(args,configfile=None):
     import asyncio, asyncssh, sys
 
     async def run_client(host):
@@ -53,7 +53,7 @@ def pgdump_async(host,password,server,port,databases,args,configfile=None):
         args = types.SimpleNamespace(**opt)
     try:
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(program(host, password, server, port,databases))
+        loop.run_until_complete(program(host, password, server, port, databases))
     except (OSError, asyncssh.Error) as exc:
         sys.exit('SSH connection failed: ' + str(exc))
     else:
