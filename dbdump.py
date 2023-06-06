@@ -53,6 +53,7 @@ def dbdump_async(args,configfile=None):
 
     # Run our program until it is complete
     global dtype
+    dtype=''
     try:
         if configfile:
             opt = vars(args)
