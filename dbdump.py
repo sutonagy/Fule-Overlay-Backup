@@ -37,6 +37,8 @@ def dbdump_async(args,configfile=None):
                     dumpcommands.append(dumpcommand)
                     modes.append('data')
             for dumpcommand, mode in zip(dumpcommands, modes):
+                if database is None:
+                    database = 'all'
                 print(dumpcommand, mode)
                 result = await conn.run(dumpcommand, stdout='%s/%s-%s.sql' % (sqlpath,database,mode), stderr='/backup/data/%s-%s-%s-%s.err' % (host,server,database,mode), check=True)
                 print(database, result)
