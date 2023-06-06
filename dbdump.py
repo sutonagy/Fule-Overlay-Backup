@@ -15,25 +15,27 @@ def dbdump_async(args,configfile=None):
             sys.exit('SSH connection failed: ' + str(exc))
         return conn
 
-    async def run_command(host,password,server,port,database,conn):    
+    async def run_command(host,password,server,port,conn,database=None):    
         try:
             print(host,server,port,database)
             sqlpath='/backup/data/%s/%s' % (host,server)
             if not os.path.exists(sqlpath): os.makedirs(sqlpath)
             dumpcommands = []
             modes = []
-            if dtype == 'mysql':
-                pass
-            elif dtype == 'postgres':
+            if database is None:
                 dumpcommand = 'PGPASSWORD="%s" pg_dumpall -h %s -p %s -U postgres --roles-only --quote-all-identifiers' % (password, server, port)
                 dumpcommands.append(dumpcommand)
                 modes.append('roles')
-                dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --schema-only --quote-all-identifiers' % (password, server, port, database)
-                dumpcommands.append(dumpcommand)
-                modes.append('schema')
-                dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --data-only --column-inserts --quote-all-identifiers' % (password, server, port, database)
-                dumpcommands.append(dumpcommand)
-                modes.append('data')
+            else
+                if dtype == 'mysql':
+                    pass
+                elif dtype == 'postgres':
+                    dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --schema-only --quote-all-identifiers' % (password, server, port, database)
+                    dumpcommands.append(dumpcommand)
+                    modes.append('schema')
+                    dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --data-only --column-inserts --quote-all-identifiers' % (password, server, port, database)
+                    dumpcommands.append(dumpcommand)
+                    modes.append('data')
             for dumpcommand, mode in zip(dumpcommands, modes):
                 print(dumpcommand, mode)
                 result = await conn.run(dumpcommand, stdout='%s/%s-%s.sql' % (sqlpath,database,mode), stderr='/backup/data/%s-%s-%s-%s.err' % (host,server,database,mode), check=True)
@@ -52,7 +54,8 @@ def dbdump_async(args,configfile=None):
         # Run both print method and wait for them to complete (passing in asyncState)
         conn = await run_client(host)
         #print(conn)
-        tasks = [run_command(host,password,server,port,database,conn) for database in databases]
+        tasks = [run_command(host,password,server,port,conn)]
+        tasks.extend([run_command(host,password,server,port,conn,database) for database in databases])
         await asyncio.gather(*tasks)
 
     # Run our program until it is complete
