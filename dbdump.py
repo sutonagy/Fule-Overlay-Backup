@@ -30,6 +30,7 @@ def dbdump_async(args,configfile=None):
                 dumpcommands.append([dumpcommand, 'schema'])
                 dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --data-only --column-inserts --quote-all-identifiers' % (password, server, port, database)
                 dumpcommands.append([dumpcommand, 'data'])
+                print(dumpcommands)
             for dumpcommand in dumpcommands:
                 print(dumpcommand[0])
                 result = await conn.run(dumpcommand[0], stdout='%s/%s-%s.sql' % (sqlpath,database,dumpcommand[1]), stderr='/backup/data/%s-%s-%s-%s.err' % (host,server,database,dumpcommand[1]), check=True)
