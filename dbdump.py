@@ -21,19 +21,21 @@ def dbdump_async(args,configfile=None):
             sqlpath='/backup/data/%s/%s' % (host,server)
             if not os.path.exists(sqlpath): os.makedirs(sqlpath)
             dumpcommands = []
+            modes = []
             if dtype == 'mysql':
                 pass
             elif dtype == 'postgres':
                 dumpcommand = 'PGPASSWORD="%s" pg_dumpall -h %s -p %s -U postgres --roles-only --quote-all-identifiers' % (password, server, port, database)
-                dumpcommands.append([dumpcommand, 'roles'])
+                dumpcommands.append(dumpcommand)
+                modes.append('roles')
                 dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --schema-only --quote-all-identifiers' % (password, server, port, database)
-                dumpcommands.append([dumpcommand, 'schema'])
+                dumpcommands.append(dumpcommand)
+                modes.append('schema')
                 dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --data-only --column-inserts --quote-all-identifiers' % (password, server, port, database)
-                dumpcommands.append([dumpcommand, 'data'])
-                print(dumpcommands)
-            for dumpcommand in dumpcommands:
-                print(dumpcommand[0])
-                result = await conn.run(dumpcommand[0], stdout='%s/%s-%s.sql' % (sqlpath,database,dumpcommand[1]), stderr='/backup/data/%s-%s-%s-%s.err' % (host,server,database,dumpcommand[1]), check=True)
+                dumpcommands.append(dumpcommand)
+                modes.append('data')
+            for dumpcommand, mode in zip(dumpcommands, modes):
+                result = await conn.run(dumpcommand[0], stdout='%s/%s-%s.sql' % (sqlpath,database,mode), stderr='/backup/data/%s-%s-%s-%s.err' % (host,server,database,mode), check=True)
                 print(database, result)
                 if result.exit_status == 0:
                     pass
