@@ -2054,7 +2054,6 @@ if __name__ == '__main__':
                     for file in files:
                         if file.endswith(args.dconfigext):
                             cfile=root+'/'+file
-                            aktcmd, aktlog, online, eport = pgdump.pgdump_async(args,cfile)
                             processz = multiprocessing.Process(target=pgdump.pgdump_async, args=(args,cfile))
                             processzek.append(processz)
                             processz.start()
