@@ -64,7 +64,7 @@ import yaml
 import types
 import colorlog
 import logging
-import pgdump
+import dbdump
 from multiprocessing import Pool
 #from utility import print_verbose
 from shutil import rmtree
@@ -2054,7 +2054,7 @@ if __name__ == '__main__':
                     for file in files:
                         if file.endswith(args.dconfigext):
                             cfile=root+'/'+file
-                            processz = multiprocessing.Process(target=pgdump.pgdump_async, args=(args,cfile))
+                            processz = multiprocessing.Process(target=dbdump.dbdump_async, args=(args,cfile))
                             processzek.append(processz)
                             processz.start()
                 for processz in processzek:
