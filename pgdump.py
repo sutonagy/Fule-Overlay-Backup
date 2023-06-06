@@ -17,7 +17,7 @@ def pgdump_async(args,configfile=None):
 
     async def run_command(host,password,server,port,database,conn):    
         try:
-            print(host,server,port,database,i)
+            print(host,server,port,database)
             sqlpath='/backup/data/%s/%s' % (host,server)
             if not os.path.exists(sqlpath): os.makedirs(sqlpath)
             result = await conn.run('PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s' % (password, server, port, database), stdout='%s/%s.sql' % (sqlpath,database), stderr='/backup/data/%s-%s-%s.err' % (host,server,database), check=True)
