@@ -57,6 +57,7 @@ import argparse
 import configparser
 import os
 import subprocess
+import multiprocessing
 import utility as uty
 import time
 import yaml
@@ -2043,42 +2044,17 @@ if __name__ == '__main__':
             remotes = []
             allonline = True
             portmessages = []
+            processzek = []
             for root, dirs, files in os.walk(args.dconfigdir):
                 for file in files:
                     if file.endswith(args.dconfigext):
                         cfile=root+'/'+file
                         aktcmd, aktlog, online, eport = pgdump.pgdump_async(args,cfile)
-                        if online:
-                            cmds.append(' '.join(aktcmd))
-                            aktlogs.append(aktlog)
-                            aktconfig=file.partition('.')[0]
-                            logger.debug('Aktconfig in main: {0}'.format(aktconfig))
-                            remotes.append(aktconfig)
-                        else:
-                            portmessages.append('The port {0} on {1} is closed or blocked!'.format(eport, args.hostname))
-                            allonline = False
-
-    hosts = [
-        'sasfacan.crocus.hu',
-        'mail2022.platinum.co.hu',
-    ]
-    manager = multiprocessing.Manager()
-    eredmenyek = manager.list(len(hosts) * [None])
-    processzek = []
-    databases = []
-    databases.insert(0, ['menudb','menu4'])
-    databases.insert(1, ['proba1','proba2'])
-    passwords = ['','Arpad48-50']
-    servers = ['192.168.11.77', 'localhost']
-    ports = ['45432', '5432']
-    for i, host in enumerate(hosts):
-        processz = multiprocessing.Process(target=pgproba_async, args=(host,passwords[i],servers[i],ports[i],databases[i],eredmenyek,i))
-        processzek.append(processz)
-        processz.start()
-    for processz in processzek:
-        processz.join()
-    print(eredmenyek)
-    print(f'{time.perf_counter() - előtte:.3f}')
+                        processz = multiprocessing.Process(target=pgdump.pgdump_async, args=(args,cfile))
+                        processzek.append(processz)
+                        processz.start()
+            for processz in processzek:
+                processz.join()
 
 
         #pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
