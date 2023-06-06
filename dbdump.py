@@ -64,7 +64,7 @@ def dbdump_async(args,configfile=None):
             args = yaml.load(open(configfile), Loader=yaml.FullLoader)
             opt.update(args)
             args = types.SimpleNamespace(**opt)
-            print(args)
+            #print(args)
             dtype = args.dbtype
         loop = asyncio.get_event_loop()
         loop.run_until_complete(program(args.sshhost, args.dbpassword, args.dbserver, args.dbport, args.databases))
