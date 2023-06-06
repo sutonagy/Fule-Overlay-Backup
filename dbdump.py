@@ -25,7 +25,7 @@ def dbdump_async(args,configfile=None):
             if dtype == 'mysql':
                 pass
             elif dtype == 'postgres':
-                dumpcommand = 'PGPASSWORD="%s" pg_dumpall -h %s -p %s -U postgres --roles-only --quote-all-identifiers' % (password, server, port, database)
+                dumpcommand = 'PGPASSWORD="%s" pg_dumpall -h %s -p %s -U postgres --roles-only --quote-all-identifiers'.format(password, server, port)
                 dumpcommands.append(dumpcommand)
                 modes.append('roles')
                 dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --schema-only --quote-all-identifiers' % (password, server, port, database)
