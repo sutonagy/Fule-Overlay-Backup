@@ -76,7 +76,7 @@ def dbdump_async(args,configfile=None):
                     if database is None:
                         database = 'all'
                     print(dumpcommand, mode)
-                    result = await conn.run(dumpcommand, stdout='%s/%s-%s.sql' % (sqlpath,database,mode), stderr='%s/%s.err' % (errpath,mode), check=True)
+                    result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s.err' % (errpath,mode), check=True)
                     #print(database, result)
                     if result.exit_status == 0:
                         pass
