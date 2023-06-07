@@ -18,24 +18,23 @@ def dbdump_async(args,configfile=None):
                 conn = await asyncio.wait_for(asyncssh.connect(host, username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
                                                             keepalive_interval=600, keepalive_count_max=10000), timeout=10)
                 break
-            except (OSError, asyncssh.Error) as exc:
+            except Exception as exc:
                 print('Attempt %d failed: %s in host: %s' % (attempts, str(exc), host))
                 attempts += 1
-                continue
-            except Exception as exc:
-                exception_message = str(exc)
-                exception_type, exception_object, exception_traceback = sys.exc_info()
-                filename = exception_traceback.tb_frame.f_code.co_filename
-                lines = traceback.format_exception(exception_type, exception_object, exception_traceback) # nem az exception_traceback, hanem a traceback modul
-                error_lines = ""
-                for line in lines:
-                    error_lines += line
-                error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
-                print('SSH connection failed: %s in host: %s' % (error_message, host))
-                sys.exit('SSH connection failed: ' + str(error_message))
-        else:
-            if attempts > 4:
-                print('Attempts failed after %d attempts in host: %s' % (attempts, host))
+                if attempts > 4:
+                    exception_message = str(exc)
+                    exception_type, exception_object, exception_traceback = sys.exc_info()
+                    filename = exception_traceback.tb_frame.f_code.co_filename
+                    lines = traceback.format_exception(exception_type, exception_object, exception_traceback) # nem az exception_traceback, hanem a traceback modul
+                    error_lines = ""
+                    for line in lines:
+                        error_lines += line
+                    error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
+                    print('SSH connection failed permanently: %s in host: %s' % (error_message, host))
+                    sys.exit('SSH connection failed permanently: ' + str(error_message))                    
+                else:
+                    print('SSH connection failed after %d attempts in host: %s' % (attempts, host))
+                    continue
         return conn
 
     async def run_command(host,password,server,port,sem,database=None):    
