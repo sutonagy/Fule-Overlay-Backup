@@ -25,7 +25,8 @@ def dbdump_async(args,configfile=None):
                 print('SSH connection failed: %s in host: %s' % (str(exc), host))
                 sys.exit('SSH connection failed: ' + str(exc))
         else:
-            print('Attempts failed after %d attempts in host: %s' % (attempts, host))
+            if attempts > 4:
+                print('Attempts failed after %d attempts in host: %s' % (attempts, host))
         return conn
 
     async def run_command(host,password,server,port,sem,database=None):    
