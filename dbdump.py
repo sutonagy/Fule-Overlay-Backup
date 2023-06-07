@@ -80,7 +80,7 @@ def dbdump_async(args,configfile=None):
             sys.exit('SSH connection failed: ' + str(exc))
         tasks = [run_command(host,password,server,port,sem)]
         dbases = re.split('\n', str(databases))
-        print(dbases)         
+        #print(dbases)         
         for database in dbases:
             if database:
                 runtask = True
@@ -91,7 +91,7 @@ def dbdump_async(args,configfile=None):
                 if runtask:
                     tasks.extend([run_command(host,password,server,port,sem,database)])
         try:
-            print(tasks)
+            #print(tasks)
             await asyncio.gather(*tasks, return_exceptions=True)
         except Exception as ex:
             print(ex)
