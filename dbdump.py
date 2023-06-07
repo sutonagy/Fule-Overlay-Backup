@@ -73,11 +73,14 @@ def dbdump_async(args,configfile=None):
         dbases = re.split('\n', str(databases))
         print(dbases)         
         for database in dbases:
+            runtask = True
             for exclude_database in exclude_databases:
                 for include_database in include_databases:
-                    if re.search(include_database, database) and not re.search(exclude_database, database):
-                        print(host,server,database)
-                        tasks.append([run_command(host,password,server,port,sem,database)])
+                    if not re.search(include_database, database) or re.search(exclude_database, database):
+                        runtask = False
+            if runtask:
+                print(host,server,database)
+                tasks.append([run_command(host,password,server,port,sem,database)])
         try:
             await asyncio.gather(*tasks, return_exceptions=True)
         except Exception as ex:
