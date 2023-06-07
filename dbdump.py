@@ -62,7 +62,10 @@ def dbdump_async(args,configfile=None):
         sem = asyncio.Semaphore(8)
         tasks = [run_command(host,password,server,port,sem)]
         tasks.extend([run_command(host,password,server,port,sem,database) for database in databases])
-        await asyncio.gather(*tasks, return_exceptions=True)
+        try:
+            await asyncio.gather(*tasks, return_exceptions=True)
+        except Exception as ex:
+            print(ex)
 
     # Run our program until it is complete
     global dtype
