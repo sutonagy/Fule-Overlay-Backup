@@ -103,7 +103,7 @@ def dbdump_async(args,configfile=None):
             dbloop = asyncio.get_event_loop()
             databases = dbloop.run_until_complete(get_databases(host))
         except (OSError, asyncssh.Error) as exc:
-            sys.exit('SSH connection failed: ' + str(exc))
+            sys.exit('SSH run failed: ' + str(exc))
         async def get_tables(host,database):
             async with await run_client(host) as conn:
                 if dtype == 'mysql':
