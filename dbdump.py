@@ -57,8 +57,10 @@ def dbdump_async(args,configfile=None):
                         dumpcommands.append(dumpcommand)
                         modes.append('roles')
                 else:
-                    sqlpath='/backup/data/%s/%s/%s' % (host,server,database)
+                    sqlpath='/backup/data/%s/%s/%s/%s' % (host,dbtype,server,database)
                     if not os.path.exists(sqlpath): os.makedirs(sqlpath)
+                    errpath='/backup/data/%s/%s/%s/%s/error' % (host,dbtype,server,database)
+                    if not os.path.exists(errpath): os.makedirs(errpath)
                     if dtype == 'mysql':
                         pass
                     elif dtype == 'postgres':
@@ -74,7 +76,7 @@ def dbdump_async(args,configfile=None):
                     if database is None:
                         database = 'all'
                     print(dumpcommand, mode)
-                    result = await conn.run(dumpcommand, stdout='%s/%s-%s.sql' % (sqlpath,database,mode), stderr='%s/%s-%s.err' % (errpath,database,mode), check=True)
+                    result = await conn.run(dumpcommand, stdout='%s/%s-%s.sql' % (sqlpath,database,mode), stderr='%s/%s.err' % (errpath,mode), check=True)
                     #print(database, result)
                     if result.exit_status == 0:
                         pass
@@ -93,7 +95,7 @@ def dbdump_async(args,configfile=None):
         async def get_databases(host):
             async with await run_client(host) as conn:
                 if dtype == 'mysql':
-                    databases = await conn.run("echo 'show databases;' | mysql -h %s --user=%s --password=%s -N" % (server, user, password, port), check=True)
+                    databases = await conn.run("echo 'show databases;' | mysql -h %s --user=%s --password=%s -p %s -N" % (server, user, password, port), check=True)
                 elif dtype == 'postgres':                  
                     databases = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U %s -l -t -z | grep -E '^ [a-z]' | awk '{print $1}'" % (password, server, port, user), check=True)
                 return databases.stdout
