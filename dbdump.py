@@ -51,7 +51,9 @@ def dbdump_async(args,configfile=None):
                     errpath='/backup/data/%s/%s/%s/error' % (host,dbtype,server)
                     if not os.path.exists(errpath): os.makedirs(errpath)
                     if dtype == 'mysql':
-                        pass
+                        dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s -p mysql --routines" % (server, user, password, port)
+                        dumpcommands.append(dumpcommand)
+                        modes.append('roles')
                     elif dtype == 'postgres':                  
                         dumpcommand = 'PGPASSWORD="%s" pg_dumpall -h %s -p %s -U %s --roles-only --quote-all-identifiers' % (password, server, port, user)
                         dumpcommands.append(dumpcommand)
@@ -62,7 +64,14 @@ def dbdump_async(args,configfile=None):
                     errpath='/backup/data/%s/%s/%s/%s/error' % (host,dbtype,server,database)
                     if not os.path.exists(errpath): os.makedirs(errpath)
                     if dtype == 'mysql':
-                        pass
+                        if table is None:
+                            dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U %s %s --schema-only --quote-all-identifiers' % (password, server, port, user, database)
+                            dumpcommands.append(dumpcommand)
+                            modes.append('schema')
+                        else:
+                            dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U %s -d %s --table=public.%s --data-only --column-inserts --quote-all-identifiers' % (password, server, port, user, database,table)
+                            dumpcommands.append(dumpcommand)
+                            modes.append('data-%s' % table)
                     elif dtype == 'postgres':
                         if table is None:
                             dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U %s %s --schema-only --quote-all-identifiers' % (password, server, port, user, database)
