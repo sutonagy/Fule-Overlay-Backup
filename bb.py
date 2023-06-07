@@ -2053,6 +2053,7 @@ if __name__ == '__main__':
                 for root, dirs, files in os.walk(args.dconfigdir):
                     for file in files:
                         if file.endswith(args.dconfigext):
+                            print('Config: ',file)
                             cfile=root+'/'+file
                             processz = multiprocessing.Process(target=dbdump.dbdump_async, args=(args,cfile))
                             processzek.append(processz)
