@@ -13,15 +13,16 @@ def dbdump_async(args,configfile=None):
     async def run_client(host):
         attempts = 0
         conn = None
-        while attempts < 5:      
+        attempts_max = 10
+        while attempts < attempts_max:      
             try:
                 conn = await asyncio.wait_for(asyncssh.connect(host, username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
-                                                            keepalive_interval=600, keepalive_count_max=10000), timeout=10)
+                                                            keepalive_interval=600, keepalive_count_max=10000), timeout=6)
                 break
             except Exception as exc:
                 print('Attempt %d failed: %s in host: %s' % (attempts, str(exc), host))
                 attempts += 1
-                if attempts > 4:
+                if attempts >= attempts_max:
                     exception_message = str(exc)
                     exception_type, exception_object, exception_traceback = sys.exc_info()
                     filename = exception_traceback.tb_frame.f_code.co_filename
@@ -64,7 +65,7 @@ def dbdump_async(args,configfile=None):
                             dumpcommands.append(dumpcommand)
                             modes.append('schema')
                         else:
-                            dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --table %s --data-only --column-inserts --quote-all-identifiers' % (password, server, port, database,table)
+                            dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s -n Public --table %s --data-only --column-inserts --quote-all-identifiers' % (password, server, port, database,table)
                             dumpcommands.append(dumpcommand)
                             modes.append('data-%s' % table)
                 for dumpcommand, mode in zip(dumpcommands, modes):
