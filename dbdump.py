@@ -43,7 +43,7 @@ def dbdump_async(args,configfile=None):
                 for dumpcommand, mode in zip(dumpcommands, modes):
                     if database is None:
                         database = 'all'
-                    print(dumpcommand, mode)
+                    #print(dumpcommand, mode)
                     result = await conn.run(dumpcommand, stdout='%s/%s-%s.sql' % (sqlpath,database,mode), stderr='/backup/data/%s-%s-%s-%s.err' % (host,server,database,mode), check=True)
                     #print(database, result)
                     if result.exit_status == 0:
@@ -77,7 +77,7 @@ def dbdump_async(args,configfile=None):
             args = yaml.load(open(configfile), Loader=yaml.FullLoader)
             opt.update(args)
             args = types.SimpleNamespace(**opt)
-            print(args)
+            #print(args)
             dtype = args.dbtype
         loop = asyncio.get_event_loop()
         loop.run_until_complete(program(args.sshhost, args.dbpassword, args.dbserver, args.dbport, args.databases))
