@@ -10,12 +10,17 @@ def dbdump_async(args,configfile=None):
     nest_asyncio.apply()
 
     async def run_client(host):
-        try:
-            conn = await asyncio.wait_for(asyncssh.connect(host, username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
-                                                        keepalive_interval=600, keepalive_count_max=10000), timeout=12)
-        #except (OSError, asyncssh.Error) as exc:
-        except Exception as exc:
-            sys.exit('SSH connection failed: ' + str(exc))
+        attempts = 0
+        conn = None
+        while attempts < 5:      
+            try:
+                conn = await asyncio.wait_for(asyncssh.connect(host, username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
+                                                            keepalive_interval=600, keepalive_count_max=10000), timeout=10)
+                break
+            except (OSError, asyncssh.Error) as exc:
+                attempts += 1
+            except Exception as exc:
+                sys.exit('SSH connection failed: ' + str(exc))
         return conn
 
     async def run_command(host,password,server,port,sem,database=None):    
