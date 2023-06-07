@@ -18,8 +18,10 @@ def dbdump_async(args,configfile=None):
                                                             keepalive_interval=600, keepalive_count_max=10000), timeout=10)
                 break
             except (OSError, asyncssh.Error) as exc:
+                print('Attempt %d failed: %s in host: %s' % (attempts, str(exc), host))
                 attempts += 1
             except Exception as exc:
+                print('SSH connection failed: %s in host: %s' % (str(exc), host))
                 sys.exit('SSH connection failed: ' + str(exc))
         return conn
 
