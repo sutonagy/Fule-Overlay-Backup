@@ -72,8 +72,8 @@ def dbdump_async(args,configfile=None):
                     databases = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U postgres -l -t -z | grep -E '^ [a-z]' | awk '{print $1}'" % (password, server, port), check=True)
                     return databases.stdout
         try:
-            loop = asyncio.get_event_loop()
-            databases = loop.run_until_complete(get_databases(host))
+            dbloop = asyncio.get_event_loop()
+            databases = dbloop.run_until_complete(get_databases(host))
         except (OSError, asyncssh.Error) as exc:
             sys.exit('SSH connection failed: ' + str(exc))
         tasks = [run_command(host,password,server,port,sem)]
