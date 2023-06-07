@@ -64,7 +64,7 @@ def dbdump_async(args,configfile=None):
         # Run both print method and wait for them to complete (passing in asyncState)
         #print(conn)
         sem = asyncio.Semaphore(8)
-        async with await run_client(host) as conn:
+        with await run_client(host) as conn:
             if dtype == 'mysql':
                 pass
             elif dtype == 'postgres':                  
