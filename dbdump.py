@@ -38,7 +38,7 @@ def dbdump_async(args,configfile=None):
                     continue
         return conn
 
-    async def run_command(host,password,server,port,user,sem,database=None,table=None):    
+    async def run_command(dbtype,host,password,server,port,user,sem,database=None,table=None):    
         async with sem:
             try:
                 #print(host,server,port,database)
@@ -46,8 +46,10 @@ def dbdump_async(args,configfile=None):
                 dumpcommands = []
                 modes = []
                 if database is None:
-                    sqlpath='/backup/data/%s/%s' % (host,server)
+                    sqlpath='/backup/data/%s/%s/%s' % (host,dbtype,server)
                     if not os.path.exists(sqlpath): os.makedirs(sqlpath)
+                    errpath='/backup/data/%s/%s/%s/error' % (host,dbtype,server)
+                    if not os.path.exists(errpath): os.makedirs(errpath)
                     if dtype == 'mysql':
                         pass
                     elif dtype == 'postgres':                  
@@ -72,7 +74,7 @@ def dbdump_async(args,configfile=None):
                     if database is None:
                         database = 'all'
                     print(dumpcommand, mode)
-                    result = await conn.run(dumpcommand, stdout='%s/%s-%s.sql' % (sqlpath,database,mode), stderr='/backup/data/error/%s-%s-%s-%s.err' % (host,server,database,mode), check=True)
+                    result = await conn.run(dumpcommand, stdout='%s/%s-%s.sql' % (sqlpath,database,mode), stderr='%s/%s-%s.err' % (errpath,database,mode), check=True)
                     #print(database, result)
                     if result.exit_status == 0:
                         pass
@@ -84,7 +86,7 @@ def dbdump_async(args,configfile=None):
             except Exception as ex:
                 print(ex)      
 
-    async def program(host,user, password,server,port,include_databases,exclude_databases):
+    async def program(dbtype,host,user, password,server,port,include_databases,exclude_databases):
         # Run both print method and wait for them to complete (passing in asyncState)
         #print(conn)
         sem = asyncio.Semaphore(8)
@@ -107,7 +109,7 @@ def dbdump_async(args,configfile=None):
                 elif dtype == 'postgres':                  
                     tables = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U %s -d %s -c '\dt' | grep -E '^ [a-z]' | awk '{print $3}'" % (password, server, port, user, database), check=True)
                 return tables.stdout
-        tasks = [run_command(host,password,server,port,user,sem)]
+        tasks = [run_command(dbtype,host,password,server,port,user,sem)]
         dbases = re.split('\n', str(databases))
         print(dbases)         
         for database in dbases:
@@ -123,11 +125,11 @@ def dbdump_async(args,configfile=None):
                         tables = tbloop.run_until_complete(get_tables(host,database))
                     except (OSError, asyncssh.Error) as exc:
                         sys.exit('SSH connection failed: ' + str(exc))                    
-                    tasks.extend([run_command(host,password,server,port,user,sem,database)])
+                    tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database)])
                     for table in re.split('\n', str(tables)):
                         print(table)
                         if table:
-                            tasks.extend([run_command(host,password,server,port,user,sem,database,table)])
+                            tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database,table)])
         try:
             #print(tasks)
             await asyncio.gather(*tasks, return_exceptions=True)
@@ -150,7 +152,7 @@ def dbdump_async(args,configfile=None):
             #print(args)
             dtype = args.dbtype
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(program(args.sshhost, args.dbuser, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases))
+        loop.run_until_complete(program(args.dbtype,args.sshhost, args.dbuser, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases))
     except (OSError, asyncssh.Error) as exc:
         sys.exit('SSH connection failed: ' + str(exc))
     else:
