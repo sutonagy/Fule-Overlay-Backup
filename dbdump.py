@@ -3,6 +3,7 @@ import os
 import yaml
 import types
 import re
+import traceback
  
 
 def dbdump_async(args,configfile=None):
@@ -22,8 +23,16 @@ def dbdump_async(args,configfile=None):
                 attempts += 1
                 continue
             except Exception as exc:
-                print('SSH connection failed: %s in host: %s' % (str(exc), host))
-                sys.exit('SSH connection failed: ' + str(exc))
+                exception_message = str(exc)
+                exception_type, exception_object, exception_traceback = sys.exc_info()
+                filename = exception_traceback.tb_frame.f_code.co_filename
+                lines = traceback.format_exception(exception_type, exception_object, exception_traceback) # nem az exception_traceback, hanem a traceback modul
+                error_lines = ""
+                for line in lines:
+                    error_lines += line
+                error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
+                print('SSH connection failed: %s in host: %s' % (error_message, host))
+                sys.exit('SSH connection failed: ' + str(error_message))
         else:
             if attempts > 4:
                 print('Attempts failed after %d attempts in host: %s' % (attempts, host))
