@@ -30,8 +30,8 @@ def dbdump_async(args,configfile=None):
                     for line in lines:
                         error_lines += line
                     error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
-                    print('SSH connection failed permanently: %s in host: %s' % (error_message, host))
-                    sys.exit('SSH connection failed permanently: ' + str(error_message))                    
+                    #print('SSH connection failed permanently: %s in host: %s' % (error_message, host))
+                    sys.exit('SSH connection failed permanently: ' + str(error_message) + ' in host: ' + str(host))                    
                 else:
                     print('SSH connection failed after %d attempts in host: %s' % (attempts, host))
                     continue
@@ -97,6 +97,13 @@ def dbdump_async(args,configfile=None):
             databases = dbloop.run_until_complete(get_databases(host))
         except (OSError, asyncssh.Error) as exc:
             sys.exit('SSH connection failed: ' + str(exc))
+        async def get_tables(host,database):
+            async with await run_client(host) as conn:
+                if dtype == 'mysql':
+                    pass
+                elif dtype == 'postgres':                  
+                    tables = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U postgres -d %s -c '\dt' | grep -E '^ [a-z]' | awk '{print $3}'" % (password, server, port, database), check=True)
+                    return tables.stdout
         tasks = [run_command(host,password,server,port,sem)]
         dbases = re.split('\n', str(databases))
         #print(dbases)         
@@ -105,10 +112,18 @@ def dbdump_async(args,configfile=None):
                 runtask = True
                 for exclude_database in exclude_databases:
                     for include_database in include_databases:
-                        if not re.search(include_database, database) or re.search(exclude_database, database):
+                        if not re.search(include_database, database) or re.search(exclude_database, database): #!!!!!!!!!!!!!!
                             runtask = False
                 if runtask:
+                    try:
+                        tbloop = asyncio.get_event_loop()
+                        tables = tbloop.run_until_complete(get_tables(host,database))
+                    except (OSError, asyncssh.Error) as exc:
+                        sys.exit('SSH connection failed: ' + str(exc))                    
                     tasks.extend([run_command(host,password,server,port,sem,database)])
+                    for table in re.split('\n', str(tables)):
+                        if table:
+                            tasks.extend([run_command(host,password,server,port,sem,database,table)])
         try:
             #print(tasks)
             await asyncio.gather(*tasks, return_exceptions=True)
