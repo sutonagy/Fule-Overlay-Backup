@@ -70,9 +70,9 @@ def dbdump_async(args,configfile=None):
         elif dtype == 'postgres':                  
             databases = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U postgres -l -t -z | grep -E '^ [a-z]' | awk '{print $1}'" % (password, server, port), check=True)
         tasks = [run_command(host,password,server,port,sem)]
-        #dbases = re.split('\n', str(databases))
-        #print(dbases)         
-        for database in databases:
+        dbases = re.split('\n', str(databases))
+        print(dbases)         
+        for database in dbases:
             for exclude_database in exclude_databases:
                 for include_database in include_databases:
                     if re.search(include_database, database) and not re.search(exclude_database, database):
