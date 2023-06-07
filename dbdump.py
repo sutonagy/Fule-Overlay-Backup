@@ -96,7 +96,7 @@ def dbdump_async(args,configfile=None):
             print(host,dtype)
             async with await run_client(host) as conn:
                 if dtype == 'mysql':
-                    #print('echo "show databases;" | mysql -h %s --user=%s --password=%s --port=%s -N' % (server, user, password, port))
+                    print('mysql -h %s --user=%s --password=%s -p %s -N  -e "show databases;"' % (server, user, password, port))
                     databases = await conn.run('mysql -h %s --user=%s --password=%s -p %s -N  -e "show databases;"' % (server, user, password, port), check=True)
                     #databases = await conn.run("ls", check=True)
                 elif dtype == 'postgres':                  
