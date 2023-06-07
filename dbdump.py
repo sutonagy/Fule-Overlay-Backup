@@ -92,7 +92,8 @@ def dbdump_async(args,configfile=None):
         # Run both print method and wait for them to complete (passing in asyncState)
         #print(conn)
         sem = asyncio.Semaphore(8)
-        async def get_databases(host):
+        async def get_databases(host,dtype):
+            print(host,dtype)
             async with await run_client(host) as conn:
                 if dtype == 'mysql':
                     databases = await conn.run("echo 'show databases;' | mysql -h %s --user=%s --password=%s -p %s -N" % (server, user, password, port), check=True)
@@ -101,7 +102,7 @@ def dbdump_async(args,configfile=None):
                 return databases.stdout
         try:
             dbloop = asyncio.get_event_loop()
-            databases = dbloop.run_until_complete(get_databases(host))
+            databases = dbloop.run_until_complete(get_databases(host,dtype))
         except Exception as exc:
             exception_message = str(exc)
             exception_type, exception_object, exception_traceback = sys.exc_info()
@@ -112,7 +113,8 @@ def dbdump_async(args,configfile=None):
                 error_lines += line
             error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
             print('SSH get-databases command failed: %s in host: %s' % (error_message, host))
-        async def get_tables(host,database):
+        async def get_tables(host,database,dtype):
+            print(host,database,dtype)
             async with await run_client(host) as conn:
                 if dtype == 'mysql':
                     pass
@@ -132,7 +134,7 @@ def dbdump_async(args,configfile=None):
                 if runtask:
                     try:
                         tbloop = asyncio.get_event_loop()
-                        tables = tbloop.run_until_complete(get_tables(host,database))
+                        tables = tbloop.run_until_complete(get_tables(host,database,dtype))
                     except (OSError, asyncssh.Error) as exc:
                         sys.exit('SSH connection failed: ' + str(exc))                    
                     tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database)])
