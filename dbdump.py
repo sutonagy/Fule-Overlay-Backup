@@ -64,12 +64,17 @@ def dbdump_async(args,configfile=None):
         # Run both print method and wait for them to complete (passing in asyncState)
         #print(conn)
         sem = asyncio.Semaphore(8)
-        async with await run_client(host) as conn:
-            if dtype == 'mysql':
-                pass
-            elif dtype == 'postgres':                  
-                databases = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U postgres -l -t -z | grep -E '^ [a-z]' | awk '{print $1}'" % (password, server, port), check=True)
-                databases = databases.stdout
+        async def get_databases(host):
+            async with await run_client(host) as conn:
+                if dtype == 'mysql':
+                    pass
+                elif dtype == 'postgres':                  
+                    databases = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U postgres -l -t -z | grep -E '^ [a-z]' | awk '{print $1}'" % (password, server, port), check=True)
+                    return databases.stdout
+        try:
+            databases = asyncio.get_event_loop().run_until_complete(get_databases(host))
+        except (OSError, asyncssh.Error) as exc:
+            sys.exit('SSH connection failed: ' + str(exc))
         tasks = [run_command(host,password,server,port,sem)]
         dbases = re.split('\n', str(databases))
         print(dbases)         
