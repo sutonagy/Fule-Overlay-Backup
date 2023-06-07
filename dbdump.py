@@ -37,7 +37,7 @@ def dbdump_async(args,configfile=None):
                     continue
         return conn
 
-    async def run_command(host,password,server,port,sem,database=None):    
+    async def run_command(host,password,server,port,sem,database=None,table=None):    
         async with sem:
             try:
                 #print(host,server,port,database)
@@ -59,12 +59,14 @@ def dbdump_async(args,configfile=None):
                     if dtype == 'mysql':
                         pass
                     elif dtype == 'postgres':
-                        dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --schema-only --quote-all-identifiers' % (password, server, port, database)
-                        dumpcommands.append(dumpcommand)
-                        modes.append('schema')
-                        dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --data-only --column-inserts --quote-all-identifiers' % (password, server, port, database)
-                        dumpcommands.append(dumpcommand)
-                        modes.append('data')
+                        if table is None:
+                            dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --schema-only --quote-all-identifiers' % (password, server, port, database)
+                            dumpcommands.append(dumpcommand)
+                            modes.append('schema')
+                        else:
+                            dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --table %s --data-only --column-inserts --quote-all-identifiers' % (password, server, port, database,table)
+                            dumpcommands.append(dumpcommand)
+                            modes.append('data-%s' % table)
                 for dumpcommand, mode in zip(dumpcommands, modes):
                     if database is None:
                         database = 'all'
@@ -122,6 +124,7 @@ def dbdump_async(args,configfile=None):
                         sys.exit('SSH connection failed: ' + str(exc))                    
                     tasks.extend([run_command(host,password,server,port,sem,database)])
                     for table in re.split('\n', str(tables)):
+                        print(table)
                         if table:
                             tasks.extend([run_command(host,password,server,port,sem,database,table)])
         try:
