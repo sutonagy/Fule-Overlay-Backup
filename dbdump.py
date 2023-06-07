@@ -103,21 +103,15 @@ def dbdump_async(args,configfile=None):
             dbloop = asyncio.get_event_loop()
             databases = dbloop.run_until_complete(get_databases(host))
         except Exception as exc:
-            print('Attempt %d failed: %s in host: %s' % (attempts, str(exc), host))
-            attempts += 1
-            if attempts >= attempts_max:
-                exception_message = str(exc)
-                exception_type, exception_object, exception_traceback = sys.exc_info()
-                filename = exception_traceback.tb_frame.f_code.co_filename
-                lines = traceback.format_exception(exception_type, exception_object, exception_traceback) # nem az exception_traceback, hanem a traceback modul
-                error_lines = ""
-                for line in lines:
-                    error_lines += line
-                error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
-                print('SSH get-databases command failed: %s in host: %s' % (error_message, host))
-                #0sys.exit('SSH connection failed permanently: ' + str(error_message) + ' in host: ' + str(host))                    
-        except (OSError, asyncssh.Error) as exc:
-            sys.exit('SSH run failed: ' + str(exc))
+            exception_message = str(exc)
+            exception_type, exception_object, exception_traceback = sys.exc_info()
+            filename = exception_traceback.tb_frame.f_code.co_filename
+            lines = traceback.format_exception(exception_type, exception_object, exception_traceback) # nem az exception_traceback, hanem a traceback modul
+            error_lines = ""
+            for line in lines:
+                error_lines += line
+            error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
+            print('SSH get-databases command failed: %s in host: %s' % (error_message, host))
         async def get_tables(host,database):
             async with await run_client(host) as conn:
                 if dtype == 'mysql':
