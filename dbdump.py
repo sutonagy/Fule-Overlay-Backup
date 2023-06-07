@@ -15,50 +15,54 @@ def dbdump_async(args,configfile=None):
             sys.exit('SSH connection failed: ' + str(exc))
         return conn
 
-    async def run_command(host,password,server,port,conn,database=None):    
-        try:
-            #print(host,server,port,database)
-            sqlpath='/backup/data/%s/%s' % (host,server)
-            if not os.path.exists(sqlpath): os.makedirs(sqlpath)
-            dumpcommands = []
-            modes = []
-            if database is None:
-                dumpcommand = 'PGPASSWORD="%s" pg_dumpall -h %s -p %s -U postgres --roles-only --quote-all-identifiers' % (password, server, port)
-                dumpcommands.append(dumpcommand)
-                modes.append('roles')
-            else:
-                if dtype == 'mysql':
-                    pass
-                elif dtype == 'postgres':
-                    dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --schema-only --quote-all-identifiers' % (password, server, port, database)
-                    dumpcommands.append(dumpcommand)
-                    modes.append('schema')
-                    dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --data-only --column-inserts --quote-all-identifiers' % (password, server, port, database)
-                    dumpcommands.append(dumpcommand)
-                    modes.append('data')
-            for dumpcommand, mode in zip(dumpcommands, modes):
+    async def run_command(host,password,server,port,sem,database=None):    
+        async with sem:
+            try:
+                #print(host,server,port,database)
+                conn = await run_client(host)
+                dumpcommands = []
+                modes = []
                 if database is None:
-                    database = 'all'
-                #print(dumpcommand, mode)
-                result = await conn.run(dumpcommand, stdout='%s/%s-%s.sql' % (sqlpath,database,mode), stderr='/backup/data/%s-%s-%s-%s.err' % (host,server,database,mode), check=True)
-                #print(database, result)
-                if result.exit_status == 0:
-                    pass
-                    #print(result.stdout, end='')                        
+                    sqlpath='/backup/data/%s/%s' % (host,server)
+                    if not os.path.exists(sqlpath): os.makedirs(sqlpath)
+                    dumpcommand = 'PGPASSWORD="%s" pg_dumpall -h %s -p %s -U postgres --roles-only --quote-all-identifiers' % (password, server, port)
+                    dumpcommands.append(dumpcommand)
+                    modes.append('roles')
                 else:
-                    print(result.stderr, end='', file=sys.stderr)
-                    print('Program exited with status %d' % result.exit_status,
-                        file=sys.stderr)
-        except Exception as ex:
-            print(ex)      
+                    sqlpath='/backup/data/%s/%s/%s' % (host,server,database)
+                    if not os.path.exists(sqlpath): os.makedirs(sqlpath)
+                    if dtype == 'mysql':
+                        pass
+                    elif dtype == 'postgres':
+                        dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --schema-only --quote-all-identifiers' % (password, server, port, database)
+                        dumpcommands.append(dumpcommand)
+                        modes.append('schema')
+                        dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U postgres %s --data-only --column-inserts --quote-all-identifiers' % (password, server, port, database)
+                        dumpcommands.append(dumpcommand)
+                        modes.append('data')
+                for dumpcommand, mode in zip(dumpcommands, modes):
+                    if database is None:
+                        database = 'all'
+                    #print(dumpcommand, mode)
+                    result = await conn.run(dumpcommand, stdout='%s/%s-%s.sql' % (sqlpath,database,mode), stderr='/backup/data/%s-%s-%s-%s.err' % (host,server,database,mode), check=True)
+                    #print(database, result)
+                    if result.exit_status == 0:
+                        pass
+                        #print(result.stdout, end='')                        
+                    else:
+                        print(result.stderr, end='', file=sys.stderr)
+                        print('Program exited with status %d' % result.exit_status,
+                            file=sys.stderr)
+            except Exception as ex:
+                print(ex)      
 
     async def program(host,password,server,port,databases):
         # Run both print method and wait for them to complete (passing in asyncState)
-        conn = await run_client(host)
         #print(conn)
-        tasks = [run_command(host,password,server,port,conn)]
-        tasks.extend([run_command(host,password,server,port,conn,database) for database in databases])
-        await asyncio.gather(*tasks)
+        sem = asyncio.Semaphore(8)
+        tasks = [run_command(host,password,server,port,sem)]
+        tasks.extend([run_command(host,password,server,port,sem,database) for database in databases])
+        await asyncio.gather(*tasks, return_exceptions=True)
 
     # Run our program until it is complete
     global dtype
