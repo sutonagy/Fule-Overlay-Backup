@@ -2,6 +2,7 @@
 import os
 import yaml
 import types
+import re
  
 
 def dbdump_async(args,configfile=None):
@@ -25,9 +26,12 @@ def dbdump_async(args,configfile=None):
                 if database is None:
                     sqlpath='/backup/data/%s/%s' % (host,server)
                     if not os.path.exists(sqlpath): os.makedirs(sqlpath)
-                    dumpcommand = 'PGPASSWORD="%s" pg_dumpall -h %s -p %s -U postgres --roles-only --quote-all-identifiers' % (password, server, port)
-                    dumpcommands.append(dumpcommand)
-                    modes.append('roles')
+                    if dtype == 'mysql':
+                        pass
+                    elif dtype == 'postgres':                  
+                        dumpcommand = 'PGPASSWORD="%s" pg_dumpall -h %s -p %s -U postgres --roles-only --quote-all-identifiers' % (password, server, port)
+                        dumpcommands.append(dumpcommand)
+                        modes.append('roles')
                 else:
                     sqlpath='/backup/data/%s/%s/%s' % (host,server,database)
                     if not os.path.exists(sqlpath): os.makedirs(sqlpath)
@@ -43,7 +47,7 @@ def dbdump_async(args,configfile=None):
                 for dumpcommand, mode in zip(dumpcommands, modes):
                     if database is None:
                         database = 'all'
-                    #print(dumpcommand, mode)
+                    print(dumpcommand, mode)
                     result = await conn.run(dumpcommand, stdout='%s/%s-%s.sql' % (sqlpath,database,mode), stderr='/backup/data/%s-%s-%s-%s.err' % (host,server,database,mode), check=True)
                     #print(database, result)
                     if result.exit_status == 0:
@@ -56,12 +60,22 @@ def dbdump_async(args,configfile=None):
             except Exception as ex:
                 print(ex)      
 
-    async def program(host,password,server,port,databases):
+    async def program(host,password,server,port,include_databases,exclude_databases):
         # Run both print method and wait for them to complete (passing in asyncState)
         #print(conn)
         sem = asyncio.Semaphore(8)
-        tasks = [run_command(host,password,server,port,sem)]
-        tasks.extend([run_command(host,password,server,port,sem,database) for database in databases])
+        conn = await run_client(host)
+        if dtype == 'mysql':
+            pass
+        elif dtype == 'postgres':                  
+            databases = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U postgres -l -t -z | grep -E '^ [a-z]' | awk '{print $1}'" % (password, server, port), check=True)
+        tasks = [run_command(host,password,server,port,sem)]        
+        for database in databases.split('\n'):
+            for exclude_database in exclude_databases:
+                for include_database in include_databases:
+                    if re.search(include_database, database) and not re.search(exclude_database, database):
+                        print(host,server,database)
+                        tasks.append([run_command(host,password,server,port,sem,database)])
         try:
             await asyncio.gather(*tasks, return_exceptions=True)
         except Exception as ex:
@@ -83,7 +97,7 @@ def dbdump_async(args,configfile=None):
             #print(args)
             dtype = args.dbtype
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(program(args.sshhost, args.dbpassword, args.dbserver, args.dbport, args.databases))
+        loop.run_until_complete(program(args.sshhost, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases))
     except (OSError, asyncssh.Error) as exc:
         sys.exit('SSH connection failed: ' + str(exc))
     else:
