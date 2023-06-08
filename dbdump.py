@@ -151,6 +151,7 @@ def dbdump_async(args,configfile=None):
                         tbloop = asyncio.get_event_loop()
                         if dtype == 'mysql':
                             tables, tables_number = tbloop.run_until_complete(get_tables(host,database,dtype))
+                            print(tables_number)
                         elif dtype == 'postgres':                        
                             tables = tbloop.run_until_complete(get_tables(host,database,dtype))
                     except (OSError, asyncssh.Error) as exc:
