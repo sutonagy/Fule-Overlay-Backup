@@ -124,7 +124,9 @@ def dbdump_async(args,configfile=None):
             print(host,database,dtype)
             async with await run_client(host) as conn:
                 if dtype == 'mysql':
-                    tables_number = await conn.run("mysql -h %s --user=%s --password=%s --port=%s -N -e \\"select count(*) AS tnum from information_schema.tables where table_schema = '%s';\\" | grep -E '[a-z0..9]'" % (server, user, password, port, database), check=True)
+                    running_command = "mysql -h %s --user=%s --password=%s --port=%s -N -e \"select count(*) AS tnum from information_schema.tables where table_schema = '%s';\" | grep -E '[a-z0..9]'" % (server, user, password, port, database)
+                    print(running_command)
+                    tables_number = await conn.run(running_command, check=True)
                     print(tables_number.stdout, tables_number.stderr, tables_number.exit_status)
                     if tables_number.stdout != 0:
                         tables = await conn.run("mysql -h %s --user=%s --password=%s --port=%s -N -e 'show tables;' %s | grep -E '[a-z]'" % (server, user, password, port, database), check=True)
