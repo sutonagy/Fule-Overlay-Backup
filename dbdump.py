@@ -20,8 +20,8 @@ def dbdump_async(args,configfile=None):
                                                             keepalive_interval=600, keepalive_count_max=10000), timeout=6)
                 break
             except Exception as exc:
-                print('Attempt %d failed: %s in host: %s' % (attempts, str(exc), host))
                 attempts += 1
+                print('Attempt %d failed: %s in host: %s' % (attempts, str(exc), host))
                 if attempts >= attempts_max:
                     exception_message = str(exc)
                     exception_type, exception_object, exception_traceback = sys.exc_info()
@@ -83,12 +83,13 @@ def dbdump_async(args,configfile=None):
                     print(dumpcommand, mode)
                     result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,database,mode), check=True)
                     #print(database, result)
-                    if result.exit_status == 0:
+                    estatus = result.exit_status
+                    if estatus == 0:
                         pass
                         #print(result.stdout, end='')                        
                     else:
                         print(result.stderr, end='', file=sys.stderr)
-                        print('Program exited with status %d' % result.exit_status,
+                        print('Program exited with status %d' % estatus,
                             file=sys.stderr)
             except Exception as ex:
                 print(ex)      
@@ -196,7 +197,7 @@ def dbdump_async(args,configfile=None):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(program(args.dbtype,args.sshhost, args.dbuser, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases))
     except (OSError, asyncssh.Error) as exc:
-        sys.exit('SSH connection failed: ' + str(exc))
+        sys.exit('SSH dbdump connection failed: ' + str(exc))
     else:
         loop.close()
 
