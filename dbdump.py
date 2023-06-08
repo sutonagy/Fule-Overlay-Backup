@@ -84,6 +84,7 @@ def dbdump_async(args,configfile=None):
                     result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,database,mode), check=True)
                     #print(database, result)
                     estatus = result.exit_status
+                    print('Program exited with status %d' % estatus)
                     if estatus == 0:
                         pass
                         #print(result.stdout, end='')                        
