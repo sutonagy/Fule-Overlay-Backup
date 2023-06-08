@@ -48,8 +48,6 @@ def dbdump_async(args,configfile=None):
                 errpath='/backup/dumperror'
                 if not os.path.exists(errpath): os.makedirs(errpath)
                 if database is None:
-                    sqlpath='/backup/data/%s/%s/%s' % (host,dbtype,server)
-                    if not os.path.exists(sqlpath): os.makedirs(sqlpath)
                     if dtype == 'mysql':
                         dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s -p mysql --routines" % (server, user, password, port)
                         dumpcommands.append(dumpcommand)
@@ -58,10 +56,7 @@ def dbdump_async(args,configfile=None):
                         dumpcommand = 'PGPASSWORD="%s" pg_dumpall -h %s -p %s -U %s --roles-only --quote-all-identifiers' % (password, server, port, user)
                         dumpcommands.append(dumpcommand)
                         modes.append('roles')
-                    database='all'
                 else:
-                    sqlpath='/backup/data/%s/%s/%s/%s' % (host,dbtype,server,database)
-                    if not os.path.exists(sqlpath): os.makedirs(sqlpath)
                     if dtype == 'mysql':
                         if table is None:
                             dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s --routines --no-data --skip-lock-tables %s" % (server, user, password, port, database)
@@ -83,6 +78,8 @@ def dbdump_async(args,configfile=None):
                 for dumpcommand, mode in zip(dumpcommands, modes):
                     if database is None:
                         database = 'all'
+                    sqlpath='/backup/data/%s/%s/%s/%s' % (host,dbtype,server,database)
+                    if not os.path.exists(sqlpath): os.makedirs(sqlpath)
                     print(dumpcommand, mode)
                     result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,database,mode), check=True)
                     #print(database, result)
