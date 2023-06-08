@@ -132,9 +132,10 @@ def dbdump_async(args,configfile=None):
                         tables = await conn.run("mysql -h %s --user=%s --password=%s --port=%s -N -e 'show tables;' %s | grep -E '[a-z]'" % (server, user, password, port, database), check=True)
                     else:
                         tables = 'xxxxxxxxxxxxxxxxxx'
+                    return tables.stdout, tables_number.stdout 
                 elif dtype == 'postgres':                  
                     tables = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U %s -d %s -c '\dt' | grep -E '^ [a-z]' | awk '{print $3}'" % (password, server, port, user, database), check=True)
-                return tables.stdout, tables_number.stdout 
+                    return tables.stdout
         tasks = [run_command(dbtype,host,password,server,port,user,sem)]
         dbases = re.split('\n', str(databases))
         print(dbases)         
