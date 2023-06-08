@@ -128,7 +128,7 @@ def dbdump_async(args,configfile=None):
                     #print(running_command)
                     tables_number = await conn.run(running_command, check=True)
                     print('%s : %s' % (database, tables_number.stdout))
-                    if tables_number.stdout != 0:
+                    if int(tables_number.stdout) != 0:
                         tables = await conn.run("mysql -h %s --user=%s --password=%s --port=%s -N -e 'show tables;' %s | grep -E '[a-z]'" % (server, user, password, port, database), check=True)
                     else:
                         tables = 'xxxxxxxxxxxxxxxxxx'
