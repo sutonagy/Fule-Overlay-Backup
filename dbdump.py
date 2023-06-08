@@ -45,11 +45,11 @@ def dbdump_async(args,configfile=None):
                 conn = await run_client(host)
                 dumpcommands = []
                 modes = []
+                errpath='/backup/dumperror'
+                if not os.path.exists(errpath): os.makedirs(errpath)
                 if database is None:
                     sqlpath='/backup/data/%s/%s/%s' % (host,dbtype,server)
                     if not os.path.exists(sqlpath): os.makedirs(sqlpath)
-                    errpath='/backup/data/%s/%s/%s/error' % (host,dbtype,server)
-                    if not os.path.exists(errpath): os.makedirs(errpath)
                     if dtype == 'mysql':
                         dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s -p mysql --routines" % (server, user, password, port)
                         dumpcommands.append(dumpcommand)
@@ -58,11 +58,10 @@ def dbdump_async(args,configfile=None):
                         dumpcommand = 'PGPASSWORD="%s" pg_dumpall -h %s -p %s -U %s --roles-only --quote-all-identifiers' % (password, server, port, user)
                         dumpcommands.append(dumpcommand)
                         modes.append('roles')
+                    database='all'
                 else:
                     sqlpath='/backup/data/%s/%s/%s/%s' % (host,dbtype,server,database)
                     if not os.path.exists(sqlpath): os.makedirs(sqlpath)
-                    errpath='/backup/data/%s/%s/%s/%s/error' % (host,dbtype,server,database)
-                    if not os.path.exists(errpath): os.makedirs(errpath)
                     if dtype == 'mysql':
                         if table is None:
                             dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U %s %s --schema-only --quote-all-identifiers' % (password, server, port, user, database)
@@ -85,7 +84,7 @@ def dbdump_async(args,configfile=None):
                     if database is None:
                         database = 'all'
                     print(dumpcommand, mode)
-                    result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s.err' % (errpath,mode), check=True)
+                    result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,database,mode), check=True)
                     #print(database, result)
                     if result.exit_status == 0:
                         pass
