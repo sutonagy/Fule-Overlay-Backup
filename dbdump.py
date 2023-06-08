@@ -121,13 +121,13 @@ def dbdump_async(args,configfile=None):
             error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
             print('SSH get-databases command failed: %s in host: %s' % (error_message, host))
         async def get_tables(host,database,dtype):
-            print(host,database,dtype)
+            #print(host,database,dtype)
             async with await run_client(host) as conn:
                 if dtype == 'mysql':
                     running_command = "mysql -h %s --user=%s --password=%s --port=%s -N -e \"select count(*) AS tnum from information_schema.tables where table_schema = '%s';\" | grep -E '[a-z0-9]'" % (server, user, password, port, database)
-                    print(running_command)
+                    #print(running_command)
                     tables_number = await conn.run(running_command, check=True)
-                    print(tables_number.stdout, tables_number.stderr, tables_number.exit_status)
+                    #print(tables_number.stdout, tables_number.stderr, tables_number.exit_status)
                     if tables_number.stdout != 0:
                         tables = await conn.run("mysql -h %s --user=%s --password=%s --port=%s -N -e 'show tables;' %s | grep -E '[a-z]'" % (server, user, password, port, database), check=True)
                     else:
@@ -150,7 +150,7 @@ def dbdump_async(args,configfile=None):
                         tbloop = asyncio.get_event_loop()
                         tables = tbloop.run_until_complete(get_tables(host,database,dtype))
                     except (OSError, asyncssh.Error) as exc:
-                        if tables == 'xxxxxxxxxxxxxxxxxx':
+                        if str(tables) == 'xxxxxxxxxxxxxxxxxx':
                             continue #there isn't any table in database
                         else:
                             sys.exit('SSH get_tables command failed in host %s at database %s: ' % (server,database) + str(exc))
