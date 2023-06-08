@@ -134,7 +134,7 @@ def dbdump_async(args,configfile=None):
                         tables = 'xxxxxxxxxxxxxxxxxx'
                 elif dtype == 'postgres':                  
                     tables = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U %s -d %s -c '\dt' | grep -E '^ [a-z]' | awk '{print $3}'" % (password, server, port, user, database), check=True)
-                return tables.stdout
+                return tables.stdout, tables_number.stdout 
         tasks = [run_command(dbtype,host,password,server,port,user,sem)]
         dbases = re.split('\n', str(databases))
         print(dbases)         
@@ -148,9 +148,9 @@ def dbdump_async(args,configfile=None):
                 if runtask:
                     try:
                         tbloop = asyncio.get_event_loop()
-                        tables = tbloop.run_until_complete(get_tables(host,database,dtype))
+                        tables, tables_number = tbloop.run_until_complete(get_tables(host,database,dtype))
                     except (OSError, asyncssh.Error) as exc:
-                        if str(tables) == 'xxxxxxxxxxxxxxxxxx':
+                        if int(tables_number) == 0:
                             continue #there isn't any table in database
                         else:
                             sys.exit('SSH get_tables command failed in host %s at database %s: ' % (server,database) + str(exc))
