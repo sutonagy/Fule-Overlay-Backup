@@ -127,12 +127,14 @@ def dbdump_async(args,configfile=None):
                     running_command = "mysql -h %s --user=%s --password=%s --port=%s -N -e \"select count(*) AS tnum from information_schema.tables where table_schema = '%s';\" | grep -E '[a-z0-9]'" % (server, user, password, port, database)
                     #print(running_command)
                     tables_number = await conn.run(running_command, check=True)
-                    print('%s : %s' % (database, tables_number.stdout))
-                    if int(tables_number.stdout) != 0:
+                    tnumber = tables_number.stdout
+                    print('%s : %s' % (database, tnumber))
+                    if int(tnumber) != 0:
                         tables = await conn.run("mysql -h %s --user=%s --password=%s --port=%s -N -e 'show tables;' %s | grep -E '[a-z]'" % (server, user, password, port, database), check=True)
+                        tout =
                     else:
-                        tables = 'xxxxxxxxxxxxxxxxxx'
-                    return tables.stdout, tables_number.stdout 
+                        tout = 'xxxxxxxxxxxxxxxxxx'
+                    return tout, tnumber 
                 elif dtype == 'postgres':                  
                     tables = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U %s -d %s -c '\dt' | grep -E '^ [a-z]' | awk '{print $3}'" % (password, server, port, user, database), check=True)
                     return tables.stdout
