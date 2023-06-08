@@ -64,11 +64,11 @@ def dbdump_async(args,configfile=None):
                     if not os.path.exists(sqlpath): os.makedirs(sqlpath)
                     if dtype == 'mysql':
                         if table is None:
-                            dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U %s %s --schema-only --quote-all-identifiers' % (password, server, port, user, database)
+                            dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s --routines --no-data --skip-lock-tables %s" % (server, user, password, port, database)
                             dumpcommands.append(dumpcommand)
                             modes.append('schema')
                         else:
-                            dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U %s -d %s --table=public.%s --data-only --column-inserts --quote-all-identifiers' % (password, server, port, user, database,table)
+                            dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s --no-create-info --complete-insert -p %s %s" % (server, user, password, port, database,table)
                             dumpcommands.append(dumpcommand)
                             modes.append('data-%s' % table)
                     elif dtype == 'postgres':
