@@ -155,7 +155,10 @@ def dbdump_async(args,configfile=None):
                         elif dtype == 'postgres':                        
                             tables = tbloop.run_until_complete(get_tables(host,database,dtype))
                     except (OSError, asyncssh.Error) as exc:
+                        print(tables_number)
+                        print(int(tables_number))
                         if dtype == 'mysql':
+                            print(int(tables_number))
                             if int(tables_number) == 0:
                                 continue #there isn't any table in database
                             else:
