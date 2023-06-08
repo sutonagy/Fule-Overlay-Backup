@@ -144,7 +144,7 @@ def dbdump_async(args,configfile=None):
                         tbloop = asyncio.get_event_loop()
                         tables = tbloop.run_until_complete(get_tables(host,database,dtype))
                     except (OSError, asyncssh.Error) as exc:
-                        if tables:
+                        if str(tables):
                             sys.exit('SSH get_tables command failed: ' + str(exc))
                         else:
                             continue #there isn't any table in database
