@@ -8,7 +8,7 @@ import traceback
 
 def dbdump_async(args,configfile=None):
     import asyncio, asyncssh, sys, nest_asyncio
-    nest_asyncio.apply()
+    #nest_asyncio.apply()
 
     async def run_client(host):
         attempts = 0
@@ -21,7 +21,7 @@ def dbdump_async(args,configfile=None):
                 break
             except Exception as exc:
                 attempts += 1
-                print('Attempt %d failed: %s in host: %s' % (attempts, str(exc), host))
+                #print('Attempt %d failed: %s in host: %s' % (attempts, str(exc), host))
                 if attempts >= attempts_max:
                     exception_message = str(exc)
                     exception_type, exception_object, exception_traceback = sys.exc_info()
