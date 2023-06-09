@@ -151,19 +151,22 @@ def dbdump_async(args,configfile=None):
         for database in dbases:
             if database:
                 runtask = False
+                exclude = False
                 for exclude_database in exclude_databases:
                     if re.search(exclude_database, database):
                         print('Exclude database pattern matched: %s, Database: %s' % (exclude_database,database))
+                        exclude = True
                         break
                     else:
                         print('Exclude database pattern not matched: %s, Database: %s' % (exclude_database,database))
-                for include_database in include_databases:
-                    if re.search(include_database, database):
-                        print('Include database pattern matched: %s, Database: %s' % (include_database,database))
-                        runtask = True
-                        break
-                    else:
-                        print('Include database pattern not matched: %s, Database: %s' % (include_database,database))
+                if not exclude:
+                    for include_database in include_databases:
+                        if re.search(include_database, database):
+                            print('Include database pattern matched: %s, Database: %s' % (include_database,database))
+                            runtask = True
+                            break
+                        else:
+                            print('Include database pattern not matched: %s, Database: %s' % (include_database,database))
                 print('Database: %s is %s' % (database,runtask))
                 if runtask:
                     try:
