@@ -111,7 +111,8 @@ def dbdump_async(args,configfile=None):
                 return databases.stdout
         try:
             dbloop = asyncio.get_event_loop()
-            databases = dbloop.run_until_complete(get_databases(host,dtype))
+            dbtask = asyncio.ensure_future(get_databases(host,dtype))            
+            databases = dbloop.run_until_complete(dbtask)
         except Exception as exc:
             exception_message = str(exc)
             exception_type, exception_object, exception_traceback = sys.exc_info()
@@ -122,8 +123,6 @@ def dbdump_async(args,configfile=None):
                 error_lines += line
             error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
             print('SSH get-databases command failed: %s in host: %s' % (error_message, host))
-        else:
-            dbloop.close()
         async def get_tables(host,database,dtype):
             #print(host,database,dtype)
             async with await run_client(host) as conn:
@@ -155,11 +154,12 @@ def dbdump_async(args,configfile=None):
                 if runtask:
                     try:
                         tbloop = asyncio.get_event_loop()
+                        tbtask = asyncio.ensure_future(get_tables(host,database,dtype))            
                         if dtype == 'mysql':
-                            tables, tables_number = tbloop.run_until_complete(get_tables(host,database,dtype))
+                            tables, tables_number = tbloop.run_until_complete(tbtask)
                             print(tables_number)
                         elif dtype == 'postgres':                        
-                            tables = tbloop.run_until_complete(get_tables(host,database,dtype))
+                            tables = tbloop.run_until_complete(tbtask)
                     except (OSError, asyncssh.Error) as exc:
                         print(tables_number)
                         print(int(tables_number))
@@ -171,8 +171,6 @@ def dbdump_async(args,configfile=None):
                                 sys.exit('SSH get_tables command failed in host %s at database %s: ' % (server,database) + str(exc))
                         else:
                             sys.exit('SSH get_tables command failed in host %s at database %s: ' % (server,database) + str(exc))
-                    else:
-                        tbloop.close()
                     tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database)])
                     for table in re.split('\n', str(tables)):
                         print(table)
