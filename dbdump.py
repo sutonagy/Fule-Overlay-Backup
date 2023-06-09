@@ -206,7 +206,7 @@ def dbdump_async(args,configfile=None):
                             tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database,table)])
         try:
             #print(tasks)
-            await asyncio.gather(*tasks, return_exceptions=True, timeout=600, cancel_on_error = True)
+            await asyncio.gather(*tasks, return_exceptions=True)
         except Exception as exc:
             exception_message = str(exc)
             exception_type, exception_object, exception_traceback = sys.exc_info()
