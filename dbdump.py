@@ -111,6 +111,7 @@ def dbdump_async(args,configfile=None):
                 return databases.stdout
         try:
             dbloop = asyncio.get_event_loop()
+            dbloop.close()
             dbtask = asyncio.ensure_future(get_databases(host,dtype))            
             databases = dbloop.run_until_complete(dbtask)
         except Exception as exc:
@@ -156,6 +157,7 @@ def dbdump_async(args,configfile=None):
                 if runtask:
                     try:
                         tbloop = asyncio.get_event_loop()
+                        tbloop.close()
                         tbtask = asyncio.ensure_future(get_tables(host,database,dtype))            
                         if dtype == 'mysql':
                             tables, tables_number = tbloop.run_until_complete(tbtask)
