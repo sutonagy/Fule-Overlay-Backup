@@ -153,11 +153,17 @@ def dbdump_async(args,configfile=None):
                 runtask = False
                 for exclude_database in exclude_databases:
                     if re.search(exclude_database, database):
+                        print('Exclude database pattern matched: %s, Database: %s' % (exclude_database,database))
                         break
+                    else:
+                        print('Exclude database pattern not matched: %s, Database: %s' % (exclude_database,database))
                 for include_database in include_databases:
                     if re.search(include_database, database):
+                        print('Include database pattern matched: %s, Database: %s' % (include_database,database))
                         runtask = True
                         break
+                    else:
+                        print('Include database pattern not matched: %s, Database: %s' % (include_database,database))
                 if runtask:
                     try:
                         #tbloop = asyncio.get_event_loop()
