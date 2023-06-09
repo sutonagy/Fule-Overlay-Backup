@@ -176,7 +176,7 @@ def dbdump_async(args,configfile=None):
                     tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database)])
                     for table in re.split('\n', str(tables)):
                         print(table)
-                        if table:
+                        if table and table != 'xxxxxxxxxxxxxxxxxx':
                             tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database,table)])
         try:
             #print(tasks)
