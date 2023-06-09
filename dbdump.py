@@ -8,7 +8,7 @@ import traceback
 
 def dbdump_async(args,configfile=None):
     import asyncio, asyncssh, sys, nest_asyncio
-    #nest_asyncio.apply()
+    nest_asyncio.apply()
 
     async def run_client(host):
         attempts = 0
@@ -230,7 +230,7 @@ def dbdump_async(args,configfile=None):
             #print(args)
             dtype = args.dbtype
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(program(args.dbtype,args.sshhost, args.dbuser, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases))
+        loop.run_until_complete(program(args.dbtype,args.sshhost, args.dbuser, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases),  timeout=600)
         loop.close()
     except KeyboardInterrupt:
         tasks = asyncio.all_tasks()
