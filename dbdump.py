@@ -80,7 +80,7 @@ def dbdump_async(args,configfile=None):
                         database = 'all'
                     sqlpath='/backup/data/%s/%s/%s/%s' % (host,dbtype,server,database)
                     if not os.path.exists(sqlpath): os.makedirs(sqlpath)
-                    print(dumpcommand, mode)
+                    #print(dumpcommand, mode)
                     result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,database,mode), check=True)
                     #print(database, result)
                     estatus = result.exit_status
@@ -90,10 +90,10 @@ def dbdump_async(args,configfile=None):
                         #print(result.stdout, end='')                        
                     else:
                         print(result.stderr, end='', file=sys.stderr)
-                        print('Program exited with status %d' % estatus,
+                        print('Dumpcommand exited with status %d' % estatus,
                             file=sys.stderr)
             except Exception as ex:
-                print(ex)      
+                print('Dumpcommand exited with error %s' % ex)
 
     async def program(dbtype,host,user, password,server,port,include_databases,exclude_databases):
         # Run both print method and wait for them to complete (passing in asyncState)
@@ -135,7 +135,7 @@ def dbdump_async(args,configfile=None):
                     #print(running_command)
                     tables_number = await conn.run(running_command, check=True)
                     tnumber = tables_number.stdout
-                    print('%s : %s' % (database, tnumber))
+                    #print('%s : %s' % (database, tnumber))
                     if int(tnumber) != 0:
                         tables = await conn.run("mysql -h %s --user=%s --password=%s --port=%s -N -e 'show tables;' %s | grep -E '[a-z]'" % (server, user, password, port, database), check=True)
                         tout = tables.stdout
@@ -169,7 +169,7 @@ def dbdump_async(args,configfile=None):
                         else:
                             pass
                             #print('Include database pattern not matched: %s, Database: %s' % (include_database,database))
-                print('Database: %s is %s' % (database,runtask))
+                #print('Database: %s is %s' % (database,runtask))
                 if runtask:
                     try:
                         #tbloop = asyncio.get_event_loop()
