@@ -84,7 +84,7 @@ def dbdump_async(args,configfile=None):
                     result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,database,mode), check=True)
                     #print(database, result)
                     estatus = result.exit_status
-                    print('Program exited with status %d' % estatus)
+                    #print('Program exited with status %d' % estatus)
                     if estatus == 0:
                         pass
                         #print(result.stdout, end='')                        
@@ -208,6 +208,9 @@ def dbdump_async(args,configfile=None):
             dtype = args.dbtype
         loop = asyncio.get_event_loop()
         loop.run_until_complete(program(args.dbtype,args.sshhost, args.dbuser, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases))
+    except KeyboardInterrupt:
+        tasks = asyncio.all_tasks()
+        print(tasks)
     except (OSError, asyncssh.Error) as exc:
         sys.exit('SSH dbdump connection failed: ' + str(exc))
     else:
