@@ -235,6 +235,7 @@ def dbdump_async(args,configfile=None):
             dtype = args.dbtype
         loop = asyncio.get_event_loop()
         loop.run_until_complete(program(args.dbtype,args.sshhost, args.dbuser, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases))
+        loop.stop()
         loop.close()
     except KeyboardInterrupt:
         tasks = asyncio.all_tasks()
