@@ -63,7 +63,7 @@ def dbdump_async(args,configfile=None):
                             dumpcommands.append(dumpcommand)
                             modes.append('schema')
                         else:
-                            dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s --no-create-info --complete-insert %s %s" % (server, user, password, port, database,table)
+                            dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s --no-create-info --complete-insert --hex-blob %s %s" % (server, user, password, port, database,table)
                             dumpcommands.append(dumpcommand)
                             modes.append('data-%s' % table)
                     elif dtype == 'postgres':
