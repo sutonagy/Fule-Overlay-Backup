@@ -203,8 +203,16 @@ def dbdump_async(args,configfile=None):
         try:
             #print(tasks)
             await asyncio.gather(*tasks, return_exceptions=True)
-        except Exception as ex:
-            print(ex)
+        except Exception as exc:
+            exception_message = str(exc)
+            exception_type, exception_object, exception_traceback = sys.exc_info()
+            filename = exception_traceback.tb_frame.f_code.co_filename
+            lines = traceback.format_exception(exception_type, exception_object, exception_traceback) # nem az exception_traceback, hanem a traceback modul
+            error_lines = ""
+            for line in lines:
+                error_lines += line
+            error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
+            print('Dbdump program failed: %s in host: %s in server %s with dbtype %s' % (error_message, host, server, dbtype))
 
     # Run our program until it is complete
     global dtype
