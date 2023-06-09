@@ -175,13 +175,17 @@ def dbdump_async(args,configfile=None):
                         #tbloop = asyncio.get_event_loop()
                         #tbloop.close()
                         #tbtask = asyncio.ensure_future(get_tables(host,database,dtype))            
+                        dbloop = asyncio.get_event_loop()
                         if dtype == 'mysql':
                             #tables, tables_number = tbloop.run_until_complete(tbtask)
-                            tables, tables_number = asyncio.run(get_tables(host,database,dtype))
+                            tables, tables_number = dbloop.run_until_complete(get_tables(host,database,dtype))
+                            #tables, tables_number = asyncio.run(get_tables(host,database,dtype))
                             #print(tables_number)
                         elif dtype == 'postgres':                        
                             #tables = tbloop.run_until_complete(tbtask)
-                            tables = asyncio.run(get_tables(host,database,dtype))
+                            #tables = asyncio.run(get_tables(host,database,dtype))
+                            tables = dbloop.run_until_complete(get_tables(host,database,dtype))
+                        dbloop.close()
                     except (OSError, asyncssh.Error) as exc:
                         print(tables_number)
                         print(int(tables_number))
@@ -230,7 +234,7 @@ def dbdump_async(args,configfile=None):
             #print(args)
             dtype = args.dbtype
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(program(args.dbtype,args.sshhost, args.dbuser, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases),  timeout=600)
+        loop.run_until_complete(program(args.dbtype,args.sshhost, args.dbuser, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases))
         loop.close()
     except KeyboardInterrupt:
         tasks = asyncio.all_tasks()
