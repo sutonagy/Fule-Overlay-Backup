@@ -110,11 +110,11 @@ def dbdump_async(args,configfile=None):
                     databases = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U %s -l -t -z | grep -E '^ [a-z]' | awk '{print $1}'" % (password, server, port, user), check=True)
                 return databases.stdout
         try:
-            #dbloop = asyncio.get_event_loop()
-            #dbloop.close()
+            dbloop = asyncio.get_event_loop()
             #dbtask = asyncio.ensure_future(get_databases(host,dtype))            
-            #databases = dbloop.run_until_complete(get_databases(host,dtype))
-            databases = asyncio.run(get_databases(host,dtype))
+            databases = dbloop.run_until_complete(get_databases(host,dtype))
+            #databases = asyncio.run(get_databases(host,dtype))
+            dbloop.close()
         except Exception as exc:
             exception_message = str(exc)
             exception_type, exception_object, exception_traceback = sys.exc_info()
@@ -175,17 +175,17 @@ def dbdump_async(args,configfile=None):
                         #tbloop = asyncio.get_event_loop()
                         #tbloop.close()
                         #tbtask = asyncio.ensure_future(get_tables(host,database,dtype))            
-                        dbloop = asyncio.get_event_loop()
+                        tbloop = asyncio.get_event_loop()
                         if dtype == 'mysql':
                             #tables, tables_number = tbloop.run_until_complete(tbtask)
-                            tables, tables_number = dbloop.run_until_complete(get_tables(host,database,dtype))
+                            tables, tables_number = tbloop.run_until_complete(get_tables(host,database,dtype))
                             #tables, tables_number = asyncio.run(get_tables(host,database,dtype))
                             #print(tables_number)
                         elif dtype == 'postgres':                        
                             #tables = tbloop.run_until_complete(tbtask)
                             #tables = asyncio.run(get_tables(host,database,dtype))
-                            tables = dbloop.run_until_complete(get_tables(host,database,dtype))
-                        dbloop.close()
+                            tables = tbloop.run_until_complete(get_tables(host,database,dtype))
+                        tbloop.close()
                     except (OSError, asyncssh.Error) as exc:
                         print(tables_number)
                         print(int(tables_number))
