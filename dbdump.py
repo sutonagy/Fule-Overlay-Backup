@@ -72,7 +72,7 @@ def dbdump_async(args,configfile=None):
                             dumpcommands.append(dumpcommand)
                             modes.append('schema')
                         else:
-                            dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U %s -d %s --table=public.%s --data-only --column-inserts --quote-all-identifiers' % (password, server, port, user, database,table)
+                            dumpcommand = "PGPASSWORD='%s' pg_dump -h %s -p %s -U %s -d %s --table='public.\"%s\"' --data-only --column-inserts --quote-all-identifiers" % (password, server, port, user, database,table)
                             dumpcommands.append(dumpcommand)
                             modes.append('data-%s' % table)
                 for dumpcommand, mode in zip(dumpcommands, modes):
