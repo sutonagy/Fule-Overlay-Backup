@@ -100,10 +100,10 @@ def dbdump_async(args,configfile=None):
         #print(conn)
         sem = asyncio.Semaphore(8)
         async def get_databases(host,dtype):
-            print(host,dtype)
+            #print(host,dtype)
             async with await run_client(host) as conn:
                 if dtype == 'mysql':
-                    print('mysql -h %s --user=%s --password=%s -p %s -N  -e "show databases;"' % (server, user, password, port))
+                    #print('mysql -h %s --user=%s --password=%s -p %s -N  -e "show databases;"' % (server, user, password, port))
                     databases = await conn.run("mysql -h %s --user=%s --password=%s --port=%s -N  -e 'show databases;' | grep -E '[a-z]'" % (server, user, password, port), check=True)
                     #databases = await conn.run("ls", check=True)
                 elif dtype == 'postgres':                  
@@ -147,7 +147,7 @@ def dbdump_async(args,configfile=None):
                     return tables.stdout
         tasks = [run_command(dbtype,host,password,server,port,user,sem)]
         dbases = re.split('\n', str(databases))
-        print(dbases)         
+        #print(dbases)         
         for database in dbases:
             if database:
                 runtask = True
@@ -163,7 +163,7 @@ def dbdump_async(args,configfile=None):
                         if dtype == 'mysql':
                             #tables, tables_number = tbloop.run_until_complete(tbtask)
                             tables, tables_number = asyncio.run(get_tables(host,database,dtype))
-                            print(tables_number)
+                            #print(tables_number)
                         elif dtype == 'postgres':                        
                             #tables = tbloop.run_until_complete(tbtask)
                             tables = asyncio.run(get_tables(host,database,dtype))
@@ -182,7 +182,7 @@ def dbdump_async(args,configfile=None):
                     #    tbloop.close()
                     tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database)])
                     for table in re.split('\n', str(tables)):
-                        print(table)
+                        #print(table)
                         if table and table != 'xxxxxxxxxxxxxxxxxx':
                             tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database,table)])
         try:
