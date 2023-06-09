@@ -8,7 +8,6 @@ import traceback
 
 def dbdump_async(args,configfile=None):
     import asyncio, asyncssh, sys, nest_asyncio
-    nest_asyncio.apply()
 
     async def run_client(host):
         attempts = 0
@@ -111,6 +110,7 @@ def dbdump_async(args,configfile=None):
                 return databases.stdout
         try:
             dbloop = asyncio.get_event_loop()
+            nest_asyncio.apply(dbloop)
             #dbtask = asyncio.ensure_future(get_databases(host,dtype))            
             databases = dbloop.run_until_complete(get_databases(host,dtype))
             #databases = asyncio.run(get_databases(host,dtype))
