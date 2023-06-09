@@ -8,6 +8,7 @@ import traceback
 
 def dbdump_async(args,configfile=None):
     import asyncio, asyncssh, sys, nest_asyncio
+    nest_asyncio.apply()
 
     async def run_client(host):
         attempts = 0
@@ -110,7 +111,6 @@ def dbdump_async(args,configfile=None):
                 return databases.stdout
         try:
             dbloop = asyncio.get_event_loop()
-            nest_asyncio.apply(dbloop)
             #dbtask = asyncio.ensure_future(get_databases(host,dtype))            
             databases = dbloop.run_until_complete(get_databases(host,dtype))
             #databases = asyncio.run(get_databases(host,dtype))
@@ -125,6 +125,7 @@ def dbdump_async(args,configfile=None):
             error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
             print('SSH get-databases command failed: %s in host: %s' % (error_message, host))
         finally:
+            dbloop.stop()
             dbloop.close()
         async def get_tables(host,database,dtype):
             #print(host,database,dtype)
@@ -196,6 +197,7 @@ def dbdump_async(args,configfile=None):
                         else:
                             sys.exit('SSH get_tables command failed in host %s at database %s: ' % (server,database) + str(exc))
                     finally:
+                        tbloop.stop()
                         tbloop.close()
                     tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database)])
                     for table in re.split('\n', str(tables)):
