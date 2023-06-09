@@ -150,11 +150,14 @@ def dbdump_async(args,configfile=None):
         #print(dbases)         
         for database in dbases:
             if database:
-                runtask = True
+                runtask = False
                 for exclude_database in exclude_databases:
-                    for include_database in include_databases:
-                        if not re.search(include_database, database) or re.search(exclude_database, database): #!!!!!!!!!!!!!!
-                            runtask = False
+                    if re.search(exclude_database, database):
+                        break
+                for include_database in include_databases:
+                    if re.search(include_database, database):
+                        runtask = True
+                        break
                 if runtask:
                     try:
                         #tbloop = asyncio.get_event_loop()
@@ -208,6 +211,7 @@ def dbdump_async(args,configfile=None):
             dtype = args.dbtype
         loop = asyncio.get_event_loop()
         loop.run_until_complete(program(args.dbtype,args.sshhost, args.dbuser, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases))
+        loop.close()
     except KeyboardInterrupt:
         tasks = asyncio.all_tasks()
         print(tasks)
