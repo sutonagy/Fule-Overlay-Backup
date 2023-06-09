@@ -124,9 +124,9 @@ def dbdump_async(args,configfile=None):
                 error_lines += line
             error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
             print('SSH get-databases command failed: %s in host: %s' % (error_message, host))
-        finally:
-            dbloop.stop()
-            dbloop.close()
+        #finally:
+        #    dbloop.stop()
+        #    dbloop.close()
         async def get_tables(host,database,dtype):
             #print(host,database,dtype)
             async with await run_client(host) as conn:
@@ -196,9 +196,9 @@ def dbdump_async(args,configfile=None):
                                 sys.exit('SSH get_tables command failed in host %s at database %s: ' % (server,database) + str(exc))
                         else:
                             sys.exit('SSH get_tables command failed in host %s at database %s: ' % (server,database) + str(exc))
-                    finally:
-                        tbloop.stop()
-                        tbloop.close()
+                    #finally:
+                    #    tbloop.stop()
+                    #    tbloop.close()
                     tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database)])
                     for table in re.split('\n', str(tables)):
                         #print(table)
