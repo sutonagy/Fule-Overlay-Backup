@@ -94,6 +94,8 @@ def dbdump_async(args,configfile=None):
                             file=sys.stderr)
             except Exception as ex:
                 print('Dumpcommand exited with error %s' % ex)
+            finally:
+                conn.close()
 
     async def program(dbtype,host,user, password,server,port,include_databases,exclude_databases):
         # Run both print method and wait for them to complete (passing in asyncState)
@@ -108,6 +110,7 @@ def dbdump_async(args,configfile=None):
                     #databases = await conn.run("ls", check=True)
                 elif dtype == 'postgres':                  
                     databases = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U %s -l -t -z | grep -E '^ [a-z]' | awk '{print $1}'" % (password, server, port, user), check=True)
+                conn.close()
                 return databases.stdout
         try:
             dbloop = asyncio.get_event_loop()
@@ -141,9 +144,11 @@ def dbdump_async(args,configfile=None):
                         tout = tables.stdout
                     else:
                         tout = 'xxxxxxxxxxxxxxxxxx'
+                    conn.close()
                     return tout, tnumber 
                 elif dtype == 'postgres':                  
                     tables = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U %s -d %s -c '\dt' | grep -E '^ [a-z]' | awk '{print $3}'" % (password, server, port, user, database), check=True)
+                    conn.close()
                     return tables.stdout
         tasks = [run_command(dbtype,host,password,server,port,user,sem)]
         dbases = re.split('\n', str(databases))
