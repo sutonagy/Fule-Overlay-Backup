@@ -101,9 +101,9 @@ def dbdump_async(args,configfile=None):
                 conn.close()
 
     async def program(dbtype,host,user, password,server,port,include_databases,exclude_databases):
-        print(75*'-')
-        print(75*'-')
-        print()     
+        #print(75*'-')
+        #print(75*'-')
+        #print()     
         # Run both print method and wait for them to complete (passing in asyncState)
         #print(conn)
         sem = asyncio.Semaphore(8)
@@ -231,14 +231,14 @@ def dbdump_async(args,configfile=None):
                 result = result[0]
                 if isinstance(result, Exception):
                     print('Task %d failed: %s' % (i, str(result)))
+                    print(75*'-')
                 elif result.exit_status != 0:
                     print('Task %d exited with status %s. Command: %s' % (i, result.exit_status,result.command))
                     print(result.stderr, end='')
-                else:
-                    print('Task %d succeeded. Command: %s' % (i,result.command))
-                    print(result.stdout, end='')
-
-                print(75*'-')
+                    print(75*'-')
+                #else:
+                #    print('Task %d succeeded. Command: %s' % (i,result.command))
+                #    print(result.stdout, end='')
             
         except Exception as exc:
             exception_message = str(exc)
