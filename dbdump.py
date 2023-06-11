@@ -13,7 +13,8 @@ def dbdump_async(args,configfile=None):
     def progress(task):
         # report progress of the task
         taskname = task.get_name()
-        print('Task %s completed' % taskname)
+        #print('Task %s completed' % taskname)
+        print('*', end='')
     
     async def run_client(host):
         attempts = 0
@@ -55,7 +56,7 @@ def dbdump_async(args,configfile=None):
                 if not os.path.exists(errpath): os.makedirs(errpath)
                 if database is None:
                     if dtype == 'mysql':
-                        dumpcommand = "mysql -uroot -pbalatonfured -h 192.168.11.77 --port=43306 --skip-column-names -A -e\"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>''\" | mysql -uroot -pbalatonfured -h 192.168.11.77 --port=43306 --skip-column-names -A | sed 's/$/;/g'" % (server, user, password, port)
+                        dumpcommand = "mysql -u%s -pbalatonfured -h %s --port=%s --skip-column-names -A -e\"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>''\" | mysql -u%s -p%s -h %s --port=%s --skip-column-names -A | sed 's/$/;/g'" % (user,password,server,port,user,password,server,port)
                         print(dumpcommand)
                         dumpcommands.append(dumpcommand)
                         modes.append('roles')
