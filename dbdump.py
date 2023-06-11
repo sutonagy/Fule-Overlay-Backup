@@ -292,7 +292,11 @@ def dbdump_async(args,configfile=None):
         loop.stop()
         loop.close()
     except KeyboardInterrupt:
-        tasks = asyncio.all_tasks()
+        tasks = asyncio.all_tasks(loop)
+        remaining_tasks = {task for task in tasks}
+        print(remaining_tasks)
+        loop.run_until_complete(asyncio.gather(*remaining_tasks))        
+        tasks = asyncio.all_tasks(loop)
         print(tasks)
     except (OSError, asyncssh.Error) as exc:
         sys.exit('SSH dbdump connection failed: ' + str(exc))
