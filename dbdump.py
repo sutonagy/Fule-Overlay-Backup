@@ -226,7 +226,7 @@ def dbdump_async(args,configfile=None):
             for i, result in enumerate(results, 1):
                 print(f"{i}: {result}")
                 index=0
-                for item in result.split(','):
+                for item in result[0].split(','):
                     print(f"{index}: {item}")
                     index += 1
                 #print("The type of result is:", type(result))
