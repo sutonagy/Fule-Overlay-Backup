@@ -10,6 +10,10 @@ def dbdump_async(args,configfile=None):
     import asyncio, asyncssh, sys, nest_asyncio
     nest_asyncio.apply()
 
+    def progress(task):
+        # report progress of the task
+        print('.', end='')
+    
     async def run_client(host):
         attempts = 0
         conn = None
@@ -107,6 +111,7 @@ def dbdump_async(args,configfile=None):
         # Run both print method and wait for them to complete (passing in asyncState)
         #print(conn)
         sem = asyncio.Semaphore(8)
+        tasks = []
         async def get_databases(host,dtype):
             #print(host,dtype)
             async with await run_client(host) as conn:
@@ -156,7 +161,10 @@ def dbdump_async(args,configfile=None):
                     tables = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U %s -d %s -c '\dt' | grep -E '^ [a-z]' | awk '{print $3}'" % (password, server, port, user, database), check=True)
                     conn.close()
                     return tables.stdout
-        tasks = [run_command(dbtype,host,password,server,port,user,sem)]
+        task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem))
+        task.add_done_callback(progress)
+        tasks.append(task)           
+        #tasks = [run_command(dbtype,host,password,server,port,user,sem)]
         dbases = re.split('\n', str(databases))
         #print(dbases)         
         for database in dbases:
@@ -210,11 +218,17 @@ def dbdump_async(args,configfile=None):
                     #finally:
                     #    tbloop.stop()
                     #    tbloop.close()
-                    tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database)])
+                    task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem,database))
+                    task.add_done_callback(progress)
+                    tasks.append(task)           
+                    #tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database)])
                     for table in re.split('\n', str(tables)):
                         #print(table)
                         if table and table != 'xxxxxxxxxxxxxxxxxx':
-                            tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database,table)])
+                            task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem,database,table))
+                            task.add_done_callback(progress)
+                            tasks.append(task)           
+                            #tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database,table)])
         try:
             #print(75*'-')
             #print(tasks)
