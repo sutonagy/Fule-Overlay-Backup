@@ -227,15 +227,16 @@ def dbdump_async(args,configfile=None):
                 print(f"{i}: {result}")
                 #for index in range(10):
                 #    print(f"{index}: {result[index]}")
-                print("The type of result is:", type(result[0]))
-                if result[5] != 0:
+                #print("The type of result is:", type(result[0]))
+                result = result[0]
+                if isinstance(result, Exception):
                     print('Task %d failed: %s' % (i, str(result)))
-                elif result[3] != 0:
-                    print('Task %d exited with status %s:' % (i, result[3]))
-                    print(result[7], end='')
+                elif result.exit_status != 0:
+                    print('Task %d exited with status %s:' % (i, result.exit_status))
+                    print(result.stderr, end='')
                 else:
                     print('Task %d succeeded:' % i)
-                    print(result[6], end='')
+                    print(result.stdout, end='')
 
                 print(75*'-')
             
