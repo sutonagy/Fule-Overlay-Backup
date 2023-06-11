@@ -45,6 +45,7 @@ def dbdump_async(args,configfile=None):
                 conn = await run_client(host)
                 dumpcommands = []
                 modes = []
+                results = []
                 errpath='/backup/dumperror'
                 if not os.path.exists(errpath): os.makedirs(errpath)
                 if database is None:
@@ -82,6 +83,7 @@ def dbdump_async(args,configfile=None):
                     if not os.path.exists(sqlpath): os.makedirs(sqlpath)
                     #print(dumpcommand, mode)
                     result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,database,mode), check=True)
+                    results.append(result)
                     #print(database, result)
                     estatus = result.exit_status
                     #print('Program exited with status %d' % estatus)
@@ -92,6 +94,7 @@ def dbdump_async(args,configfile=None):
                         print(result.stderr, end='', file=sys.stderr)
                         print('Dumpcommand exited with status %d' % estatus,
                             file=sys.stderr)
+                return results
             except Exception as ex:
                 print('Dumpcommand exited with error %s' % ex)
             finally:
