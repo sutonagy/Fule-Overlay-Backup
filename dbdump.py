@@ -224,7 +224,7 @@ def dbdump_async(args,configfile=None):
             #print(aktresults)
 
             for i, result in enumerate(results, 1):
-                print(f"{i}: {result}")
+                #print(f"{i}: {result}")
                 #for index in range(10):
                 #    print(f"{index}: {result[index]}")
                 #print("The type of result is:", type(result[0]))
@@ -232,10 +232,10 @@ def dbdump_async(args,configfile=None):
                 if isinstance(result, Exception):
                     print('Task %d failed: %s' % (i, str(result)))
                 elif result.exit_status != 0:
-                    print('Task %d exited with status %s:' % (i, result.exit_status))
+                    print('Task %d exited with status %s. Command: %s' % (i, result.exit_status,result.command))
                     print(result.stderr, end='')
                 else:
-                    print('Task %d succeeded:' % i)
+                    print('Task %d succeeded. Command: %s' % (i,result.command)
                     print(result.stdout, end='')
 
                 print(75*'-')
