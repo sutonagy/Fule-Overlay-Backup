@@ -210,12 +210,13 @@ def dbdump_async(args,configfile=None):
                         if table and table != 'xxxxxxxxxxxxxxxxxx':
                             tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database,table)])
         try:
-            print(tasks)
+            #print(tasks)
             results = await asyncio.gather(*tasks, return_exceptions=True)
-            aktresults = results
-            print(aktresults)
+            #aktresults = results
+            #print(aktresults)
 
-            for i, result in enumerate(aktresults, 1):
+            for i, result in enumerate(results, 1):
+                print(f"{i}: {result}")
                 if isinstance(result, Exception):
                     print('Task %d failed: %s' % (i, str(result)))
                 elif result.exit_status != 0:
