@@ -29,7 +29,7 @@ def dbdump_async(args,configfile=None):
             timeout = args.sshtimeout
         else:
             timeout = 10
-        bbmain.logger.info('SSH connect attempts_max: {0}, timeout: {1}.'.format(attempts_max, timeout))
+        bbmain.logger.debug('SSH connect attempts_max: {0}, timeout: {1}.'.format(attempts_max, timeout))
         while attempts < attempts_max:      
             try:
                 conn = await asyncio.wait_for(asyncssh.connect(host, username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
