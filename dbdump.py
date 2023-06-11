@@ -4,6 +4,7 @@ import yaml
 import types
 import re
 import traceback
+import bb as bbmain
  
 
 def dbdump_async(args,configfile=None):
@@ -14,7 +15,8 @@ def dbdump_async(args,configfile=None):
         # report progress of the task
         taskname = task.get_name()
         #print('Task %s completed' % taskname)
-        print('*', end='')
+        bbmain.logger.debug('Task {0} completed.'.format(taskname))
+        #print('*', end='')
     
     async def run_client(host):
         attempts = 0
@@ -28,6 +30,7 @@ def dbdump_async(args,configfile=None):
             except Exception as exc:
                 attempts += 1
                 #print('Attempt %d failed: %s in host: %s' % (attempts, str(exc), host))
+                bbmain.logger.warning('SSH connection attempt {0} failed in host: {1}.'.format(attempts, host))
                 if attempts >= attempts_max:
                     exception_message = str(exc)
                     exception_type, exception_object, exception_traceback = sys.exc_info()
@@ -36,11 +39,12 @@ def dbdump_async(args,configfile=None):
                     error_lines = ""
                     for line in lines:
                         error_lines += line
-                    error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
+                    error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"
+                    bbmain.logger.error('SSH connection failed permanently: {0} in host: {1}.'.format(error_message, host))
                     #print('SSH connection failed permanently: %s in host: %s' % (error_message, host))
-                    sys.exit('SSH connection failed permanently: ' + str(error_message) + ' in host: ' + str(host))                    
+                    #sys.exit('SSH connection failed permanently: ' + str(error_message) + ' in host: ' + str(host))                    
                 else:
-                    print('SSH connection failed after %d attempts in host: %s' % (attempts, host))
+                    #print('SSH connection failed after %d attempts in host: %s' % (attempts, host))
                     continue
         return conn
 
@@ -57,17 +61,20 @@ def dbdump_async(args,configfile=None):
                 if database is None:
                     if dtype == 'mysql':
                         dumpcommand = "mysql -u%s -p%s -h %s --port=%s --skip-column-names -A -e\"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>''\" | mysql -u%s -p%s -h %s --port=%s --skip-column-names -A | sed 's/$/;/g'" % (user,password,server,port,user,password,server,port)
-                        print(dumpcommand)
+                        #print(dumpcommand)
+                        bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                         dumpcommands.append(dumpcommand)
                         modes.append('roles')
                     elif dtype == 'postgres':                  
                         dumpcommand = 'PGPASSWORD="%s" pg_dumpall -h %s -p %s -U %s --roles-only --quote-all-identifiers' % (password, server, port, user)
+                        bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                         dumpcommands.append(dumpcommand)
                         modes.append('roles')
                 else:
                     if dtype == 'mysql':
                         if table is None:
                             dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s --routines --no-data --skip-lock-tables %s" % (server, user, password, port, database)
+                            bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                             dumpcommands.append(dumpcommand)
                             modes.append('schema')
                         else:
@@ -77,10 +84,12 @@ def dbdump_async(args,configfile=None):
                     elif dtype == 'postgres':
                         if table is None:
                             dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U %s %s --schema-only --quote-all-identifiers' % (password, server, port, user, database)
+                            bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                             dumpcommands.append(dumpcommand)
                             modes.append('schema')
                         else:
                             dumpcommand = "PGPASSWORD='%s' pg_dump -h %s -p %s -U %s -d %s --table='public.\"%s\"' --data-only --column-inserts --quote-all-identifiers" % (password, server, port, user, database,table)
+                            bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                             dumpcommands.append(dumpcommand)
                             modes.append('data-%s' % table)
                 for dumpcommand, mode in zip(dumpcommands, modes):
@@ -98,12 +107,15 @@ def dbdump_async(args,configfile=None):
                         pass
                         #print(result.stdout, end='')                        
                     else:
-                        print(result.stderr, end='', file=sys.stderr)
-                        print('Dumpcommand exited with status %d' % estatus,
-                            file=sys.stderr)
+                        bbmain.logger.error('Dumpcommand exited with status: {0}.'.format(estatus))
+                        bbmain.logger.error('Dumpcommand error: {0}.'.format(result.stderr))
+                        #print(result.stderr, end='', file=sys.stderr)
+                        #print('Dumpcommand exited with status %d' % estatus,
+                        #    file=sys.stderr)
                 return results
             except Exception as ex:
-                print('Dumpcommand exited with error %s' % ex)
+                bbmain.logger.error('Dumpcommand exited with error: {0}.'.format(ex))
+                #print('Dumpcommand exited with error %s' % ex)
             finally:
                 conn.close()
 
@@ -140,7 +152,8 @@ def dbdump_async(args,configfile=None):
             for line in lines:
                 error_lines += line
             error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
-            print('SSH get-databases command failed: %s in host: %s' % (error_message, host))
+            bbmain.logger.error('SSH get-databases command failed: {0} in host: {1}.'.format(error_message, host))
+            #print('SSH get-databases command failed: %s in host: %s' % (error_message, host))
         #finally:
         #    dbloop.stop()
         #    dbloop.close()
@@ -210,10 +223,10 @@ def dbdump_async(args,configfile=None):
                             #tables = asyncio.run(get_tables(host,database,dtype))
                             tables = tbloop.run_until_complete(get_tables(host,database,dtype))
                     except (OSError, asyncssh.Error) as exc:
-                        print(tables_number)
-                        print(int(tables_number))
+                        #print(tables_number)
+                        #print(int(tables_number))
                         if dtype == 'mysql':
-                            print(int(tables_number))
+                            #print(int(tables_number))
                             if int(tables_number) == 0:
                                 continue #there isn't any table in database
                             else:
@@ -241,7 +254,7 @@ def dbdump_async(args,configfile=None):
         try:
             #print(75*'-')
             #print(tasks)
-            print(75*'-')
+            #print(75*'-')
             results = await asyncio.gather(*tasks, return_exceptions=True)
             #aktresults = results
             #print(aktresults)
@@ -253,13 +266,16 @@ def dbdump_async(args,configfile=None):
                 #print("The type of result is:", type(result[0]))
                 result = result[0]
                 if isinstance(result, Exception):
-                    print('Task %d failed: %s' % (i, str(result)))
-                    print(75*'-')
+                    bbmain.logger.error('Task {0} failed: {1}.'.format(i, str(result))                    
+                    #print('Task %d failed: %s' % (i, str(result)))
+                    #print(75*'-')
                 elif result.exit_status != 0:
+                    bbmain.logger.warning('Task {0} exited with status: {1}. Command: {2}'.format(i, result.exit_status,result.command)                    
                     print('Task %d exited with status %s. Command: %s' % (i, result.exit_status,result.command))
-                    print(result.stderr, end='')
-                    print(75*'-')
-                #else:
+                    #print(result.stderr, end='')
+                    #print(75*'-')
+                else:
+                    bbmain.logger.debug('Task {0} succeded. Command: {1}'.format(i, result.command)                    
                 #    print('Task %d succeeded. Command: %s' % (i,result.command))
                 #    print(result.stdout, end='')
             
@@ -296,7 +312,8 @@ def dbdump_async(args,configfile=None):
     except KeyboardInterrupt:
         tasks = asyncio.all_tasks(loop)
         remaining_tasks = {task for task in tasks}
-        print(remaining_tasks)
+        bbmain.logger.warning('Tasks are running: {0}.'.format(remaining_tasks))                    
+        #print(remaining_tasks)
         #loop.run_until_complete(asyncio.gather(*remaining_tasks))        
         #tasks = asyncio.all_tasks(loop)
         #print(tasks)
