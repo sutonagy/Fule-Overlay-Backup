@@ -235,7 +235,7 @@ def dbdump_async(args,configfile=None):
                     print('Task %d exited with status %s. Command: %s' % (i, result.exit_status,result.command))
                     print(result.stderr, end='')
                 else:
-                    print('Task %d succeeded. Command: %s' % (i,result.command)
+                    print('Task %d succeeded. Command: %s' % (i,result.command))
                     print(result.stdout, end='')
 
                 print(75*'-')
