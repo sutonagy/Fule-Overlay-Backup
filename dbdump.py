@@ -11,7 +11,7 @@ import bb as bbmain
 def dbdump_async(args,configfile=None):
     import asyncio, asyncssh, sys, nest_asyncio
     nest_asyncio.apply()
-    basedate = datetime.strptime(args.basedate, '%Y-%m-%d %H:%M:%S')
+    #basedate = datetime.strptime(args.basedate, '%Y-%m-%d %H:%M:%S')
 
     def progress(task):
         # report progress of the task
@@ -187,17 +187,17 @@ def dbdump_async(args,configfile=None):
                     tables = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U %s -d %s -c '\dt' | grep -E '^ [a-z]' | awk '{print $3}'" % (password, server, port, user, database), check=True)
                     conn.close()
                     return tables.stdout
-        async def get_table_last_modification(host,database,dtype,table):
-            #print(host,database,dtype)
-            async with await run_client(host) as conn:
-                if dtype == 'mysql':
-                    modify_date = await conn.run("mysql -h %s --user=%s --password=%s --port=%s -N -e 'show tables;' %s | grep -E '[a-z]'" % (server, user, password, port, database), check=True)
-                    conn.close()
-                    return modify_date.stdout
-                elif dtype == 'postgres':                  
-                    modify_date = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U %s -d %s -c '\dt' | grep -E '^ [a-z]' | awk '{print $3}'" % (password, server, port, user, database), check=True)
-                    conn.close()
-                    return modify_date.stdout
+        #async def get_table_last_modification(host,database,dtype,table):
+        #    #print(host,database,dtype)
+        #    async with await run_client(host) as conn:
+        #        if dtype == 'mysql':
+        #            modify_date = await conn.run("mysql -h %s --user=%s --password=%s --port=%s -N -e 'show tables;' %s | grep -E '[a-z]'" % (server, user, password, port, database), check=True)
+        #            conn.close()
+        #            return modify_date.stdout
+        #        elif dtype == 'postgres':                  
+        #            modify_date = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U %s -d %s -c '\dt' | grep -E '^ [a-z]' | awk '{print $3}'" % (password, server, port, user, database), check=True)
+        #            conn.close()
+        #            return modify_date.stdout
         task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem))
         task.add_done_callback(progress)
         taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' all databases and all tables'
@@ -266,11 +266,11 @@ def dbdump_async(args,configfile=None):
                     for table in re.split('\n', str(tables)):
                         #print(table)
                         if table and table != 'xxxxxxxxxxxxxxxxxx':
-                            tmodstr = get_table_last_modification(host,database,dtype,table)
-                            if tmodstr:
-                                tmoddate = datetime.strptime(tmodstr, '%Y-%m-%d %H:%M:%S')
-                            else:
-                                tmoddate = basedate
+                            #tmodstr = get_table_last_modification(host,database,dtype,table)
+                            #if tmodstr:
+                            #    tmoddate = datetime.strptime(tmodstr, '%Y-%m-%d %H:%M:%S')
+                            #else:
+                            #    tmoddate = basedate
                             task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem,database,table))
                             taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' database=' + database + ' table=' + table
                             task.set_name(taskname)
