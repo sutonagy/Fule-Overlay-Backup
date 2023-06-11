@@ -21,11 +21,18 @@ def dbdump_async(args,configfile=None):
     async def run_client(host):
         attempts = 0
         conn = None
-        attempts_max = 10
+        if args.sshattemptsmax:
+            attempts_max = args.sshattemptsmax
+        else:
+            attempts_max = 10
+        if args.sshtimeout:
+            timeout = args.sshtimeout
+        else:
+            timeout = 10
         while attempts < attempts_max:      
             try:
                 conn = await asyncio.wait_for(asyncssh.connect(host, username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
-                                                            keepalive_interval=600, keepalive_count_max=10000), timeout=6)
+                                                            keepalive_interval=600, keepalive_count_max=10000), timeout=timeout)
                 break
             except Exception as exc:
                 attempts += 1
