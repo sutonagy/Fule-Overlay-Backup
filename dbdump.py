@@ -225,15 +225,18 @@ def dbdump_async(args,configfile=None):
 
             for i, result in enumerate(results, 1):
                 print(f"{i}: {result}")
+                index=0
+                for item in result:
+                    print(f"{index}: {item}")
                 #print("The type of result is:", type(result))
-                if result['returncode'] != 0:
+                if result[5] != 0:
                     print('Task %d failed: %s' % (i, str(result)))
-                elif result['exit_status'] != 0:
-                    print('Task %d exited with status %s:' % (i, result['exit_status']))
-                    print(result.stderr, end='')
+                elif result[3] != 0:
+                    print('Task %d exited with status %s:' % (i, result[3]))
+                    print(result[7], end='')
                 else:
                     print('Task %d succeeded:' % i)
-                    print(result.stdout, end='')
+                    print(result[6], end='')
 
                 print(75*'-')
             
