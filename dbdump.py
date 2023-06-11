@@ -12,7 +12,8 @@ def dbdump_async(args,configfile=None):
 
     def progress(task):
         # report progress of the task
-        print('.', end='')
+        taskname = task.get_name()
+        print('Task %s completed' % taskname)
     
     async def run_client(host):
         attempts = 0
@@ -163,6 +164,8 @@ def dbdump_async(args,configfile=None):
                     return tables.stdout
         task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem))
         task.add_done_callback(progress)
+        taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' all databases and all tables'
+        task.set_name(taskname)
         tasks.append(task)           
         #tasks = [run_command(dbtype,host,password,server,port,user,sem)]
         dbases = re.split('\n', str(databases))
@@ -220,12 +223,16 @@ def dbdump_async(args,configfile=None):
                     #    tbloop.close()
                     task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem,database))
                     task.add_done_callback(progress)
+                    taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' database=' + database + ' all tables'
+                    task.set_name(taskname)
                     tasks.append(task)           
                     #tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database)])
                     for table in re.split('\n', str(tables)):
                         #print(table)
                         if table and table != 'xxxxxxxxxxxxxxxxxx':
                             task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem,database,table))
+                            taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' database=' + database + ' table=' + table
+                            task.set_name(taskname)
                             task.add_done_callback(progress)
                             tasks.append(task)           
                             #tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database,table)])
