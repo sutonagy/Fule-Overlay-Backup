@@ -266,16 +266,16 @@ def dbdump_async(args,configfile=None):
                 #print("The type of result is:", type(result[0]))
                 result = result[0]
                 if isinstance(result, Exception):
-                    bbmain.logger.error('Task {0} failed: {1}.'.format(i, str(result))                    
+                    bbmain.logger.error('Task {0} failed: {1}.'.format(i, str(result)))                    
                     #print('Task %d failed: %s' % (i, str(result)))
                     #print(75*'-')
                 elif result.exit_status != 0:
-                    bbmain.logger.warning('Task {0} exited with status: {1}. Command: {2}'.format(i, result.exit_status,result.command)                    
+                    bbmain.logger.warning('Task {0} exited with status: {1}. Command: {2}'.format(i, result.exit_status,result.command)                    )
                     print('Task %d exited with status %s. Command: %s' % (i, result.exit_status,result.command))
                     #print(result.stderr, end='')
                     #print(75*'-')
                 else:
-                    bbmain.logger.debug('Task {0} succeded. Command: {1}'.format(i, result.command)                    
+                    bbmain.logger.debug('Task {0} succeded. Command: {1}'.format(i, result.command))
                 #    print('Task %d succeeded. Command: %s' % (i,result.command))
                 #    print(result.stdout, end='')
             
