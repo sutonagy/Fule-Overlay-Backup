@@ -55,7 +55,8 @@ def dbdump_async(args,configfile=None):
                 if not os.path.exists(errpath): os.makedirs(errpath)
                 if database is None:
                     if dtype == 'mysql':
-                        dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s -p mysql --routines" % (server, user, password, port)
+                        dumpcommand = "mysql -uroot -pbalatonfured -h 192.168.11.77 --port=43306 --skip-column-names -A -e\"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>''\" | mysql -uroot -pbalatonfured -h 192.168.11.77 --port=43306 --skip-column-names -A | sed 's/$/;/g'" % (server, user, password, port)
+                        print(dumpcommand)
                         dumpcommands.append(dumpcommand)
                         modes.append('roles')
                     elif dtype == 'postgres':                  
@@ -117,7 +118,7 @@ def dbdump_async(args,configfile=None):
             #print(host,dtype)
             async with await run_client(host) as conn:
                 if dtype == 'mysql':
-                    #print('mysql -h %s --user=%s --password=%s -p %s -N  -e "show databases;"' % (server, user, password, port))
+                    #print("mysql -h %s --user=%s --password=%s --port=%s -N  -e 'show databases;' | grep -E '[a-z]'" % (server, user, password, port))
                     databases = await conn.run("mysql -h %s --user=%s --password=%s --port=%s -N  -e 'show databases;' | grep -E '[a-z]'" % (server, user, password, port), check=True)
                     #databases = await conn.run("ls", check=True)
                 elif dtype == 'postgres':                  
