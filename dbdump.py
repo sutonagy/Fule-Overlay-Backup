@@ -227,7 +227,7 @@ def dbdump_async(args,configfile=None):
                 #    print(result.stderr, end='')
                 else:
                     print('Task %d succeeded:' % i)
-                    print(result.stdout, end='')
+                    #print(result.stdout, end='')
 
                 print(75*'-')
             
