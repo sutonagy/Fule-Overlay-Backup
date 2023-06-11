@@ -212,9 +212,10 @@ def dbdump_async(args,configfile=None):
         try:
             #print(tasks)
             results = await asyncio.gather(*tasks, return_exceptions=True)
-            print(results)
+            aktresults = results
+            print(aktresults)
 
-            for i, result in enumerate(results, 1):
+            for i, result in enumerate(aktresults, 1):
                 if isinstance(result, Exception):
                     print('Task %d failed: %s' % (i, str(result)))
                 elif result.exit_status != 0:
