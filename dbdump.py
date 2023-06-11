@@ -222,9 +222,9 @@ def dbdump_async(args,configfile=None):
                 print(f"{i}: {result}")
                 if isinstance(result, Exception):
                     print('Task %d failed: %s' % (i, str(result)))
-                elif result.exit_status != 0:
-                    print('Task %d exited with status %s:' % (i, result.exit_status))
-                    print(result.stderr, end='')
+                #elif result.exit_status != 0:
+                #    print('Task %d exited with status %s:' % (i, result.exit_status))
+                #    print(result.stderr, end='')
                 else:
                     print('Task %d succeeded:' % i)
                     print(result.stdout, end='')
