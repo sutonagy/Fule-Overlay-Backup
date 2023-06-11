@@ -101,6 +101,8 @@ def dbdump_async(args,configfile=None):
                 conn.close()
 
     async def program(dbtype,host,user, password,server,port,include_databases,exclude_databases):
+        print(75*'-')
+        print(75*'-')        
         # Run both print method and wait for them to complete (passing in asyncState)
         #print(conn)
         sem = asyncio.Semaphore(8)
@@ -213,8 +215,8 @@ def dbdump_async(args,configfile=None):
                         if table and table != 'xxxxxxxxxxxxxxxxxx':
                             tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database,table)])
         try:
-            print(75*'-')
-            print(tasks)
+            #print(75*'-')
+            #print(tasks)
             print(75*'-')
             results = await asyncio.gather(*tasks, return_exceptions=True)
             #aktresults = results
@@ -222,6 +224,7 @@ def dbdump_async(args,configfile=None):
 
             for i, result in enumerate(results, 1):
                 print(f"{i}: {result}")
+                print("The type of result is:", type(result))
                 if isinstance(result, Exception):
                     print('Task %d failed: %s' % (i, str(result)))
                 #elif result.exit_status != 0:
