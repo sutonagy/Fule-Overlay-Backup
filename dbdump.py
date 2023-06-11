@@ -228,6 +228,7 @@ def dbdump_async(args,configfile=None):
                 index=0
                 for item in result:
                     print(f"{index}: {item}")
+                    index += 1
                 #print("The type of result is:", type(result))
                 if result[5] != 0:
                     print('Task %d failed: %s' % (i, str(result)))
