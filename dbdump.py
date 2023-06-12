@@ -207,7 +207,7 @@ def dbdump_async(args,configfile=None):
         #tasks = [run_command(dbtype,host,password,server,port,user,sem)]
         dbases = re.split('\n', str(databases))
         #print(dbases)
-        bbmain.logger.info('Databases in host {0}, server {1}, dbtype: {2}:\n{3}'.format(host, server, dbtype, databases)                    )               
+        bbmain.logger.info('All databases in host {0}, server {1}, dbtype: {2}:\n{3}'.format(host, server, dbtype, databases)                    )               
         for database in dbases:
             if database:
                 runtask = False
@@ -215,23 +215,26 @@ def dbdump_async(args,configfile=None):
                 for exclude_database in exclude_databases:
                     if re.search(exclude_database, database):
                         #print('Exclude database pattern matched: %s, Database: %s' % (exclude_database,database))
+                        bbmain.logger.info('Exclude database pattern matched: {0}, Database: {1}'.format(exclude_database,database))
                         exclude = True
                         break
                     else:
-                        pass
+                        bbmain.logger.info('Exclude database pattern not matched: {0}, Database: {1}'.format(exclude_database,database))
                         #print('Exclude database pattern not matched: %s, Database: %s' % (exclude_database,database))
                 if not exclude:
                     for include_database in include_databases:
                         if re.search(include_database, database):
                             #print('Include database pattern matched: %s, Database: %s' % (include_database,database))
+                            bbmain.logger.info('Include database pattern matched: {0}, Database: {1}'.format(include_database,database))
                             runtask = True
                             break
                         else:
-                            pass
+                            bbmain.logger.info('Include database pattern not matched: {0}, Database: {1}'.format(include_database,database))
                             #print('Include database pattern not matched: %s, Database: %s' % (include_database,database))
                 #print('Database: %s is %s' % (database,runtask))
                 if runtask:
                     try:
+                        bbmain.logger.info('Database {3} in host {0}, server {1}, dbtype: {2} is mathed to dump'.format(host, server, dbtype, databases)                    )               
                         #tbloop = asyncio.get_event_loop()
                         #tbloop.close()
                         #tbtask = asyncio.ensure_future(get_tables(host,database,dtype))            
