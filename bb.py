@@ -60,6 +60,7 @@ import subprocess
 import multiprocessing
 import utility as uty
 import time
+import datetime
 import yaml
 import types
 import colorlog
@@ -2020,7 +2021,6 @@ def single_action(args,configfile=None):
 
 
 if __name__ == '__main__':
-    import datetime
     import subprocess
     import traceback
     import sys
