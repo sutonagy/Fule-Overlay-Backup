@@ -4,7 +4,7 @@ import yaml
 import types
 import re
 import traceback
-import datetime
+import tqdm.asyncio
 import bb as bbmain
  
 
@@ -18,8 +18,8 @@ def dbdump_async(args,configfile=None):
         taskname = task.get_name()
         #print('Task %s completed' % taskname)
         bbmain.logger.debug('Task {0} completed.'.format(taskname))
-        if args.loglevel.upper() != 'DEBUG':
-            print('*', end='')
+        #if args.loglevel.upper() != 'DEBUG':
+        #    print('*', end='')
     
     async def run_client(host):
         attempts = 0
@@ -307,7 +307,8 @@ def dbdump_async(args,configfile=None):
             #print(75*'-')
             #print(tasks)
             #print(75*'-')
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+            #results = await asyncio.gather(*tasks, return_exceptions=True)
+            results = await tqdm.tqdm_asyncio.gather(*tasks, colour="white", bar_format="Eta:{eta}.|{bar}{r_bar}", desc="The progress of dumps", return_exceptions=True)
             #aktresults = results
             #print(aktresults)
 
