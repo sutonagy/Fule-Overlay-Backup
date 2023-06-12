@@ -2,7 +2,7 @@
 rm -rf /backup/rsync/
 rm -rf /backup/data/
 rm -rf /backup/dumperror/
-mkdir -p /backup/rsync/log
+mkdir -p /backup/rsynclog
 cd Fule-Butterfly-Backup
 git pull https://github.com/sutonagy/Fule-Butterfly-Backup.git
 start=`date +%s`

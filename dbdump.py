@@ -206,7 +206,7 @@ def dbdump_async(args,configfile=None):
         #tasks = [run_command(dbtype,host,password,server,port,user,sem)]
         dbases = re.split('\n', str(databases))
         #print(dbases)
-        bbmain.logger.info('Databases in host {0}, server {1}: {2}'.format(host, server, databases)                    )               
+        bbmain.logger.info('Databases in host {0}, server {1}, dbtype: {2}:\n{3}'.format(host, server, dbtype, databases)                    )               
         for database in dbases:
             if database:
                 runtask = False
