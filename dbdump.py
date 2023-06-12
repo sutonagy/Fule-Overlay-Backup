@@ -283,19 +283,20 @@ def dbdump_async(args,configfile=None):
                             tasks.append(task)           
                             #tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database,table)])
                 else:
-                    dumpstru = False
-                    for structure_only_database in structure_only_databases:
-                        if re.search(structure_only_database, database):
-                            #print('Include database pattern matched: %s, Database: %s' % (include_database,database))
-                            bbmain.logger.debug('Structure_only_database pattern matched: {0}, Database: {1}'.format(structure_only_database,database))
-                            dumpstru = True
-                            break
-                    if dumpstru:
-                        task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem,database))
-                        task.add_done_callback(progress)
-                        taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' database=' + database + ' all tables'
-                        task.set_name(taskname)
-                        tasks.append(task)                               
+                    if structure_only_databases:
+                        dumpstru = False
+                        for structure_only_database in structure_only_databases:
+                            if re.search(structure_only_database, database):
+                                #print('Include database pattern matched: %s, Database: %s' % (include_database,database))
+                                bbmain.logger.debug('Structure_only_database pattern matched: {0}, Database: {1}'.format(structure_only_database,database))
+                                dumpstru = True
+                                break
+                        if dumpstru:
+                            task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem,database))
+                            task.add_done_callback(progress)
+                            taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' database=' + database + ' all tables'
+                            task.set_name(taskname)
+                            tasks.append(task)                               
         try:
             #print(75*'-')
             #print(tasks)
