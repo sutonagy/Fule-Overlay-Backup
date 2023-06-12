@@ -130,7 +130,7 @@ def dbdump_async(args,configfile=None):
             finally:
                 conn.close()
 
-    async def program(dbtype,host,user, password,server,port,include_databases,exclude_databases):
+    async def program(dbtype,host,user, password,server,port,include_databases,exclude_databases,structure_only_databases):
         #print(75*'-')
         #print(75*'-')
         #print()     
@@ -282,6 +282,20 @@ def dbdump_async(args,configfile=None):
                             task.add_done_callback(progress)
                             tasks.append(task)           
                             #tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database,table)])
+                else:
+                    dumpstru = False
+                    for structure_only_database in structure_only_databases:
+                        if re.search(structure_only_database, database):
+                            #print('Include database pattern matched: %s, Database: %s' % (include_database,database))
+                            bbmain.logger.debug('Structure_only_database pattern matched: {0}, Database: {1}'.format(structure_only_database,database))
+                            dumpstru = True
+                            break
+                    if dumpstru:
+                        task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem,database))
+                        task.add_done_callback(progress)
+                        taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' database=' + database + ' all tables'
+                        task.set_name(taskname)
+                        tasks.append(task)                               
         try:
             #print(75*'-')
             #print(tasks)
@@ -337,7 +351,7 @@ def dbdump_async(args,configfile=None):
             #print(args)
             dtype = args.dbtype
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(program(args.dbtype,args.sshhost, args.dbuser, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases))
+        loop.run_until_complete(program(args.dbtype,args.sshhost, args.dbuser, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases, args.structureonly))
         loop.stop()
         loop.close()
     except KeyboardInterrupt:

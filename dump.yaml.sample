@@ -1,0 +1,7 @@
+# Don't delete any line from this!
+dumpdestination: /backup/dump 
+dconfigdir: /etc/bb/dumps
+dconfigext: .yaml
+dumperror: /backup/dumperror
+sshattemptsmax: 20 #Number of trials to ssh connect
+sshtimeout: 12
