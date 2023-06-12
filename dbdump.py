@@ -238,7 +238,7 @@ def dbdump_async(args,configfile=None):
                 #print('Database: %s is %s' % (database,runtask))
                 if runtask:
                     try:
-                        bbmain.logger.info('Database {0} in host {1}, server {2}, dbtype: {3} is mathed to dump'.format(database, host, server, dbtype)                    )               
+                        bbmain.logger.debug('Database {0} in host {1}, server {2}, dbtype: {3} is mathed to dump'.format(databases, host, server, dbtype))               
                         #tbloop = asyncio.get_event_loop()
                         #tbloop.close()
                         #tbtask = asyncio.ensure_future(get_tables(host,database,dtype))            
@@ -287,7 +287,7 @@ def dbdump_async(args,configfile=None):
                             tasks.append(task)           
                             #tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database,table)])
                 else:
-                    bbmain.logger.info('Structure_only_databases: {0} in database {1}'.format(structure_only_databases, database))
+                    bbmain.logger.debug('Structure_only_databases: {0} in database {1}'.format(structure_only_databases, database))
                     if structure_only_databases:
                         dumpstru = False
                         for structure_only_database in structure_only_databases:
@@ -301,7 +301,7 @@ def dbdump_async(args,configfile=None):
                             task.add_done_callback(progress)
                             taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' database=' + database + ' all tables'
                             task.set_name(taskname)
-                            tasks.append(task)                               
+                            tasks.append(task)
         try:
             #print(75*'-')
             #print(tasks)
