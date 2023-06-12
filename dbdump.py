@@ -4,6 +4,7 @@ import yaml
 import types
 import re
 import traceback
+import tqdm
 import tqdm.asyncio
 import bb as bbmain
  
