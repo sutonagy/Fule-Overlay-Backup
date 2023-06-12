@@ -2056,7 +2056,7 @@ if __name__ == '__main__':
                 portmessages = []
                 processzek = []
                 for root, dirs, files in os.walk(args.dconfigdir):
-                    for i, file in enumerate(files,1):
+                    for i, file in enumerate(files,0):
                         if file.endswith(args.dconfigext):
                             print('Config: ',file)
                             cfile=root+'/'+file
