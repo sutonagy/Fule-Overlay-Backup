@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 rm -rf /backup/rsync/
 rm -rf /backup/rsynclog/
-rm -rf /backup/data/
+rm -rf /backup/dump/
 rm -rf /backup/dumperror/
 mkdir -p /backup/rsynclog
 mkdir -p /backup/rsync
