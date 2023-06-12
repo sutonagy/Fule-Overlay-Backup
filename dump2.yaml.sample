@@ -6,4 +6,3 @@ dbserver: localhost #dtabase server address from the ssh host
 dbport: 3306
 include_databases: ['.*'] #regular expressions
 exclude_databases: ['postgres.*', 'temp.*'] #regular expressions
-structureonly: ['.*_teszt', '.*dev'] #from excluded databases where only the structure will dumped

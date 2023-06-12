@@ -5,3 +5,5 @@ dconfigext: .yaml
 dumperror: /backup/dumperror
 sshattemptsmax: 20 #Number of trials to ssh connect
 sshtimeout: 12
+structureonly: null #in the server specific configs databeses from the excluded databases where only the structure will be dumped
+
