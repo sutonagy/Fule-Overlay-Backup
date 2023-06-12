@@ -18,7 +18,8 @@ def dbdump_async(args,configfile=None):
         taskname = task.get_name()
         #print('Task %s completed' % taskname)
         bbmain.logger.debug('Task {0} completed.'.format(taskname))
-        #print('*', end='')
+        if args.loglevel.upper() != 'DEBUG':
+            print('*', end='')
     
     async def run_client(host):
         attempts = 0
