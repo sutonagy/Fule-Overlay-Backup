@@ -238,7 +238,7 @@ def dbdump_async(args,configfile=None):
                 #print('Database: %s is %s' % (database,runtask))
                 if runtask:
                     try:
-                        bbmain.logger.info('Database {0} in host {1}, server {2}, dbtype: {3} is mathed to dump'.format(databases, host, server, dbtype)                    )               
+                        bbmain.logger.info('Database {0} in host {1}, server {2}, dbtype: {3} is mathed to dump'.format(database, host, server, dbtype)                    )               
                         #tbloop = asyncio.get_event_loop()
                         #tbloop.close()
                         #tbtask = asyncio.ensure_future(get_tables(host,database,dtype))            
