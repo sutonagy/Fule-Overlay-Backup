@@ -1522,6 +1522,7 @@ def single_action(args,configfile=None):
         hostnames = []
         # cmds = []
         # logs = []
+        logger.info('Rsync configfile: {0}, args: {1}'.format(configfile,args)                    )               
         if args.hostname:
             # Computer list
             hostnames.append(args.hostname)
@@ -2055,6 +2056,7 @@ if __name__ == '__main__':
                         if file.endswith(args.dconfigext):
                             print('Config: ',file)
                             cfile=root+'/'+file
+                            logger.info('Dump configfile: {0}'.format(cfile)                    )               
                             processz = multiprocessing.Process(target=dbdump.dbdump_async, args=(args,cfile))
                             processzek.append(processz)
                             processz.start()
@@ -2087,6 +2089,7 @@ if __name__ == '__main__':
                         if file.endswith(args.configext):
                             cfile=root+'/'+file
                             #print('Config: ',file)
+                            logger.info('Rsync configfile: {0}'.format(cfile)                    )               
                             aktcmd, aktlog, online, eport = single_action(args,cfile)
                             #print('Cmd: ',aktcmd)
                             #print('Log: ',aktlog)
