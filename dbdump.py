@@ -136,7 +136,7 @@ def dbdump_async(args,configfile=None,serial=1):
             finally:
                 conn.close()
 
-    async def program(dbtype,host,user, password,server,port,include_databases,exclude_databases,structure_only_databases):
+    async def program(dbtype,host,user, password,server,port,include_databases,exclude_databases,structure_only_databases,serial):
         #print(75*'-')
         #print(75*'-')
         #print()     
