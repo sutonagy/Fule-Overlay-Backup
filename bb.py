@@ -318,7 +318,8 @@ def logger_init(loggername):
         ch.setFormatter(formatter)
     #ch.setLevel(logging.DEBUG)
     # create formatter and add it to the handlers
-    pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
+    folderend = uty.time_for_folder()
+    pylogfile = args.logfile if args.logfile + '-' + folderend[0.11] + '.log' else args.destination + '/' + 'fule-butterfly-backup.log'
     fh = logging.FileHandler(pylogfile)
     formatter2 = logging.Formatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
     fh.setFormatter(formatter2)
@@ -730,7 +731,8 @@ def compose_command(flags, host, folderend):
                 command.append('--exclude={0}'.format(exclude))
         if flags.log:
             second_layer, folderend = compose_destination(host, flags.destination, is_last_full, folderend)
-            log_path = os.path.join(second_layer, 'backup.log')
+            #log_path = os.path.join(second_layer, 'backup.log')            
+            log_path = args.logdirectory + 'rsync-' + host + '-' + folderend[0:11] + '.log'
             command.append(
                 '--log-file={0}'.format(log_path)
             )
@@ -2219,6 +2221,17 @@ if __name__ == '__main__':
                 raise RunError(runmessage)                                                                    
             tmessage = 'Backup ' + endfolder[0:11] + ' OK'                                                                    
             uty.send_telegram_message(tmessage)
+        #delete empty logs
+        def remove_empty_logs(path):
+            for (dirpath, folder_names, files) in os.walk(path):
+                for filename in files:
+                    file_location = dirpath + '/' + filename  #file location is location is the location of the file
+                    if os.path.isfile(file_location):
+                        if os.path.getsize(file_location) == 0:#Checking if the file is empty or not
+                            os.remove(file_location)  #If the file is empty then it is deleted using remove method
+        remove_empty_logs(args.logdirectory)
+        remove_empty_logs(args.dumperror)
+            
     except Exception as e:
         exception_message = str(e)
         exception_type, exception_object, exception_traceback = sys.exc_info()

@@ -66,7 +66,8 @@ def dbdump_async(args,configfile=None):
                 dumpcommands = []
                 modes = []
                 results = []
-                errpath='/backup/dumperror'
+                #errpath='/backup/dumperror'
+                errpath=args.dumperror
                 if not os.path.exists(errpath): os.makedirs(errpath)
                 if database is None:
                     if dtype == 'mysql':
