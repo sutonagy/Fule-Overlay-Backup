@@ -31,6 +31,7 @@ def dbdump_async(args,configfile=None):
             timeout = args.sshtimeout
         else:
             timeout = 10
+        attempts_warning = round(attempts_max/2)
         bbmain.logger.debug('SSH connect attempts_max: {0}, timeout: {1}.'.format(attempts_max, timeout))
         while attempts < attempts_max:      
             try:
@@ -40,7 +41,10 @@ def dbdump_async(args,configfile=None):
             except Exception as exc:
                 attempts += 1
                 #print('Attempt %d failed: %s in host: %s' % (attempts, str(exc), host))
-                bbmain.logger.warning('SSH connection attempt {0} failed in host: {1}.'.format(attempts, host))
+                if attempts >= attempts_warning:
+                    bbmain.logger.warning('SSH connection attempt {0} failed in host: {1}.'.format(attempts, host))
+                else:
+                    bbmain.logger.debug('SSH connection attempt {0} failed in host: {1}.'.format(attempts, host))
                 if attempts >= attempts_max:
                     exception_message = str(exc)
                     exception_type, exception_object, exception_traceback = sys.exc_info()
@@ -234,7 +238,7 @@ def dbdump_async(args,configfile=None):
                 #print('Database: %s is %s' % (database,runtask))
                 if runtask:
                     try:
-                        bbmain.logger.debug('Database {0} in host {1}, server {2}, dbtype: {3} is mathed to dump'.format(databases, host, server, dbtype)                    )               
+                        bbmain.logger.info('Database {0} in host {1}, server {2}, dbtype: {3} is mathed to dump'.format(databases, host, server, dbtype)                    )               
                         #tbloop = asyncio.get_event_loop()
                         #tbloop.close()
                         #tbtask = asyncio.ensure_future(get_tables(host,database,dtype))            
@@ -283,6 +287,7 @@ def dbdump_async(args,configfile=None):
                             tasks.append(task)           
                             #tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database,table)])
                 else:
+                    bbmain.logger.info('Structure_only_databases: {0}'.format(structure_only_databases))
                     if structure_only_databases:
                         dumpstru = False
                         for structure_only_database in structure_only_databases:
