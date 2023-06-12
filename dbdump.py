@@ -287,7 +287,7 @@ def dbdump_async(args,configfile=None):
                             tasks.append(task)           
                             #tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database,table)])
                 else:
-                    bbmain.logger.info('Structure_only_databases: {0}'.format(structure_only_databases))
+                    bbmain.logger.info('Structure_only_databases: {0} in database {1}'.format(structure_only_databases, database))
                     if structure_only_databases:
                         dumpstru = False
                         for structure_only_database in structure_only_databases:
