@@ -717,6 +717,8 @@ def compose_command(flags, host, folderend):
         # Set rsync custom port
         if flags.rport:
             command.append('--port={0}'.format(flags.rport))
+        if flags.checksum:
+            command.append('--checksum')
         if flags.remotersync:
             command.append('--rsync-path="{0}"'.format(flags.remotersync))
         # Set I/O timeout

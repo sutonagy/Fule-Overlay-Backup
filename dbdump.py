@@ -71,7 +71,7 @@ def dbdump_async(args,configfile=None):
                 if not os.path.exists(errpath): os.makedirs(errpath)
                 if database is None:
                     if dtype == 'mysql':
-                        dumpcommand = "mysql -u%s -p%s -h %s --port=%s --skip-column-names -A -e\"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>''\" | mysql -u%s -p%s -h %s --port=%s --skip-column-names -A | sed 's/$/;/g'" % (user,password,server,port,user,password,server,port)
+                        dumpcommand = "mysql -u%s -p%s -h %s --port=%s --skip-column-names -A -e\"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>'' and host <> ''\" | mysql -u%s -p%s -h %s --port=%s --skip-column-names -A | sed 's/$/;/g'" % (user,password,server,port,user,password,server,port)
                         #print(dumpcommand)
                         bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                         dumpcommands.append(dumpcommand)
