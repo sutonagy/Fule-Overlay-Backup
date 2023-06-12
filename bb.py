@@ -320,7 +320,7 @@ def logger_init(loggername):
     #ch.setLevel(logging.DEBUG)
     # create formatter and add it to the handlers
     folderend=datetime.datetime.now().strftime('%y%m%d-%H%M')
-    pylogfile = args.logfile if args.logfile + '-' + folderend[0:11] + '.log' else args.destination + '/' + 'fule-butterfly-backup.log'
+    pylogfile = args.logfile + '-' + folderend[0:11] + '.log' if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
     fh = logging.FileHandler(pylogfile)
     formatter2 = logging.Formatter('{asctime} {filename} {funcName} {lineno} {levelname}: {message}', style='{')
     fh.setFormatter(formatter2)
