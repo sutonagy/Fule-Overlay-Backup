@@ -309,7 +309,7 @@ def dbdump_async(args,configfile=None,serial=1):
             #print(tasks)
             #print(75*'-')
             #results = await asyncio.gather(*tasks, return_exceptions=True)
-            results = await tqdm.asyncio.tqdm_asyncio.gather(*tasks, colour="lightgreen", desc="The progress of dumps", position=1)
+            results = await tqdm.asyncio.tqdm_asyncio.gather(*tasks, colour="green", desc="The progress of dumps", position=0)
             #aktresults = results
             #print(aktresults)
 
