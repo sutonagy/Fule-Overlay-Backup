@@ -2056,12 +2056,12 @@ if __name__ == '__main__':
                 portmessages = []
                 processzek = []
                 for root, dirs, files in os.walk(args.dconfigdir):
-                    for file in files:
+                    for i, file in enumerate(files,1):
                         if file.endswith(args.dconfigext):
                             print('Config: ',file)
                             cfile=root+'/'+file
                             logger.info('Dump configfile: {0}'.format(cfile)                    )               
-                            processz = multiprocessing.Process(target=dbdump.dbdump_async, args=(args,cfile))
+                            processz = multiprocessing.Process(target=dbdump.dbdump_async, args=(args,cfile,i))
                             processzek.append(processz)
                             processz.start()
                 for processz in processzek:
