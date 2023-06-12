@@ -9,7 +9,7 @@ import tqdm.asyncio
 import bb as bbmain
  
 
-def dbdump_async(args,configfile=None):
+def dbdump_async(args,configfile=None,serial=1):
     import asyncio, asyncssh, sys, nest_asyncio
     nest_asyncio.apply()
     #basedate = datetime.strptime(args.basedate, '%Y-%m-%d %H:%M:%S')
@@ -309,7 +309,7 @@ def dbdump_async(args,configfile=None):
             #print(tasks)
             #print(75*'-')
             #results = await asyncio.gather(*tasks, return_exceptions=True)
-            results = await tqdm.asyncio.tqdm_asyncio.gather(*tasks, colour="white", bar_format="Eta:{eta}.|{bar}{r_bar}", desc="The progress of dumps", position=5)
+            results = await tqdm.asyncio.tqdm_asyncio.gather(*tasks, colour="white", bar_format="Eta:{eta}.|{bar}{r_bar}", desc="The progress of dumps", position=serial)
             #aktresults = results
             #print(aktresults)
 
@@ -360,7 +360,7 @@ def dbdump_async(args,configfile=None):
             #print(args)
             dtype = args.dbtype
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(program(args.dbtype,args.sshhost, args.dbuser, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases, args.structureonly))
+        loop.run_until_complete(program(args.dbtype,args.sshhost, args.dbuser, args.dbpassword, args.dbserver, args.dbport, args.include_databases, args.exclude_databases, args.structureonly,serial))
         loop.stop()
         loop.close()
     except KeyboardInterrupt:
