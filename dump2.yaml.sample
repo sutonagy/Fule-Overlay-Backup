@@ -3,6 +3,7 @@ dbtype: mysql #postgres or mysql
 dbuser: root #user whic can access roles
 dbpassword: ***
 dbserver: localhost #dtabase server address from the ssh host
+#In case of "Forcing protocol to TCP due to option specification" error use 127.0.0.1 instead of localhost
 dbport: 3306
 include_databases: ['.*'] #regular expressions
 exclude_databases: ['postgres.*', 'temp.*'] #regular expressions
