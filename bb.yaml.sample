@@ -33,6 +33,8 @@ sshkey: null # Default is ~/.ssh/id_rsa it the remote user exists in the backup 
 remotersync: null # i.e. sudo rsync
 compressmode: null #Set compression method. Possible values: zstd lz4 zlibx zlib. Check with "rsync --version" command.
 compresslevel: null #See "man rsync" for the defaults and possible values.
+#compressmode: zstd
+#compresslevel: -8000
 dbaseconfig: /etc/bb/dump.yaml #database dump config file
 backuptype: Both #Which part of the program will run. Can be Dump, Rsync or Both
 checksum: False #If True add --checksum option to rsync. Ignores times and examines only sizes. Files on the source and destination sides that differ in size are transferred. Files with the same size are checksummed.
