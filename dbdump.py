@@ -107,10 +107,10 @@ def dbdump_async(args,configfile=None,serial=1):
                             modes.append('schema')
                         else:
                             dumpcommand = "PGPASSWORD='%s' pg_dump -h %s -p %s -U %s -d %s --table='public.\"%s\"' --data-only --column-inserts --quote-all-identifiers | zstd -D /home/rbackup/dictionary" % (password, server, port, user, database,table)
-                            bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
+                            #bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                             dumpcommands.append(dumpcommand)
                             modes.append('data-%s' % table)
-                bbmain.logger.info('Dumpcommand: {0}.'.format(dumpcommand))
+                bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                 for dumpcommand, mode in zip(dumpcommands, modes):
                     if database is None:
                         database = 'all'
