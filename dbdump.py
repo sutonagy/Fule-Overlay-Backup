@@ -110,6 +110,7 @@ def dbdump_async(args,configfile=None,serial=1):
                             bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                             dumpcommands.append(dumpcommand)
                             modes.append('data-%s' % table)
+                bbmain.logger.info('Dumpcommand: {0}.'.format(dumpcommand))
                 for dumpcommand, mode in zip(dumpcommands, modes):
                     if database is None:
                         database = 'all'
