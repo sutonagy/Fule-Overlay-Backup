@@ -6,4 +6,4 @@ dumperror: /backup/dumperror
 sshattemptsmax: 20 #Number of trials to ssh connect
 sshtimeout: 12
 structureonly: null #in the server specific configs databeses from the excluded databases where only the structure will be dumped
-
+compressdump: False #If True the table dump will be compressed by zstd with dictionary in /home/rbackup/dictionary in ssh target
