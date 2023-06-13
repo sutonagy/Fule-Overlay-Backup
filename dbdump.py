@@ -112,7 +112,7 @@ def dbdump_async(args,configfile=None,serial=1):
                 for dumpcommand, mode in zip(dumpcommands, modes):
                     if database is None:
                         database = 'all'
-                    sqlpath='%s/%s/%s/%s/%s/%s' % (args.dumpdestination,host,dbtype,server,port/database)
+                    sqlpath='%s/%s/%s/%s/%s/%s' % (args.dumpdestination,host,dbtype,server,port,database)
                     if not os.path.exists(sqlpath): os.makedirs(sqlpath)
                     #print(dumpcommand, mode)
                     result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,port,database,mode), check=True)
