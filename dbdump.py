@@ -207,7 +207,7 @@ def dbdump_async(args,configfile=None,serial=1):
         #            return modify_date.stdout
         task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem))
         task.add_done_callback(progress)
-        taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' port=' + port + ' all databases and all tables'
+        taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' port=' + str(port) + ' all databases and all tables'
         task.set_name(taskname)
         tasks.append(task)           
         #tasks = [run_command(dbtype,host,password,server,port,user,sem)]
@@ -270,7 +270,7 @@ def dbdump_async(args,configfile=None,serial=1):
                     #    tbloop.close()
                     task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem,database))
                     task.add_done_callback(progress)
-                    taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' port=' + port + ' database=' + database + ' all tables'
+                    taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' port=' + str(port) + ' database=' + database + ' all tables'
                     task.set_name(taskname)
                     tasks.append(task)           
                     #tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database)])
@@ -283,7 +283,7 @@ def dbdump_async(args,configfile=None,serial=1):
                             #else:
                             #    tmoddate = basedate
                             task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem,database,table))
-                            taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' port=' + port + ' database=' + database + ' table=' + table
+                            taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' port=' + str(port) + ' database=' + database + ' table=' + table
                             task.set_name(taskname)
                             task.add_done_callback(progress)
                             tasks.append(task)           
@@ -301,7 +301,7 @@ def dbdump_async(args,configfile=None,serial=1):
                         if dumpstru:
                             task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem,database))
                             task.add_done_callback(progress)
-                            taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' port=' + port + ' database=' + database + ' all tables'
+                            taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' port=' + str(port) + ' database=' + database + ' all tables'
                             task.set_name(taskname)
                             tasks.append(task)
         try:
