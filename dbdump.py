@@ -4,6 +4,7 @@ import yaml
 import types
 import re
 import traceback
+import datetime
 import tqdm
 import tqdm.asyncio
 import bb as bbmain
@@ -76,19 +77,19 @@ def dbdump_async(args,configfile=None,serial=1):
                 errpath=args.dumperror
                 if not os.path.exists(errpath): os.makedirs(errpath)
                 if database is None:
-                    if dtype == 'mysql':
+                    if dbtype == 'mysql':
                         dumpcommand = "mysql -u%s -p%s -h %s --port=%s --skip-column-names -A -e\"SELECT CONCAT('SHOW GRANTS FOR ''',user,'''@''',host,''';') FROM mysql.user WHERE user<>'' and host <> ''\" | mysql -u%s -p%s -h %s --port=%s --skip-column-names -A | sed 's/$/;/g'" % (user,password,server,port,user,password,server,port)
                         #print(dumpcommand)
                         bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                         dumpcommands.append(dumpcommand)
                         modes.append('roles')
-                    elif dtype == 'postgres':                  
+                    elif dbtype == 'postgres':                  
                         dumpcommand = 'PGPASSWORD="%s" pg_dumpall -h %s -p %s -U %s --roles-only --quote-all-identifiers' % (password, server, port, user)
                         bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                         dumpcommands.append(dumpcommand)
                         modes.append('roles')
                 else:
-                    if dtype == 'mysql':
+                    if dbtype == 'mysql':
                         if table is None:
                             dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s --routines --no-data --skip-lock-tables %s" % (server, user, password, port, database)
                             bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
@@ -98,7 +99,7 @@ def dbdump_async(args,configfile=None,serial=1):
                             dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s --no-create-info --complete-insert --hex-blob %s %s" % (server, user, password, port, database,table)
                             dumpcommands.append(dumpcommand)
                             modes.append('data-%s' % table)
-                    elif dtype == 'postgres':
+                    elif dbtype == 'postgres':
                         if table is None:
                             dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U %s %s --schema-only --quote-all-identifiers' % (password, server, port, user, database)
                             bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
@@ -115,7 +116,8 @@ def dbdump_async(args,configfile=None,serial=1):
                     sqlpath='%s/%s/%s/%s/%s/%s' % (args.dumpdestination,host,dbtype,server,port,database)
                     if not os.path.exists(sqlpath): os.makedirs(sqlpath)
                     #print(dumpcommand, mode)
-                    result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,port,database,mode), check=True)
+                    folderend=datetime.datetime.now().strftime('%y%m%d-%H%M')
+                    result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,port,database,mode,folderend[0:11]), check=True)
                     results.append(result)
                     #print(database, result)
                     estatus = result.exit_status
@@ -158,7 +160,7 @@ def dbdump_async(args,configfile=None,serial=1):
         try:
             dbloop = asyncio.get_event_loop()
             #dbtask = asyncio.ensure_future(get_databases(host,dtype))            
-            databases = dbloop.run_until_complete(get_databases(host,dtype))
+            databases = dbloop.run_until_complete(get_databases(host,dbtype))
             #databases = asyncio.run(get_databases(host,dtype))
         except Exception as exc:
             exception_message = str(exc)
@@ -213,7 +215,9 @@ def dbdump_async(args,configfile=None,serial=1):
         #tasks = [run_command(dbtype,host,password,server,port,user,sem)]
         dbases = re.split('\n', str(databases))
         #print(dbases)
-        bbmain.logger.debug('All databases in host {0}, server {1}, port {2}, dbtype: {3}:\n{4}'.format(host, server, port, dbtype, databases)                    )               
+        bbmain.logger.debug('All databases in host {0}, server {1}, port {2}, dbtype: {3}:\n{4}'.format(host, server, port, dbtype, databases))
+        dump_databases = []
+        dump_structure_only_databases = []               
         for database in dbases:
             if database:
                 runtask = False
@@ -240,7 +244,10 @@ def dbdump_async(args,configfile=None,serial=1):
                 #print('Database: %s is %s' % (database,runtask))
                 if runtask:
                     try:
-                        bbmain.logger.info('Database {0} in host {1}, server {2}, port {3}, dbtype: {4} is mathed to dump'.format(database, host, server, port, dbtype))               
+                        bbmain.logger.debug('Database {0} in host {1}, server {2}, port {3}, dbtype: {4} is mathed to dump'.format(database, host, server, port, dbtype))
+                        dump_databases.append(database)
+                        errpath=args.dumperror
+                        if not os.path.exists(errpath): os.makedirs(errpath)                        
                         #tbloop = asyncio.get_event_loop()
                         #tbloop.close()
                         #tbtask = asyncio.ensure_future(get_tables(host,database,dtype))            
@@ -295,7 +302,8 @@ def dbdump_async(args,configfile=None,serial=1):
                         for structure_only_database in structure_only_databases:
                             if re.search(structure_only_database, database):
                                 #print('Include database pattern matched: %s, Database: %s' % (include_database,database))
-                                bbmain.logger.info('Structure_only_database pattern of {0} in host {1}, server {2}, port {3}, dbtype: {4} is mathed to dump'.format(database, host, server, port, dbtype))
+                                bbmain.logger.debug('Structure_only_database pattern of {0} in host {1}, server {2}, port {3}, dbtype: {4} is mathed to dump'.format(database, host, server, port, dbtype))
+                                dump_structure_only_databases.append(database)
                                 dumpstru = True
                                 break
                         if dumpstru:
@@ -304,6 +312,11 @@ def dbdump_async(args,configfile=None,serial=1):
                             taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' port=' + str(port) + ' database=' + database + ' all tables'
                             task.set_name(taskname)
                             tasks.append(task)
+        folderend=datetime.datetime.now().strftime('%y%m%d-%H%M')
+        with open('%s/%s-%s-%s-%s-dumped_dblist-%s.info' % (errpath,host,dbtype,server,port,folderend[0:11]), 'w') as f:
+            f.write('\n'.join(dump_databases))
+        with open('%s/%s-%s-%s-%s-stronly_dblist-%s.info' % (errpath,host,dbtype,server,port,folderend[0:11]), 'w') as f:
+            f.write('\n'.join(dump_structure_only_databases))
         try:
             #print(75*'-')
             #print(tasks)
