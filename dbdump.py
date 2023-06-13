@@ -112,10 +112,10 @@ def dbdump_async(args,configfile=None,serial=1):
                 for dumpcommand, mode in zip(dumpcommands, modes):
                     if database is None:
                         database = 'all'
-                    sqlpath='%s/%s/%s/%s/%s' % (args.dumpdestination,host,dbtype,server,database)
+                    sqlpath='%s/%s/%s/%s/%s/%s' % (args.dumpdestination,host,dbtype,server,port/database)
                     if not os.path.exists(sqlpath): os.makedirs(sqlpath)
                     #print(dumpcommand, mode)
-                    result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,database,mode), check=True)
+                    result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,port,database,mode), check=True)
                     results.append(result)
                     #print(database, result)
                     estatus = result.exit_status
@@ -207,13 +207,13 @@ def dbdump_async(args,configfile=None,serial=1):
         #            return modify_date.stdout
         task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem))
         task.add_done_callback(progress)
-        taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' all databases and all tables'
+        taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' port=' + port + ' all databases and all tables'
         task.set_name(taskname)
         tasks.append(task)           
         #tasks = [run_command(dbtype,host,password,server,port,user,sem)]
         dbases = re.split('\n', str(databases))
         #print(dbases)
-        bbmain.logger.debug('All databases in host {0}, server {1}, dbtype: {2}:\n{3}'.format(host, server, dbtype, databases)                    )               
+        bbmain.logger.debug('All databases in host {0}, server {1}, port {2}, dbtype: {3}:\n{4}'.format(host, server, port, dbtype, databases)                    )               
         for database in dbases:
             if database:
                 runtask = False
@@ -240,7 +240,7 @@ def dbdump_async(args,configfile=None,serial=1):
                 #print('Database: %s is %s' % (database,runtask))
                 if runtask:
                     try:
-                        bbmain.logger.debug('Database {0} in host {1}, server {2}, dbtype: {3} is mathed to dump'.format(databases, host, server, dbtype))               
+                        bbmain.logger.debug('Database {0} in host {1}, server {2}, port {3}, dbtype: {4} is mathed to dump'.format(databases, host, server, port, dbtype))               
                         #tbloop = asyncio.get_event_loop()
                         #tbloop.close()
                         #tbtask = asyncio.ensure_future(get_tables(host,database,dtype))            
@@ -270,7 +270,7 @@ def dbdump_async(args,configfile=None,serial=1):
                     #    tbloop.close()
                     task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem,database))
                     task.add_done_callback(progress)
-                    taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' database=' + database + ' all tables'
+                    taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' port=' + port + ' database=' + database + ' all tables'
                     task.set_name(taskname)
                     tasks.append(task)           
                     #tasks.extend([run_command(dbtype,host,password,server,port,user,sem,database)])
@@ -283,7 +283,7 @@ def dbdump_async(args,configfile=None,serial=1):
                             #else:
                             #    tmoddate = basedate
                             task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem,database,table))
-                            taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' database=' + database + ' table=' + table
+                            taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' port=' + port + ' database=' + database + ' table=' + table
                             task.set_name(taskname)
                             task.add_done_callback(progress)
                             tasks.append(task)           
@@ -301,7 +301,7 @@ def dbdump_async(args,configfile=None,serial=1):
                         if dumpstru:
                             task = asyncio.create_task(run_command(dbtype,host,password,server,port,user,sem,database))
                             task.add_done_callback(progress)
-                            taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' database=' + database + ' all tables'
+                            taskname='dbtype=' + dbtype + ' host=' + host + ' server=' + server + ' port=' + port + ' database=' + database + ' all tables'
                             task.set_name(taskname)
                             tasks.append(task)
         try:
@@ -309,7 +309,7 @@ def dbdump_async(args,configfile=None,serial=1):
             #print(tasks)
             #print(75*'-')
             #results = await asyncio.gather(*tasks, return_exceptions=True)
-            results = await tqdm.asyncio.tqdm_asyncio.gather(*tasks, colour="green", desc="The progress of dumps %s-%s-%s" % (host,server,dbtype), position=serial, leave=False)
+            results = await tqdm.asyncio.tqdm_asyncio.gather(*tasks, colour="green", desc="The progress of dumps %s-%s-%s-%s" % (host,server,port,dbtype), position=serial, leave=False)
             #aktresults = results
             #print(aktresults)
 
@@ -342,7 +342,7 @@ def dbdump_async(args,configfile=None,serial=1):
             for line in lines:
                 error_lines += line
             error_message = f"{exception_message} {exception_type} {filename}, Line {exception_traceback.tb_lineno}"  
-            print('Dbdump program failed: %s in host: %s in server %s with dbtype %s' % (error_message, host, server, dbtype))
+            print('Dbdump program failed: %s in host: %s in server %s in port %s with dbtype %s' % (error_message, host, server, port, dbtype))
 
     # Run our program until it is complete
     global dtype
