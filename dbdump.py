@@ -96,7 +96,7 @@ def dbdump_async(args,configfile=None,serial=1):
                             dumpcommands.append(dumpcommand)
                             modes.append('schema')
                         else:
-                            dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s --no-create-info --complete-insert --hex-blob %s %s" % (server, user, password, port, database,table)
+                            dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s --no-create-info --complete-insert --hex-blob %s %s | zstd -c -D /home/rbackup/dictionary" % (server, user, password, port, database,table)
                             dumpcommands.append(dumpcommand)
                             modes.append('data-%s' % table)
                     elif dbtype == 'postgres':
@@ -106,7 +106,7 @@ def dbdump_async(args,configfile=None,serial=1):
                             dumpcommands.append(dumpcommand)
                             modes.append('schema')
                         else:
-                            dumpcommand = "PGPASSWORD='%s' pg_dump -h %s -p %s -U %s -d %s --table='public.\"%s\"' --data-only --column-inserts --quote-all-identifiers" % (password, server, port, user, database,table)
+                            dumpcommand = "PGPASSWORD='%s' pg_dump -h %s -p %s -U %s -d %s --table='public.\"%s\"' --data-only --column-inserts --quote-all-identifiers | zstd -c -D /home/rbackup/dictionary" % (password, server, port, user, database,table)
                             bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                             dumpcommands.append(dumpcommand)
                             modes.append('data-%s' % table)
@@ -117,7 +117,10 @@ def dbdump_async(args,configfile=None,serial=1):
                     if not os.path.exists(sqlpath): os.makedirs(sqlpath)
                     #print(dumpcommand, mode)
                     folderend=datetime.datetime.now().strftime('%y%m%d-%H%M')
-                    result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,port,database,mode,folderend[0:11]), check=True)
+                    if '-' in mode:
+                        result = await conn.run(dumpcommand, stdout='%s/%s.sql.zst' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,port,database,mode,folderend[0:11]), check=True)
+                    else:
+                        result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,port,database,mode,folderend[0:11]), check=True)
                     results.append(result)
                     #print(database, result)
                     estatus = result.exit_status
