@@ -240,7 +240,7 @@ def dbdump_async(args,configfile=None,serial=1):
                 #print('Database: %s is %s' % (database,runtask))
                 if runtask:
                     try:
-                        bbmain.logger.debug('Database {0} in host {1}, server {2}, port {3}, dbtype: {4} is mathed to dump'.format(databases, host, server, port, dbtype))               
+                        bbmain.logger.info('Database {0} in host {1}, server {2}, port {3}, dbtype: {4} is mathed to dump'.format(database, host, server, port, dbtype))               
                         #tbloop = asyncio.get_event_loop()
                         #tbloop.close()
                         #tbtask = asyncio.ensure_future(get_tables(host,database,dtype))            
@@ -295,7 +295,7 @@ def dbdump_async(args,configfile=None,serial=1):
                         for structure_only_database in structure_only_databases:
                             if re.search(structure_only_database, database):
                                 #print('Include database pattern matched: %s, Database: %s' % (include_database,database))
-                                bbmain.logger.debug('Structure_only_database pattern matched: {0}, Database: {1}'.format(structure_only_database,database))
+                                bbmain.logger.info('Structure_only_database pattern of {0} in host {1}, server {2}, port {3}, dbtype: {4} is mathed to dump'.format(database, host, server, port, dbtype))
                                 dumpstru = True
                                 break
                         if dumpstru:
