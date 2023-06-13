@@ -1,4 +1,4 @@
-hostname: host1.example.com
+hostname: host1.example.com # There is an issue that at the moment you can give only one folder in customdata per yaml file in case of localhost.
 customdata: [/etc, /home]
 user: rbackup
 sshkey: /etc/bb/sshkeys/rbackup.oss
