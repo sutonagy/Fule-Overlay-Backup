@@ -23,7 +23,7 @@ def dbdump_async(args,configfile=None,serial=1):
         #if args.loglevel.upper() != 'DEBUG':
         #    print('*', end='')
     
-    async def run_client(host):
+    async def run_client(host,encoding='utf-8'):
         attempts = 0
         conn = None
         if args.sshattemptsmax:
@@ -39,7 +39,7 @@ def dbdump_async(args,configfile=None,serial=1):
         while attempts < attempts_max:      
             try:
                 conn = await asyncio.wait_for(asyncssh.connect(host, username='rbackup', client_keys=['/etc/bb/sshkeys/rbackup.oss'], known_hosts = None,
-                                                            keepalive_interval=600, keepalive_count_max=10000), timeout=timeout)
+                                                            keepalive_interval=600, keepalive_count_max=10000), timeout=timeout, encoding=encoding)
                 break
             except Exception as exc:
                 attempts += 1
@@ -69,7 +69,10 @@ def dbdump_async(args,configfile=None,serial=1):
         async with sem:
             try:
                 #print(host,server,port,database)
-                conn = await run_client(host)
+                if table is None:
+                    conn = await run_client(host)
+                else:
+                    conn = await run_client(host,encoding=None)
                 dumpcommands = []
                 modes = []
                 results = []
@@ -119,7 +122,7 @@ def dbdump_async(args,configfile=None,serial=1):
                     #print(dumpcommand, mode)
                     folderend=datetime.datetime.now().strftime('%y%m%d-%H%M')
                     if '-' in mode:
-                        result = await conn.run(dumpcommand, stdout='%s/%s.sql.zst' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,port,database,mode,folderend[0:11]), check=False)
+                        result = await conn.run(dumpcommand, stdout='%s/%s.sql.zst' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,port,database,mode,folderend[0:11]), check=True)
                     else:
                         result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,port,database,mode,folderend[0:11]), check=True)
                     results.append(result)
