@@ -119,7 +119,7 @@ def dbdump_async(args,configfile=None,serial=1):
                     #print(dumpcommand, mode)
                     folderend=datetime.datetime.now().strftime('%y%m%d-%H%M')
                     if '-' in mode:
-                        result = await conn.run(dumpcommand, stdout='%s/%s.sql.zst' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,port,database,mode,folderend[0:11]), check=True)
+                        result = await conn.run(dumpcommand, stdout='%s/%s.sql.zst' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,port,database,mode,folderend[0:11]), check=False)
                     else:
                         result = await conn.run(dumpcommand, stdout='%s/%s.sql' % (sqlpath,mode), stderr='%s/%s-%s-%s-%s-%s-%s-%s.err' % (errpath,host,dbtype,server,port,database,mode,folderend[0:11]), check=True)
                     results.append(result)
