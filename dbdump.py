@@ -398,4 +398,3 @@ def dbdump_async(args,configfile=None,serial=1):
         sys.exit('SSH dbdump connection failed: ' + str(exc))
     else:
         loop.close()
-
