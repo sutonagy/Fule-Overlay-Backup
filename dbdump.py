@@ -96,7 +96,7 @@ def dbdump_async(args,configfile=None,serial=1):
                             dumpcommands.append(dumpcommand)
                             modes.append('schema')
                         else:
-                            dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s --no-create-info --complete-insert --hex-blob %s %s | zstd -D /home/rbackup/dictionary" % (server, user, password, port, database,table)
+                            dumpcommand = "mysqldump -h %s --user=%s --password=%s --port=%s --no-create-info --complete-insert --hex-blob %s %s | zstd --rsyncable -D /home/rbackup/dictionary" % (server, user, password, port, database,table)
                             dumpcommands.append(dumpcommand)
                             modes.append('data-%s' % table)
                     elif dbtype == 'postgres':
@@ -106,7 +106,7 @@ def dbdump_async(args,configfile=None,serial=1):
                             dumpcommands.append(dumpcommand)
                             modes.append('schema')
                         else:
-                            dumpcommand = "PGPASSWORD='%s' pg_dump -h %s -p %s -U %s -d %s --table='public.\"%s\"' --data-only --column-inserts --quote-all-identifiers | zstd -D /home/rbackup/dictionary" % (password, server, port, user, database,table)
+                            dumpcommand = "PGPASSWORD='%s' pg_dump -h %s -p %s -U %s -d %s --table='public.\"%s\"' --data-only --column-inserts --quote-all-identifiers | zstd --rsyncable -D /home/rbackup/dictionary" % (password, server, port, user, database,table)
                             #bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                             dumpcommands.append(dumpcommand)
                             modes.append('data-%s' % table)
