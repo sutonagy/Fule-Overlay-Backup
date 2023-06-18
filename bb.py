@@ -655,11 +655,13 @@ def compose_command(flags, host, folderend):
             write_catalog(catalog_path, backup_id, 'type', 'Full')
         elif flags.mode == 'Incremental':
             last_bck = get_last_backup(catalog)
+            logger.debug('last_bck: {0}'.format(last_bck))
             if last_bck:
                 command.append('-ahu')
                 command.append('--links')
                 if not flags.sfrom:
                     command.append('--link-dest={0}'.format(last_bck[0]))
+                    logger.debug('--link-dest={0}'.format(last_bck[0]))
                 # Write catalog file
                 write_catalog(catalog_path, backup_id, 'type', 'Incremental')
             else:
@@ -670,11 +672,13 @@ def compose_command(flags, host, folderend):
                 write_catalog(catalog_path, backup_id, 'type', 'Full')
         elif flags.mode == 'Differential':
             last_full = get_last_full(catalog)
+            logger.debug('last_full: {0}'.format(last_full))
             if last_full:
                 command.append('-ahu')
                 command.append('--links')
                 if not flags.sfrom:
                     command.append('--link-dest={0}'.format(last_full[0]))
+                    logger.debug('--link-dest={0}'.format(last_full[0]))
                 # Write catalog file
                 write_catalog(catalog_path, backup_id, 'type', 'Differential')
             else:
