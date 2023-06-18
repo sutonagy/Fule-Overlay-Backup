@@ -986,6 +986,7 @@ def get_last_full(catalog):
             if last_full:
                 uty.print_verbose(args.verbose, 'Last full is {0}'.format(last_full))
                 for bid in config.sections():
+                    logger.debug('get_last_full type, name, timestamp: {0}, {1}, {2}'.format(config.get(bid, 'type'), config.get(bid, 'name'), config.get(bid, 'timestamp')))
                     if config.get(bid, 'type') == 'Full' and \
                             config.get(bid, 'name') == hostname and \
                             config.get(bid, 'timestamp') == last_full:
