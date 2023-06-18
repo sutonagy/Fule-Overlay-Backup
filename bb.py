@@ -962,14 +962,16 @@ def get_last_full(catalog):
     if config:
         dates = []
         for bid in config.sections():
+            logger.debug('get_last_full timestamp: {0}'.format(config.get(bid, 'timestamp')))
+            logger.debug('get_last_full timestamp_string: {0}'.format(uty.string_to_time(config.get(bid, 'timestamp'))))
             if config.has_option(bid, 'type') and config.has_option(bid, 'name'):
                 logger.debug('get_last_full hostname: {0}'.format(hostname))
                 if config.get(bid, 'type') == 'Full' \
                         and config.get(bid, 'name') == hostname \
                         and (not config.has_option(bid, 'cleaned') or not config.has_option(bid, 'archived')):
                     try:
-                        logger.debug('get_last_full timestamp: {0}'.format(config.get(bid, 'timestamp')))
-                        logger.debug('get_last_full timestamp_string: {0}'.format(uty.string_to_time(config.get(bid, 'timestamp'))))
+                        #logger.debug('get_last_full timestamp: {0}'.format(config.get(bid, 'timestamp')))
+                        #logger.debug('get_last_full timestamp_string: {0}'.format(uty.string_to_time(config.get(bid, 'timestamp'))))
                         dates.append(uty.string_to_time(config.get(bid, 'timestamp')))
                         logger.debug('get_last_full dates_try: {0}'.format(dates))
                     except configparser.NoOptionError:
