@@ -672,6 +672,7 @@ def compose_command(flags, host, folderend):
                 write_catalog(catalog_path, backup_id, 'type', 'Full')
         elif flags.mode == 'Differential':
             last_full = get_last_full(catalog)
+            exit(1)
             logger.debug('Differential last_full: {0}'.format(last_full))
             if last_full:
                 command.append('-ahu')
