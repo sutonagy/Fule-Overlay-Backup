@@ -987,10 +987,9 @@ def get_last_full(catalog):
                 uty.print_verbose(args.verbose, 'Last full is {0}'.format(last_full))
                 for bid in config.sections():
                     logger.debug('get_last_full type, name, timestamp: {0}, {1}, {2}'.format(config.get(bid, 'type'), config.get(bid, 'name'), config.get(bid, 'timestamp')))
-                    if config.get(bid, 'type') == 'Full' and \
-                            config.get(bid, 'name') == hostname and \
-                            config.get(bid, 'timestamp') == last_full:
-                        logger.debug('get_last_full path, os: {0}, {1}'.format(config.get(bid, 'path'), config.get(bid, 'os')))
+                    logger.debug('get_last_full hostname_if: {0}'.format(hostname))
+                    if config.get(bid, 'type') == 'Full' and config.get(bid, 'name') == hostname and config.get(bid, 'timestamp') == last_full:
+                        logger.debug('get_last_full path: {0}'.format(config.get(bid, 'path')))
                         #return config.get(bid, 'path'), config.get(bid, 'os')
                         return config.get(bid, 'path')
     else:
