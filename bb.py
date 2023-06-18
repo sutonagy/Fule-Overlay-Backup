@@ -671,8 +671,8 @@ def compose_command(flags, host, folderend):
                 # Write catalog file
                 write_catalog(catalog_path, backup_id, 'type', 'Full')
         elif flags.mode == 'Differential':
-            last_full, last_full_os = get_last_full(catalog)
-            logger.debug('Differential last_full, os: {0},{1}'.format(last_full, last_full_os))
+            last_full = get_last_full(catalog)
+            logger.debug('Differential last_full: {0}'.format(last_full))
             if last_full:
                 command.append('-ahu')
                 command.append('--links')
@@ -987,7 +987,8 @@ def get_last_full(catalog):
                             config.get(bid, 'name') == hostname and \
                             config.get(bid, 'timestamp') == last_full:
                         logger.debug('get_last_full path, os: {0}, {1}'.format(config.get(bid, 'path'), config.get(bid, 'os')))
-                        return config.get(bid, 'path'), config.get(bid, 'os')
+                        #return config.get(bid, 'path'), config.get(bid, 'os')
+                        return config.get(bid, 'path')
     else:
         return False
 
