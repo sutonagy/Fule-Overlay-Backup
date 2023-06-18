@@ -979,8 +979,6 @@ def get_last_full(catalog):
                             #"ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + PrintColor.END)
                         logger.error("ERROR: Corrupted catalog! No found timestamp in {0}".format(bid))
                         exit(2)
-            else:
-                return False
         logger.debug('get_last_full dates: {0}'.format(dates))
         if dates:
             last_full = uty.time_to_string(max(dates))
@@ -992,8 +990,10 @@ def get_last_full(catalog):
                     logger.debug('get_last_full hostname_if: {0}'.format(hostname))
                     if config.get(bid, 'type') == 'Full' and config.get(bid, 'name') == hostname and config.get(bid, 'timestamp') == last_full:
                         logger.debug('get_last_full path: {0}'.format(config.get(bid, 'path')))
-                        #return config.get(bid, 'path'), config.get(bid, 'os')
-                        return config.get(bid, 'path')
+                        return config.get(bid, 'path'), config.get(bid, 'os')
+                        #return config.get(bid, 'path')
+        else:
+            return False
     else:
         return False
 
@@ -1018,8 +1018,6 @@ def get_last_backup(catalog):
                             "ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + PrintColor.END)
                         logger.error("ERROR: Corrupted catalog! No found timestamp in {0}".format(bid))
                         exit(2)
-            else:
-                return False
         if dates:
             dates.sort()
             last = uty.time_to_string(dates[-1])
@@ -1027,6 +1025,8 @@ def get_last_backup(catalog):
                 for bid in config.sections():
                     if config.get(bid, 'name') == hostname and config.get(bid, 'timestamp') == last:
                         return config.get(bid, 'path'), config.get(bid, 'os')
+        else:
+            return False
     else:
         return False
 
