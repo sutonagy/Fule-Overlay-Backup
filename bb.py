@@ -963,11 +963,13 @@ def get_last_full(catalog):
         dates = []
         for bid in config.sections():
             if config.has_option(bid, 'type') and config.has_option(bid, 'name'):
+                logger.debug('get_last_full hostname: {0}'.format(hostname))
                 if config.get(bid, 'type') == 'Full' \
                         and config.get(bid, 'name') == hostname \
                         and (not config.has_option(bid, 'cleaned') or not config.has_option(bid, 'archived')):
                     try:
                         dates.append(uty.string_to_time(config.get(bid, 'timestamp')))
+                        logger.debug('get_last_full timestamp: {0}'.format(config.get(bid, 'timestamp')))
                     except configparser.NoOptionError:
                         #print(PrintColor.RED +
                             #"ERROR: Corrupted catalog! No found timestamp in {0}".format(bid) + PrintColor.END)
