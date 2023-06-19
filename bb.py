@@ -693,6 +693,7 @@ def compose_command(flags, host, folderend):
             # Write catalog file
             write_catalog(catalog_path, backup_id, 'type', 'Mirror')
         logger.debug('is_last_full in compose command: {0}'.format(is_last_full))
+        command.append('--partial')
         # Set verbosity
         if flags.verbose:
 #            command.append('-vP')
