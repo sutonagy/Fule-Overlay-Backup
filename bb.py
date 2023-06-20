@@ -2082,6 +2082,7 @@ if __name__ == '__main__':
                             processz.start()
                 for processz in processzek:
                     processz.join()
+        '''
         if args.backuptype in ['Pre', 'All']:
             if args.pconfigdir:
                 cmds = []
@@ -2101,7 +2102,7 @@ if __name__ == '__main__':
                             processz.start()
                 for processz in processzek:
                     processz.join()
-
+        '''
 
         #pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
         '''
