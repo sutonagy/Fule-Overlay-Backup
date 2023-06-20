@@ -66,6 +66,7 @@ import types
 import colorlog
 import logging
 import dbdump
+import prersync
 from multiprocessing import Pool
 #from utility import print_verbose
 from shutil import rmtree
@@ -713,12 +714,12 @@ def compose_command(flags, host, folderend):
         # Set ssh custom port
         if flags.port:
             if flags.sshkey:
-                command.append('-e "ssh -p {0} -o StrictHostKeyChecking=no -i {1} -l {2}"'.format(flags.port, flags.sshkey,flags.user))
+                command.append('-e "ssh -p {0} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {1} -l {2}"'.format(flags.port, flags.sshkey,flags.user))
             else:
-                command.append('-e "ssh -p {0} -o StrictHostKeyChecking=no -l {1}"'.format(flags.port,flags.user))
+                command.append('-e "ssh -p {0} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l {1}"'.format(flags.port,flags.user))
         else:
             if flags.sshkey:
-                command.append('-e "ssh -i {0} -o StrictHostKeyChecking=no -l {1}"'.format(flags.sshkey,flags.user))
+                command.append('-e "ssh -i {0} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l {1}"'.format(flags.sshkey,flags.user))
         # Set rsync custom port
         if flags.rport:
             command.append('--port={0}'.format(flags.rport))
@@ -2062,7 +2063,7 @@ if __name__ == '__main__':
             opt.update(args)
             args = types.SimpleNamespace(**opt)
             #print('Mainconfig: ',args)
-        if args.backuptype in ['Dump', 'Both']:
+        if args.backuptype in ['Dump', 'All']:
             if args.dconfigdir:
                 cmds = []
                 aktlogs = []
@@ -2081,6 +2082,25 @@ if __name__ == '__main__':
                             processz.start()
                 for processz in processzek:
                     processz.join()
+        if args.backuptype in ['Pre', 'All']:
+            if args.pconfigdir:
+                cmds = []
+                aktlogs = []
+                remotes = []
+                allonline = True
+                portmessages = []
+                processzek = []
+                for root, dirs, files in os.walk(args.pconfigdir):
+                    for i, file in enumerate(files,0):
+                        if file.endswith(args.pconfigext):
+                            print('Config: ',file)
+                            cfile=root+'/'+file
+                            logger.info('Dump configfile: {0}'.format(cfile)                    )               
+                            processz = multiprocessing.Process(target=prersync.prersync_async, args=(args,cfile,i))
+                            processzek.append(processz)
+                            processz.start()
+                for processz in processzek:
+                    processz.join()
 
 
         #pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
@@ -2093,7 +2113,7 @@ if __name__ == '__main__':
         #print('Loglevel: ',loglevel)
         #logger.basicConfig(level=loglevel, filename=pylogfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
 
-        if args.backuptype in ['Rsync', 'Both']:
+        if args.backuptype in ['Rsync', 'All']:
             uty.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
             endfolder = uty.time_for_folder(False)
             
