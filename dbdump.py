@@ -84,7 +84,7 @@ def dbdump_async(args,configfile=None,serial=1):
                         dumpcommands.append(dumpcommand)
                         modes.append('roles')
                     elif dbtype == 'postgres':                  
-                        dumpcommand = 'PGPASSWORD="%s" pg_dumpall -h %s -p %s -U %s --roles-only --quote-all-identifiers' % (password, server, port, user)
+                        dumpcommand = 'PGPASSWORD="%s" PGOPTIONS="--client-min-messages=error" pg_dumpall -h %s -p %s -U %s --roles-only --quote-all-identifiers' % (password, server, port, user)
                         bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                         dumpcommands.append(dumpcommand)
                         modes.append('roles')
@@ -101,12 +101,12 @@ def dbdump_async(args,configfile=None,serial=1):
                             modes.append('data-%s' % table)
                     elif dbtype == 'postgres':
                         if table is None:
-                            dumpcommand = 'PGPASSWORD="%s" pg_dump -h %s -p %s -U %s %s --schema-only --quote-all-identifiers' % (password, server, port, user, database)
+                            dumpcommand = 'PGPASSWORD="%s" PGOPTIONS="--client-min-messages=error" pg_dump -h %s -p %s -U %s %s --schema-only --quote-all-identifiers' % (password, server, port, user, database)
                             bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                             dumpcommands.append(dumpcommand)
                             modes.append('schema')
                         else:
-                            dumpcommand = "PGPASSWORD='%s' pg_dump -h %s -p %s -U %s -d %s --table='public.\"%s\"' --data-only --column-inserts --quote-all-identifiers | zstd --rsyncable -D /home/rbackup/dictionary" % (password, server, port, user, database,table)
+                            dumpcommand = "PGPASSWORD='%s' PGOPTIONS='--client-min-messages=error' pg_dump -h %s -p %s -U %s -d %s --table='public.\"%s\"' --data-only --column-inserts --quote-all-identifiers | zstd --rsyncable -D /home/rbackup/dictionary" % (password, server, port, user, database,table)
                             #bbmain.logger.debug('Dumpcommand: {0}.'.format(dumpcommand))
                             dumpcommands.append(dumpcommand)
                             modes.append('data-%s' % table)
@@ -158,7 +158,7 @@ def dbdump_async(args,configfile=None,serial=1):
                     databases = await conn.run("mysql -h %s --user=%s --password=%s --port=%s -N  -e 'show databases;' | grep -E '[a-z]'" % (server, user, password, port), check=True)
                     #databases = await conn.run("ls", check=True)
                 elif dtype == 'postgres':                  
-                    databases = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U %s -l -t -z | grep -E '^ [a-z]' | awk '{print $1}'" % (password, server, port, user), check=True)
+                    databases = await conn.run("PGPASSWORD='%s' PGOPTIONS='--client-min-messages=error' psql -h %s -p %s -U %s -l -t -z | grep -E '^ [a-z]' | awk '{print $1}'" % (password, server, port, user), check=True)
                 conn.close()
                 return databases.stdout
         try:
@@ -197,7 +197,7 @@ def dbdump_async(args,configfile=None,serial=1):
                     conn.close()
                     return tout, tnumber 
                 elif dtype == 'postgres':                  
-                    tables = await conn.run("PGPASSWORD='%s' psql -h %s -p %s -U %s -d %s -c '\dt' | grep -E '^ [a-z]' | awk '{print $3}'" % (password, server, port, user, database), check=True)
+                    tables = await conn.run("PGPASSWORD='%s' PGOPTIONS='--client-min-messages=error' psql -h %s -p %s -U %s -d %s -c '\dt' | grep -E '^ [a-z]' | awk '{print $3}'" % (password, server, port, user, database), check=True)
                     conn.close()
                     return tables.stdout
         #async def get_table_last_modification(host,database,dtype,table):

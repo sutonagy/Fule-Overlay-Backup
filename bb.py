@@ -714,12 +714,12 @@ def compose_command(flags, host, folderend):
         # Set ssh custom port
         if flags.port:
             if flags.sshkey:
-                command.append('-e "ssh -p {0} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {1} -l {2}"'.format(flags.port, flags.sshkey,flags.user))
+                command.append('-e "ssh -p {0} -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i {1} -l {2}"'.format(flags.port, flags.sshkey,flags.user))
             else:
-                command.append('-e "ssh -p {0} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l {1}"'.format(flags.port,flags.user))
+                command.append('-e "ssh -p {0} -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l {1}"'.format(flags.port,flags.user))
         else:
             if flags.sshkey:
-                command.append('-e "ssh -i {0} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l {1}"'.format(flags.sshkey,flags.user))
+                command.append('-e "ssh -i {0} -o LogLevel=ERROR -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l {1}"'.format(flags.sshkey,flags.user))
         # Set rsync custom port
         if flags.rport:
             command.append('--port={0}'.format(flags.rport))
@@ -951,6 +951,8 @@ def compose_destination(computer_name, folder, is_last_full, folderend=None):
     logger.debug('is_last_full in compose destination: {0}'.format(is_last_full))
     write_catalog(catalog_path, backup_id, 'path', second_layer)
     uty.print_verbose(args.verbose, 'Destination is {0}'.format(second_layer))
+    second_layer = os.path.join(second_layer, "") # Add slash to the end of the path
+    logger.debug('Second layer with slash in compose destination return: {0}'.format(second_layer))
     return second_layer, folderend
 
 
