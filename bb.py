@@ -650,7 +650,7 @@ def compose_command(flags, host, folderend):
         # Set mode option
         if flags.mode == 'Full':
             is_last_full = True
-            command.append('-ahr')
+            command.append('-ahR')
             command.append('--links')
             # Write catalog file
             write_catalog(catalog_path, backup_id, 'type', 'Full')
@@ -658,7 +658,7 @@ def compose_command(flags, host, folderend):
             last_bck = get_last_backup(catalog)
             logger.debug('last_bck: {0}'.format(last_bck))
             if last_bck:
-                command.append('-ahru')
+                command.append('-ahRu')
                 command.append('--links')
                 if not flags.sfrom:
                     command.append('--link-dest={0}'.format(last_bck[0]))
@@ -667,7 +667,7 @@ def compose_command(flags, host, folderend):
                 write_catalog(catalog_path, backup_id, 'type', 'Incremental')
             else:
                 is_last_full = True
-                command.append('-ahr')
+                command.append('-ahR')
                 command.append('--links')
                 # Write catalog file
                 write_catalog(catalog_path, backup_id, 'type', 'Full')
@@ -675,7 +675,7 @@ def compose_command(flags, host, folderend):
             last_full = get_last_full(catalog)
             logger.debug('Differential last_full: {0}'.format(last_full))
             if last_full:
-                command.append('-ahru')
+                command.append('-ahRu')
                 command.append('--links')
                 if not flags.sfrom:
                     command.append('--link-dest={0}'.format(last_full[0]))
@@ -684,12 +684,12 @@ def compose_command(flags, host, folderend):
                 write_catalog(catalog_path, backup_id, 'type', 'Differential')
             else:
                 is_last_full = True
-                command.append('-ahr')
+                command.append('-ahR')
                 command.append('--links')
                 # Write catalog file
                 write_catalog(catalog_path, backup_id, 'type', 'Full')
         elif flags.mode == 'Mirror':
-            command.append('-ahr')
+            command.append('-ahR')
             command.append('--delete')
             # Write catalog file
             write_catalog(catalog_path, backup_id, 'type', 'Mirror')
