@@ -486,7 +486,7 @@ def run_in_parallel(fn, commands, limit, aktdate=''):
     rsyncerror = False
     rswarning = False
     for p, command, plog, remote in zip(jobs, commands, aktlogs, remotes):
-        if p.get() != 0:
+        if p.get() != 0 and p.get() != 24:
             #print(PrintColor.RED + 'ERROR: Command {0} exit with code: {1}'.format(command, p.get()) +
                   #PrintColor.END)
             logger.error('Command {0} exit with code: {1}'.format(command, p.get()))
@@ -509,11 +509,13 @@ def run_in_parallel(fn, commands, limit, aktdate=''):
             if os.path.getsize(errfile) != 0:
                 rmessage = 'Command {0} exit with code: {1}'.format(command, p.get()) + '\n' + Path(errfile).read_text()
                 rmessages.append(rmessage)
-                if p.get() == 24:
-                    rswarning = True
-                else:
-                    rsyncerror = True                
+                rsyncerror = True                
         else:
+            if p.get() == 24:
+                rmessages.append(rmessage)
+                rswarning = True
+                logger.warning('Warning: Command {0} end with warning: {1}'.format(command,rmessage))
+                logger.warning('Finish process {0} on {1} with warning: {2}'.format(args.action, plog['hostname'], rmessage))
             #print(PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + PrintColor.END)
             logger.info('SUCCESS: Command {0}'.format(command))
             uty.write_log(log_args['status'], plog['destination'], 'INFO',
