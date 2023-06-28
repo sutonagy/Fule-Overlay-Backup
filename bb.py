@@ -484,6 +484,7 @@ def run_in_parallel(fn, commands, limit, aktdate=''):
     # Check exit code of command
     rmessages=[]
     rsyncerror = False
+    rswarning = False
     for p, command, plog, remote in zip(jobs, commands, aktlogs, remotes):
         if p.get() != 0:
             #print(PrintColor.RED + 'ERROR: Command {0} exit with code: {1}'.format(command, p.get()) +
@@ -508,7 +509,10 @@ def run_in_parallel(fn, commands, limit, aktdate=''):
             if os.path.getsize(errfile) != 0:
                 rmessage = 'Command {0} exit with code: {1}'.format(command, p.get()) + '\n' + Path(errfile).read_text()
                 rmessages.append(rmessage)
-                rsyncerror = True                
+                if p.get() == 24:
+                    rswarning = True
+                else:
+                    rsyncerror = True                
         else:
             #print(PrintColor.GREEN + 'SUCCESS: Command {0}'.format(command) + PrintColor.END)
             logger.info('SUCCESS: Command {0}'.format(command))
@@ -528,7 +532,7 @@ def run_in_parallel(fn, commands, limit, aktdate=''):
     # Safely terminate the pool
     pool.close()
     pool.join()
-    return rsyncerror, rmessages
+    return rsyncerror, rmessages, rswarning
     
 
 
@@ -2159,7 +2163,7 @@ if __name__ == '__main__':
                 #print('Vege: ',args)
                 #exit(0)
                 #print('is_last_full in main: ',is_last_full)
-                rserror, rsmessages = run_in_parallel(start_process, cmds, 8, endfolder[0:11])
+                rserror, rsmessages, rswarning = run_in_parallel(start_process, cmds, 8, endfolder[0:11])
                 #ogger.debug('is_last_full in main: {0}'.format(is_last_full))
                 if args.delold and allonline and not rserror:
                     #regiek torlese
@@ -2258,8 +2262,14 @@ if __name__ == '__main__':
                 from functools import reduce
                 runmessages=portmessages+rsmessages
                 runmessage = str(reduce(lambda x,y: x+"\n"+y, runmessages))
-                raise RunError(runmessage)                                                                    
-            tmessage = 'Backup ' + endfolder[0:11] + ' OK'                                                                    
+                raise RunError(runmessage)
+            elif rswarning:
+                from functools import reduce
+                runmessages=rsmessages
+                runmessage = str(reduce(lambda x,y: x+"\n"+y, runmessages))
+                tmessage = 'Backup ' + endfolder[0:11] + ' end with warning: ' + runmessage                                                                    
+            else:
+                tmessage = 'Backup ' + endfolder[0:11] + ' OK'                                                                    
             uty.send_telegram_message(tmessage)
         #delete empty logs
         def remove_empty_logs(path):
