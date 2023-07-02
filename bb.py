@@ -512,6 +512,7 @@ def run_in_parallel(fn, commands, limit, aktdate=''):
                 rsyncerror = True                
         else:
             if p.get() == 24:
+                rmessage = 'Command {0} exit with code: {1}'.format(command, p.get()) + '\n' + Path(errfile).read_text()
                 rmessages.append(rmessage)
                 rswarning = True
                 logger.warning('Warning: Command {0} end with warning: {1}'.format(command,rmessage))
