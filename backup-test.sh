@@ -5,8 +5,8 @@ rm -rf /backup/dump/
 rm -rf /backup/dumperror/
 mkdir -p /backup/rsynclog
 mkdir -p /backup/rsync
-cd Fule-Butterfly-Backup
-git pull https://github.com/sutonagy/Fule-Butterfly-Backup.git
+cd Fule-Overlay-Backup
+git pull https://github.com/sutonagy/Fule-Overlay-Backup.git
 start=`date +%s`
 #python3 bb.py -M /etc/bb/bb.yaml -K 2304011307
 #python3 bb.py -M /etc/bb/bb.yaml -K 2304021308

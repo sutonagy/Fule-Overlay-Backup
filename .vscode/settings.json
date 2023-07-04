@@ -1,0 +1,39 @@
+{
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#ffffff",
+        "activityBar.background": "#ffffff",
+        "activityBar.foreground": "#15202b",
+        "activityBar.inactiveForeground": "#15202b99",
+        "activityBarBadge.background": "#df9f9f",
+        "activityBarBadge.foreground": "#15202b",
+        "commandCenter.border": "#15202b99",
+        "sash.hoverBorder": "#ffffff",
+        "statusBar.background": "#ffe5cc",
+        "statusBar.foreground": "#15202b",
+        "statusBarItem.hoverBackground": "#ffcb99",
+        "statusBarItem.remoteBackground": "#ffe5cc",
+        "statusBarItem.remoteForeground": "#15202b",
+        "titleBar.activeBackground": "#ffe5cc",
+        "titleBar.activeForeground": "#15202b",
+        "titleBar.inactiveBackground": "#ffe5cc99",
+        "titleBar.inactiveForeground": "#15202b99"
+    },
+    "peacock.color": "#ffe5cc",
+    "auto-version-increment.git.commit": "v{version}",
+    "auto-version-increment.info.notificationBar": true,
+    "auto-version-increment.update.versionRules": true,
+    "auto-version-increment.version.file": [
+
+
+        {
+            "path": "ovbck.py",
+            "prefix": "1",
+            "sufix": "01",
+            "primary": true,
+            "useWorkspacePath": true
+        }
+    ],
+    "auto-version-increment.update.onSave": "Build Number",
+    "auto-version-increment.info.statusBar": true,
+    "auto-version-increment.git.method": "Terminal"
+}

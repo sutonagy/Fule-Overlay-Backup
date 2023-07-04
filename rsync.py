@@ -10,7 +10,7 @@ import tqdm.asyncio
 import bb as bbmain
  
 
-def prersync_async(args,configfile=None,serial=1):
+def rsync_async(args,configfile=None,serial=1):
     import asyncio, asyncssh, sys, nest_asyncio
     nest_asyncio.apply()
     #basedate = datetime.strptime(args.basedate, '%Y-%m-%d %H:%M:%S')
