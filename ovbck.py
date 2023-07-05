@@ -66,16 +66,19 @@ import subprocess
 import traceback
 import sys
 import os
+import requests
 from functions import logger, parse_arguments, print_version, single_action, logger_init, run_in_parallel, start_process, delete_backup, RunError
 
 
 
 if __name__ == '__main__':
     logger, loglevel = logger_init('fule-ovbck')
-    version = '1.23.07.01'
+    response = requests.get("https://api.github.com/repos/sutonagy/Fule-Overlay-Backup/releases/latest")
+    version = response.json()["name"]
     endfolder = ''
     logger.info('Eleje')
     logger.info('Loglevel: {0}'.format(logging.getLevelName(loglevel)))
+    logger.info('Version: {0}'.format(version))
     #print('Loglevel: {0}'.format(loglevel))
     global std, datetime_spec
     try:
@@ -113,37 +116,6 @@ if __name__ == '__main__':
                             processz.start()
                 for processz in processzek:
                     processz.join()
-        '''
-        if args.backuptype in ['Pre', 'All']:
-            if args.pconfigdir:
-                cmds = []
-                aktlogs = []
-                remotes = []
-                allonline = True
-                portmessages = []
-                processzek = []
-                for root, dirs, files in os.walk(args.pconfigdir):
-                    for i, file in enumerate(files,0):
-                        if file.endswith(args.pconfigext):
-                            print('Config: ',file)
-                            cfile=root+'/'+file
-                            logger.info('Dump configfile: {0}'.format(cfile)                    )               
-                            processz = multiprocessing.Process(target=prersync.prersync_async, args=(args,cfile,i))
-                            processzek.append(processz)
-                            processz.start()
-                for processz in processzek:
-                    processz.join()
-        '''
-
-        #pylogfile = args.logfile if args.logfile else args.destination + '/' + 'fule-butterfly-backup.log'
-        '''
-        if args.loglevel:
-            loglevel = args.loglevel.upper()
-        else:
-            loglevel = logger.DEBUG if args.verbose else logger.INFO
-        '''
-        #print('Loglevel: ',loglevel)
-        #logger.basicConfig(level=loglevel, filename=pylogfile, format='%(asctime)s %(filename)s %(funcName)s %(lineno)d %(levelname)s: %(message)s')
 
         if args.backuptype in ['Rsync', 'All']:
             uty.datetime_spec=datetime.datetime.strptime(args.datetime, '%y%m%d%H%M') if args.datetime else None
@@ -182,107 +154,7 @@ if __name__ == '__main__':
             #print('Vege remotes: ',remotes)
             #print('Vege: ',args)
             if cmds:
-                #print('Vege cmds: ',cmds)
-                #print('Vege logs: ',logs)
-                #print('Vege remotes: ',remotes)
-                #print('Vege: ',args)
-                #exit(0)
-                #print('is_last_full in main: ',is_last_full)
                 rserror, rsmessages, rswarning = run_in_parallel(start_process, cmds, 8, endfolder[0:11])
-                #ogger.debug('is_last_full in main: {0}'.format(is_last_full))
-                if args.delold and allonline and not rserror:
-                    #regiek torlese
-                    dirnap = endfolder[12]
-                    #print('Dirnap: ',dirnap)
-                    logger.debug('Dirnap: {0}'.format(dirnap))
-                    if (dirnap != 'd') and args.delold:
-                        if dirnap == 'w':
-                            torlonap = 'd'
-                        elif dirnap == 'm':
-                            torlonap = 'w'
-                        elif dirnap == 'y':
-                            torlonap = 'm'
-                        else:
-                            torlonap = ''
-                        if args.mainconfig:
-                            opt = vars(args)
-                            args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
-                            opt.update(args)
-                            args = types.SimpleNamespace(**opt)
-                            #print('Args.configdir: ',args.configdir)
-                            logger.debug('Args.configdir: {0}'.format(args.configdir))
-                            if args.configdir:
-                                for root, dirs, files in os.walk(args.configdir):
-                                    for file in files:
-                                        if file.endswith(args.configext):
-                                            cfile=root+'/'+file
-                                            #print('Dirconfig: ',cfile)
-                                            logger.debug('Dirconfig: {0}'.format(cfile))
-                                            opt = vars(args)
-                                            args = yaml.load(open(args.mainconfig), Loader=yaml.FullLoader)
-                                            opt.update(args)
-                                            args = types.SimpleNamespace(**opt)                                        
-                                            opt = vars(args)
-                                            args = yaml.load(open(cfile), Loader=yaml.FullLoader)
-                                            opt.update(args)
-                                            args = types.SimpleNamespace(**opt)
-                                            if args.hostpart:
-                                                hostname=args.hostname+'-'+args.hostpart
-                                            else:
-                                                hostname=args.hostname
-                                            mentodir = args.destination + '/' + hostname
-                                            #print('Mentodir: ',mentodir)
-                                            logger.debug('Mentodir: {0}'.format(mentodir))
-                                            remote=file.partition('.')[0]
-                                            #print('Remote: ',remote)
-                                            logger.debug('Remote: {0}'.format(remote))
-                                            second_dir = {}
-                                            for root2, dirs2, files2 in os.walk(mentodir):
-                                                if root2 == mentodir:
-                                                    dirs2.sort(reverse=True)
-                                                    dirnum = 0
-                                                    for dir in dirs2:
-                                                        #print('Dir: ',dir)
-                                                        logger.debug('Dir: {0}'.format(dir))                                      
-                                                        if dir.rfind(dirnap) != -1:
-                                                            #print('Dirkezdo: ',dir)
-                                                            logger.debug('Dirkezdo: {0}'.format(dir))
-                                                            dirnum += 1
-                                                            if dirnum == 2:
-                                                                second_dir[dirnap] = dir
-                                                                #print('Second dir: ',second_dir[dirnap])
-                                                                logger.debug('Second dir: {0}'.format(second_dir[dirnap]))
-                                                                dirs2.sort(reverse=False)
-                                                                for dir in dirs2:
-                                                                    #print('Dir2: ',dir)
-                                                                    logger.debug('Dir2: {0}'.format(dir))              
-                                                                    if (dir.rfind(torlonap) != -1) and (dir <= second_dir[dirnap]):
-                                                                        #print('Dirtorlo: ',dir)
-                                                                        logger.debug('Dirtorlo: {0}'.format(dir))
-                                                                        forras1 = mentodir + '/' + dir
-                                                                        #print('Forras1: ',forras1)
-                                                                        logger.debug('Forras1: {0}'.format(forras1))
-                                                                        forras = mentodir + '/' + dir
-                                                                        #print('Forras: ',forras)
-                                                                        logger.debug('Forras: {0}'.format(forras))
-                                                                        cel = mentodir + '/' + second_dir[dirnap] + '/'
-                                                                        #print('Cel: ',cel)
-                                                                        logger.debug('Cel: {0}'.format(cel))
-                                                                        p=subprocess.run(['cp','-aurfT',forras,cel])
-                                                                        #print('cp result: ',p)
-                                                                        logger.debug('cp result: {0}'.format(str(p)))
-                                                                        #shutil.copytree(forras, cel, ignore_dangling_symlinks=True, dirs_exist_ok=True)
-                                                                        catalog_path = args.destination + '/' + '.catalog.cfg'
-                                                                        delete_backup(catalog_path, forras1)
-                                                                        akthost = os.path.basename(os.path.normpath(mentodir))
-                                                                        logfile=args.logdirectory+remote+'-'+dir[:-2]+'.log'
-                                                                        #print('Logfile: ',logfile)
-                                                                        logger.debug('Logfile: {0}'.format(logfile))
-                                                                        os.remove(logfile) if os.path.getsize(logfile) == 0 else None
-                                                                        errfile=args.logdirectory+remote+'-error-'+dir[:-2]+'.log'
-                                                                        #print('Errfile: ',errfile)
-                                                                        logger.debug('Errfile: {0}'.format(errfile))
-                                                                        os.remove(errfile) if os.path.getsize(errfile) == 0 else None
             if rserror or not allonline:
                 from functools import reduce
                 runmessages=portmessages+rsmessages

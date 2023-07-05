@@ -103,45 +103,6 @@ def find_replace(filename, text_to_search, replacement_text):
             print(line.replace(text_to_search, replacement_text), end='')
 
 
-def write_log(status, log, level, message):
-    return
-    """
-    Write custom log in a custom path
-    :param status: if True, log to file
-    :param log: path of log file
-    :param level: level of log message
-    :param message: message of log
-    """
-    '''
-    # Check if status is True
-    if status:
-
-        import logging
-        import getpass
-
-        # Create logging object
-        f_o_r_m_a_t = logging.Formatter('%(asctime)s %(name)-4s %(levelname)-4s %(message)s')
-        handler = logging.FileHandler(log)
-        handler.setFormatter(f_o_r_m_a_t)
-        logger = logging.getLogger(getpass.getuser())
-        logger.setLevel(logging.INFO)
-        logger.addHandler(handler)
-
-        # Check log level
-        if level == "INFO":
-            logger.info(message)
-        elif level == "WARNING":
-            logger.warning(message)
-        elif level == "ERROR":
-            logger.error(message)
-        elif level == "CRITICAL":
-            logger.critical(message)
-
-        # Remove handler
-        logger.removeHandler(handler)
-    '''
-
-
 def make_dir(directory):
     """
     Create a folder
@@ -282,16 +243,6 @@ def confirm(message):
     return answer == "y"
 
 
-def print_verbose(verbose_status, message):
-    """
-    Print verbose information
-    :return: Verbose message if verbose status is True
-    :rtype: str
-    """
-    if verbose_status:
-        print('INFO: {0}'.format(message))
-
-
 def check_tool(name):
     """
     Check tool is installed
@@ -382,29 +333,9 @@ def archive(path, date, days, destination):
                     name = os.path.basename(path)
                     shutil.make_archive(name, 'zip', archive_from, archive_to)
                     exitcode = 0
-                    clean = cleanup(path, date, days)
-                    if clean == 0:
-                        print(PrintColor.GREEN + 'SUCCESS: Delete {0} successfully.'.format(path) +
-                              PrintColor.END)
-                    elif clean != 0:
-                        print(PrintColor.RED + 'ERROR: Delete {0} failed.'.format(path) +
-                              PrintColor.END)
                     return exitcode
                 except OSError:
                     exitcode = 1
                     return exitcode
-            else:
-                print(PrintColor.RED + "ERROR: The destination path {0} is not exist.".format(destination) +
-                      PrintColor.END)
         else:
             print(PrintColor.RED + "ERROR: The path {0} is not exist.".format(path) + PrintColor.END)
-
-
-def pager(text):
-    """
-    Pagination function like less
-    :param text: text than would see with pagination
-    :return: docstring
-    """
-    import pydoc
-    pydoc.pager(text)
